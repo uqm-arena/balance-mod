@@ -49,7 +49,7 @@
 
 // Respawn
 #define INITIAL_RESPAWN_CHANCE 80
-#define RESPAWN_CHANCE_DECREMENT 15
+#define RESPAWN_CHANCE_DECREMENT 18
 
 static RACE_DESC pkunk_desc =
 {
