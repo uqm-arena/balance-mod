@@ -146,8 +146,8 @@ fragment_collision (ELEMENT *ElementPtr0, POINT *pPt0, ELEMENT *ElementPtr1, POI
 	GetElementStarShip (ElementPtr1, &OtherShipPtr);
 	
 	if (OtherShipPtr && OtherShipPtr->SpeciesID == CHENJESU_ID
-		&& (ElementPtr0->state_flags & (GOOD_GUY | BAD_GUY))
-			== (ElementPtr1->state_flags & (GOOD_GUY | BAD_GUY))
+		&& (ElementPtr0->playerNr)
+			== (ElementPtr1->playerNr)
 		&& ElementPtr1->mass_points == 4)
 	{
 		ElementPtr0->mass_points = 0;
