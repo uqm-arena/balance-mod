@@ -190,7 +190,7 @@ extern PRIMITIVE DisplayArray[MAX_DISPLAY_PRIMS];
 #define MAX_CREW_SIZE 42
 #define MAX_ENERGY_SIZE 42
 #define MAX_SHIP_MASS 10
-#define GRAVITY_MASS(m) ((m) > MAX_SHIP_MASS * 10)
+#define GRAVITY_MASS(m) ((m) > MAX_SHIP_MASS * 12)
 #define GRAVITY_THRESHOLD (COUNT)255
 
 #define OBJECT_CLOAKED(eptr) \

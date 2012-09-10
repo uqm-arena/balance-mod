@@ -413,6 +413,13 @@ spawn_ship (STARSHIP *StarShipPtr)
 		if (RDPtr->ship_info.crew_level > RDPtr->ship_info.max_crew)
 			RDPtr->ship_info.crew_level = RDPtr->ship_info.max_crew;
 	}
+#ifndef SUPER_MELEE_RETREAT_BANNED
+	else {
+		RDPtr->ship_info.crew_level = StarShipPtr->last_crew_level;
+		if (RDPtr->ship_info.crew_level > RDPtr->ship_info.max_crew || !RDPtr->ship_info.crew_level)
+			RDPtr->ship_info.crew_level = RDPtr->ship_info.max_crew;
+	}
+#endif
 
 	StarShipPtr->energy_counter = 0;
 	StarShipPtr->weapon_counter = 0;

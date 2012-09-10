@@ -265,6 +265,11 @@ struct STARSHIP
 			// In battle: frames left before special can be used
 	BYTE energy_counter;
 			// In battle: frames left before energy regeneration
+	BYTE last_crew_level;
+			/* 
+			 * Added by the supermelee warpout patch, apparently used
+			 * to save the the ships crew level between warpouts
+			 */
     BYTE auxiliary_counter;
     BYTE static_counter;
     

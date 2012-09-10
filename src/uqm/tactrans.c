@@ -907,6 +907,11 @@ ship_transition (ELEMENT *ElementPtr)
 				ShipImagePtr->current.location.y =
 						WRAP_Y (ShipImagePtr->current.location.y);
 			}
+#ifndef SUPER_MELEE_RETREAT_BANNED
+			RACE_DESC * RDPtr;
+			RDPtr = StarShipPtr->RaceDescPtr;
+			StarShipPtr->last_crew_level=RDPtr->ship_info.crew_level;
+#endif
 			ShipImagePtr->preprocess_func = ship_transition;
 			ShipImagePtr->death_func = cycle_ion_trail;
 			SetElementStarShip (ShipImagePtr, StarShipPtr);

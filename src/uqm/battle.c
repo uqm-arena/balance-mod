@@ -62,10 +62,14 @@ BattleFrameCounter battleFrameCount;
 static BOOLEAN
 RunAwayAllowed (void)
 {
+#ifdef SUPER_MELEE_RETREAT_BANNED
 	return (LOBYTE (GLOBAL (CurrentActivity)) == IN_ENCOUNTER
 			|| LOBYTE (GLOBAL (CurrentActivity)) == IN_LAST_BATTLE)
 			&& GET_GAME_STATE (STARBASE_AVAILABLE)
 			&& !GET_GAME_STATE (BOMB_CARRIER);
+#else
+	return 1;
+#endif
 }
 
 static void
@@ -80,6 +84,9 @@ DoRunAway (STARSHIP *StarShipPtr)
 			&& ElementPtr->mass_points != MAX_SHIP_MASS * 10
 			&& !(ElementPtr->state_flags & APPEARING))
 	{
+#ifndef SUPER_MELEE_RETREAT_BANNED
+		if(LOBYTE (GLOBAL (CurrentActivity)) != SUPER_MELEE)
+#endif
 		battle_counter[0]--;
 
 		ElementPtr->turn_wait = 3;
@@ -208,8 +215,7 @@ ProcessInput (void)
 					if (InputState & BATTLE_SPECIAL)
 						StarShipPtr->ship_input_state |= SPECIAL;
 
-					if (CanRunAway && cur_player == 0 &&
-							(InputState & BATTLE_ESCAPE))
+					if (CanRunAway && (InputState & BATTLE_ESCAPE))
 						DoRunAway (StarShipPtr);
 				}
 			}
