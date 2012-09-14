@@ -502,8 +502,11 @@ new_ship (ELEMENT *DeadShipPtr)
 		if (!FleetIsInfinite (DeadStarShipPtr->playerNr))
 		{	// This may be a dead ship (crew_level == 0) or a warped out ship
 			UpdateShipFragCrew (DeadStarShipPtr);
-			// Deactivate the ship (cannot be selected)
-			DeadStarShipPtr->SpeciesID = NO_ID;
+			// Allow selecting a ship only if it hasn't just retreat
+			if(!DeadStarShipPtr->state_flee || (LOBYTE (GLOBAL (CurrentActivity)) != SUPER_MELEE)) {
+				// Deactivate the ship (cannot be selected)
+				DeadStarShipPtr->SpeciesID = NO_ID;
+			}
 		}
 
 		if (GetNextStarShip (DeadStarShipPtr, DeadStarShipPtr->playerNr))
