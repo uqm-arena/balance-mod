@@ -424,8 +424,9 @@ spawn_ship (STARSHIP *StarShipPtr)
 	StarShipPtr->energy_counter = 0;
 	StarShipPtr->weapon_counter = 0;
 	StarShipPtr->special_counter = 0;
-    StarShipPtr->auxiliary_counter = 0;
-    StarShipPtr->static_counter = 0;
+	StarShipPtr->auxiliary_counter = 0;
+	StarShipPtr->static_counter = 0;
+	StarShipPtr->state_flee = FALSE;
 
 	hShip = StarShipPtr->hShip;
 	if (hShip == 0)

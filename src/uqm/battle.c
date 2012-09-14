@@ -78,6 +78,8 @@ DoRunAway (STARSHIP *StarShipPtr)
 	ELEMENT *ElementPtr;
 
 	LockElement (StarShipPtr->hShip, &ElementPtr);
+	StarShipPtr->state_flee = TRUE;
+	
 	if (GetPrimType (&DisplayArray[ElementPtr->PrimIndex]) == STAMP_PRIM
 			&& ElementPtr->life_span == NORMAL_LIFE
 			&& !(ElementPtr->state_flags & FINITE_LIFE)

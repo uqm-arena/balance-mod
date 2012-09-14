@@ -285,8 +285,10 @@ intercept_pkunk_death (ELEMENT *ElementPtr)
 			StarShipPtr->RaceDescPtr->init_weapon_func =
 					(COUNT (*) (ELEMENT *ElementPtr, HELEMENT Weapon[]))
 							ShipPtr->death_func;
-
-			ElementPtr->death_func = new_pkunk;
+							
+			/* Make sure we're not attempting to flee */
+			if (!StarShipPtr->state_flee)
+				ElementPtr->death_func = new_pkunk;
 		}
 		UnlockElement (StarShipPtr->hShip);
 	}

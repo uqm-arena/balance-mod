@@ -270,6 +270,12 @@ struct STARSHIP
 			 * Added by the supermelee warpout patch, apparently used
 			 * to save the the ships crew level between warpouts
 			 */
+	BYTE state_flee;
+			/*
+			 * This is added by the warpout patch so a ship can know if
+			 * it's warping out. Currently used only by Pkunk to prevent
+			 * respawning while attempting to retreat.
+			 */
     BYTE auxiliary_counter;
     BYTE static_counter;
     
