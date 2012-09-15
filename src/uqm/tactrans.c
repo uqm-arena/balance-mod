@@ -503,11 +503,13 @@ new_ship (ELEMENT *DeadShipPtr)
 		{	// This may be a dead ship (crew_level == 0) or a warped out ship
 			UpdateShipFragCrew (DeadStarShipPtr);
 
-			// Deactivate the ship (cannot be selected)
 #ifdef SUPER_MELEE_RETREAT_BANNED
+			// Deactivate the ship (cannot be selected)
 			DeadStarShipPtr->SpeciesID = NO_ID;
 #else /* SUPER_MELEE_RETREAT_BANNED */
-			if(!DeadStarShipPtr->state_flee || (LOBYTE (GLOBAL (CurrentActivity)) != SUPER_MELEE)) {
+			// Do not deactivate fleeing ships if in Supermelee
+			if(!DeadStarShipPtr->state_flee || (LOBYTE (GLOBAL (CurrentActivity)) != SUPER_MELEE))
+			{
 				DeadStarShipPtr->SpeciesID = NO_ID;
 			}
 #endif /* SUPER_MELEE_RETREAT_BANNED */

@@ -270,14 +270,15 @@ struct STARSHIP
 			 * Added by the supermelee warpout patch, apparently used
 			 * to save the the ships crew level between warpouts
 			 */
-	BYTE state_flee;
+	BOOLEAN state_flee;
 			/*
 			 * This is added by the warpout patch so a ship can know if
-			 * it's warping out. Currently used only by Pkunk to prevent
-			 * respawning while attempting to retreat.
+			 * it's warping out. Currently used by Pkunk to prevent
+			 * respawning while retreating, and by new_ship to keep
+			 * retreated ships selectable.
 			 */
 #ifndef SUPER_MELEE_RETREAT_BANNED
-	BYTE CanRunAway;
+	BOOLEAN CanRunAway;
 			// Added to forbid retreating for a ship more than 1 time
 #endif
     BYTE auxiliary_counter;
