@@ -276,6 +276,10 @@ struct STARSHIP
 			 * it's warping out. Currently used only by Pkunk to prevent
 			 * respawning while attempting to retreat.
 			 */
+#ifndef SUPER_MELEE_RETREAT_BANNED
+	BYTE CanRunAway;
+			// Added to forbid retreating for a ship more than 1 time
+#endif
     BYTE auxiliary_counter;
     BYTE static_counter;
     

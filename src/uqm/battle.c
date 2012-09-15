@@ -79,6 +79,10 @@ DoRunAway (STARSHIP *StarShipPtr)
 
 	LockElement (StarShipPtr->hShip, &ElementPtr);
 	StarShipPtr->state_flee = TRUE;
+#ifndef SUPER_MELEE_RETREAT_BANNED
+	// To be able to run away only once per melee
+	StarShipPtr->CanRunAway = FALSE;
+#endif
 	
 	if (GetPrimType (&DisplayArray[ElementPtr->PrimIndex]) == STAMP_PRIM
 			&& ElementPtr->life_span == NORMAL_LIFE
@@ -217,7 +221,7 @@ ProcessInput (void)
 					if (InputState & BATTLE_SPECIAL)
 						StarShipPtr->ship_input_state |= SPECIAL;
 
-					if (CanRunAway && (InputState & BATTLE_ESCAPE))
+					if (CanRunAway && (InputState & BATTLE_ESCAPE) && StarShipPtr->CanRunAway)
 						DoRunAway (StarShipPtr);
 				}
 			}
