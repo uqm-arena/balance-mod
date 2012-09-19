@@ -19,6 +19,8 @@
 #ifndef _SETUPMENU_H
 #define _SETUPMENU_H
 
+#define MULTI_FLEE_SETUPMENU
+
 #include "controls.h"
 
 typedef enum {
@@ -74,8 +76,12 @@ typedef struct globalopts_struct {
 	OPT_DRIVERTYPE driver;
 	OPT_ADRIVERTYPE adriver;
 	OPT_AQUALITYTYPE aquality;
-	OPT_ENABLABLE fullscreen, subtitles, scanlines, fps, stereo, music3do, musicremix;
-	OPT_CONSOLETYPE menu, text, cscan, scroll, intro, meleezoom, shield;
+	OPT_ENABLABLE fullscreen, subtitles, scanlines, fps, stereo, music3do, musicremix
+#	                                                       ifdef MULTI_FLEE_SETUPMENU
+	                                                                       ,multi_flee
+#	                                                       endif
+	                                                                                 ;
+OPT_CONSOLETYPE menu, text, cscan, scroll, intro, meleezoom, shield;
 	CONTROL_TEMPLATE player1, player2;
 	int speechvol, musicvol, sfxvol;
 } GLOBALOPTS;

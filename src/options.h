@@ -15,7 +15,7 @@
  */
 
 /*
- * Eventually this should include all configuration stuff, 
+ * Eventually this should include all configuration stuff,
  * for now there's few options which indicate 3do/pc flavors.
  */
 
@@ -38,6 +38,8 @@ extern int optWhichShield;
 extern int optSmoothScroll;
 extern int optMeleeScale;
 
+extern int opt_multi_flee;
+
 extern BOOLEAN opt3doMusic;
 extern BOOLEAN optRemixMusic;
 extern BOOLEAN optSubtitles;
@@ -54,7 +56,8 @@ extern const char **optAddons;
 
 /* These get edited by TEXTENTRY widgets, so they should have room to
  * hold as much as one of them allows by default. */
-typedef struct _input_template {
+typedef struct _input_template
+{
 	char name[30];
 
 	/* This should eventually also hold things like Joystick Port
@@ -65,7 +68,8 @@ typedef struct _input_template {
 
 extern INPUT_TEMPLATE input_templates[6];
 
-void prepareContentDir (const char *contentDirName, const char *addonDirName, const char *execFile);
+void prepareContentDir (const char *contentDirName,
+		const char *addonDirName, const char *execFile);
 void prepareConfigDir (const char *configDirName);
 void prepareMeleeDir (void);
 void prepareSaveDir (void);
@@ -73,7 +77,6 @@ void prepareAddons (const char **addons);
 void prepareShadowAddons (const char **addons);
 
 BOOLEAN loadAddon (const char *addon);
-int loadIndices (uio_DirHandle *baseDir);
+int loadIndices (uio_DirHandle * baseDir);
 
 #endif
-

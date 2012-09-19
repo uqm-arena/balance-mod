@@ -35,7 +35,7 @@
 #include "libs/tasklib.h"
 #include "uqm/controls.h"
 #include "uqm/battle.h"
-		// For BATTLE_FRAME_RATE
+// For BATTLE_FRAME_RATE
 #include "libs/file.h"
 #include "types.h"
 #include "port.h"
@@ -58,7 +58,7 @@
 
 #if defined (GFXMODULE_SDL)
 #	include SDL_INCLUDE(SDL.h)
-			// Including this is actually necessary on OSX.
+// Including this is actually necessary on OSX.
 #endif
 
 struct bool_option
@@ -89,7 +89,8 @@ struct options_struct
 
 	// Commandline-only options
 	const char *logFile;
-	enum {
+	enum
+	{
 		runMode_normal,
 		runMode_usage,
 		runMode_version,
@@ -100,33 +101,35 @@ struct options_struct
 	const char *addonDir;
 	const char **addons;
 	int numAddons;
-	
+
 	// Commandline and user config options
-	DECL_CONFIG_OPTION(bool, opengl);
-	DECL_CONFIG_OPTION2(int, resolution, width, height);
-	DECL_CONFIG_OPTION(bool, fullscreen);
-	DECL_CONFIG_OPTION(bool, scanlines);
-	DECL_CONFIG_OPTION(int, scaler);
-	DECL_CONFIG_OPTION(bool, showFps);
-	DECL_CONFIG_OPTION(bool, keepAspectRatio);
-	DECL_CONFIG_OPTION(float, gamma);
-	DECL_CONFIG_OPTION(int, soundDriver);
-	DECL_CONFIG_OPTION(int, soundQuality);
-	DECL_CONFIG_OPTION(bool, use3doMusic);
-	DECL_CONFIG_OPTION(bool, useRemixMusic);
-	DECL_CONFIG_OPTION(int, whichCoarseScan);
-	DECL_CONFIG_OPTION(int, whichMenu);
-	DECL_CONFIG_OPTION(int, whichFonts);
-	DECL_CONFIG_OPTION(int, whichIntro);
-	DECL_CONFIG_OPTION(int, whichShield);
-	DECL_CONFIG_OPTION(int, smoothScroll);
-	DECL_CONFIG_OPTION(int, meleeScale);
-	DECL_CONFIG_OPTION(bool, subtitles);
-	DECL_CONFIG_OPTION(bool, stereoSFX);
-	DECL_CONFIG_OPTION(float, musicVolumeScale);
-	DECL_CONFIG_OPTION(float, sfxVolumeScale);
-	DECL_CONFIG_OPTION(float, speechVolumeScale);
-	DECL_CONFIG_OPTION(bool, safeMode);
+	  DECL_CONFIG_OPTION (bool, opengl);
+	  DECL_CONFIG_OPTION2 (int, resolution, width, height);
+	  DECL_CONFIG_OPTION (bool, fullscreen);
+	  DECL_CONFIG_OPTION (bool, scanlines);
+	  DECL_CONFIG_OPTION (int, scaler);
+	  DECL_CONFIG_OPTION (bool, showFps);
+	  DECL_CONFIG_OPTION (bool, keepAspectRatio);
+	  DECL_CONFIG_OPTION (float, gamma);
+	  DECL_CONFIG_OPTION (int, soundDriver);
+	  DECL_CONFIG_OPTION (int, soundQuality);
+	  DECL_CONFIG_OPTION (bool, use3doMusic);
+	  DECL_CONFIG_OPTION (bool, useRemixMusic);
+	  DECL_CONFIG_OPTION (int, whichCoarseScan);
+	  DECL_CONFIG_OPTION (int, whichMenu);
+	  DECL_CONFIG_OPTION (int, whichFonts);
+	  DECL_CONFIG_OPTION (int, whichIntro);
+	  DECL_CONFIG_OPTION (int, whichShield);
+	  DECL_CONFIG_OPTION (int, smoothScroll);
+	  DECL_CONFIG_OPTION (int, meleeScale);
+	  DECL_CONFIG_OPTION (bool, subtitles);
+	  DECL_CONFIG_OPTION (bool, stereoSFX);
+	  DECL_CONFIG_OPTION (float, musicVolumeScale);
+	  DECL_CONFIG_OPTION (float, sfxVolumeScale);
+	  DECL_CONFIG_OPTION (float, speechVolumeScale);
+	  DECL_CONFIG_OPTION (bool, safeMode);
+
+	  DECL_CONFIG_OPTION (bool, multi_flee);
 
 #define INIT_CONFIG_OPTION(name, val) \
 	{ val, false }
@@ -141,58 +144,52 @@ struct option_list_value
 	int value;
 };
 
-static const struct option_list_value scalerList[] = 
-{
+static const struct option_list_value scalerList[] = {
 	{"bilinear", TFB_GFXFLAGS_SCALE_BILINEAR},
-	{"biadapt",  TFB_GFXFLAGS_SCALE_BIADAPT},
-	{"biadv",    TFB_GFXFLAGS_SCALE_BIADAPTADV},
-	{"triscan",  TFB_GFXFLAGS_SCALE_TRISCAN},
-	{"hq",       TFB_GFXFLAGS_SCALE_HQXX},
-	{"none",     0},
-	{"no",       0}, /* uqm.cfg value */
+	{"biadapt", TFB_GFXFLAGS_SCALE_BIADAPT},
+	{"biadv", TFB_GFXFLAGS_SCALE_BIADAPTADV},
+	{"triscan", TFB_GFXFLAGS_SCALE_TRISCAN},
+	{"hq", TFB_GFXFLAGS_SCALE_HQXX},
+	{"none", 0},
+	{"no", 0},					/* uqm.cfg value */
 	{NULL, 0}
 };
 
-static const struct option_list_value meleeScaleList[] = 
-{
-	{"smooth",   TFB_SCALE_TRILINEAR},
-	{"3do",      TFB_SCALE_TRILINEAR},
-	{"step",     TFB_SCALE_STEP},
-	{"pc",       TFB_SCALE_STEP},
+static const struct option_list_value meleeScaleList[] = {
+	{"smooth", TFB_SCALE_TRILINEAR},
+	{"3do", TFB_SCALE_TRILINEAR},
+	{"step", TFB_SCALE_STEP},
+	{"pc", TFB_SCALE_STEP},
 	{"bilinear", TFB_SCALE_BILINEAR},
 	{NULL, 0}
 };
 
-static const struct option_list_value audioDriverList[] = 
-{
-	{"openal",  audio_DRIVER_OPENAL},
-	{"mixsdl",  audio_DRIVER_MIXSDL},
-	{"none",    audio_DRIVER_NOSOUND},
+static const struct option_list_value audioDriverList[] = {
+	{"openal", audio_DRIVER_OPENAL},
+	{"mixsdl", audio_DRIVER_MIXSDL},
+	{"none", audio_DRIVER_NOSOUND},
 	{"nosound", audio_DRIVER_NOSOUND},
 	{NULL, 0}
 };
 
-static const struct option_list_value audioQualityList[] = 
-{
-	{"low",    audio_QUALITY_LOW},
+static const struct option_list_value audioQualityList[] = {
+	{"low", audio_QUALITY_LOW},
 	{"medium", audio_QUALITY_MEDIUM},
-	{"high",   audio_QUALITY_HIGH},
+	{"high", audio_QUALITY_HIGH},
 	{NULL, 0}
 };
 
-static const struct option_list_value choiceList[] = 
-{
-	{"pc",  OPT_PC},
+static const struct option_list_value choiceList[] = {
+	{"pc", OPT_PC},
 	{"3do", OPT_3DO},
 	{NULL, 0}
 };
 
-static const struct option_list_value accelList[] = 
-{
-	{"mmx",    PLATFORM_MMX},
-	{"sse",    PLATFORM_SSE},
-	{"3dnow",  PLATFORM_3DNOW},
-	{"none",   PLATFORM_C},
+static const struct option_list_value accelList[] = {
+	{"mmx", PLATFORM_MMX},
+	{"sse", PLATFORM_SSE},
+	{"3dnow", PLATFORM_3DNOW},
+	{"none", PLATFORM_C},
 	{"detect", PLATFORM_NULL},
 	{NULL, 0}
 };
@@ -206,60 +203,64 @@ static bool lookupOptionValue (const struct option_list_value *list,
 // Error message buffer used for when we cannot use logging facility yet
 static char errBuffer[512];
 
-static void saveError (const char *fmt, ...)
-		PRINTF_FUNCTION(1, 2);
+static void
+saveError (const char *fmt, ...)
+PRINTF_FUNCTION (1, 2);
 
-static int parseOptions (int argc, char *argv[],
+	 static int parseOptions (int argc, char *argv[],
 		struct options_struct *options);
-static void getUserConfigOptions (struct options_struct *options);
-static void usage (FILE *out, const struct options_struct *defaultOptions);
-static int parseIntOption (const char *str, int *result,
+	 static void getUserConfigOptions (struct options_struct *options);
+	 static void usage (FILE * out,
+		const struct options_struct *defaultOptions);
+	 static int parseIntOption (const char *str, int *result,
 		const char *optName);
-static int parseFloatOption (const char *str, float *f,
+	 static int parseFloatOption (const char *str, float *f,
 		const char *optName);
-static void parseIntVolume (int intVol, float *vol);
-static int InvalidArgument (const char *supplied, const char *opt_name);
-static const char *choiceOptString (const struct int_option *option);
-static const char *boolOptString (const struct bool_option *option);
-static const char *boolNotOptString (const struct bool_option *option);
+	 static void parseIntVolume (int intVol, float *vol);
+	 static int InvalidArgument (const char *supplied,
+		const char *opt_name);
+	 static const char *choiceOptString (const struct int_option *option);
+	 static const char *boolOptString (const struct bool_option *option);
+	 static const char *boolNotOptString (const struct bool_option *option);
 
-int
-main (int argc, char *argv[])
+	 int main (int argc, char *argv[])
 {
 	struct options_struct options = {
-		/* .logFile = */            NULL,
-		/* .runMode = */            runMode_normal,
-		/* .configDir = */          NULL,
-		/* .contentDir = */         NULL,
-		/* .addonDir = */           NULL,
-		/* .addons = */             NULL,
-		/* .numAddons = */          0,
+		/* .logFile = */ NULL,
+		/* .runMode = */ runMode_normal,
+		/* .configDir = */ NULL,
+		/* .contentDir = */ NULL,
+		/* .addonDir = */ NULL,
+		/* .addons = */ NULL,
+		/* .numAddons = */ 0,
 
-		INIT_CONFIG_OPTION(  opengl,            false ),
-		INIT_CONFIG_OPTION2( resolution,        640, 480 ),
-		INIT_CONFIG_OPTION(  fullscreen,        false ),
-		INIT_CONFIG_OPTION(  scanlines,         false ),
-		INIT_CONFIG_OPTION(  scaler,            0 ),
-		INIT_CONFIG_OPTION(  showFps,           false ),
-		INIT_CONFIG_OPTION(  keepAspectRatio,   false ),
-		INIT_CONFIG_OPTION(  gamma,             0.0f ),
-		INIT_CONFIG_OPTION(  soundDriver,       audio_DRIVER_MIXSDL ),
-		INIT_CONFIG_OPTION(  soundQuality,      audio_QUALITY_MEDIUM ),
-		INIT_CONFIG_OPTION(  use3doMusic,       true ),
-		INIT_CONFIG_OPTION(  useRemixMusic,     false ),
-		INIT_CONFIG_OPTION(  whichCoarseScan,   OPT_PC ),
-		INIT_CONFIG_OPTION(  whichMenu,         OPT_PC ),
-		INIT_CONFIG_OPTION(  whichFonts,        OPT_PC ),
-		INIT_CONFIG_OPTION(  whichIntro,        OPT_PC ),
-		INIT_CONFIG_OPTION(  whichShield,       OPT_PC ),
-		INIT_CONFIG_OPTION(  smoothScroll,      OPT_PC ),
-		INIT_CONFIG_OPTION(  meleeScale,        TFB_SCALE_TRILINEAR ),
-		INIT_CONFIG_OPTION(  subtitles,         true ),
-		INIT_CONFIG_OPTION(  stereoSFX,         false ),
-		INIT_CONFIG_OPTION(  musicVolumeScale,  1.0f ),
-		INIT_CONFIG_OPTION(  sfxVolumeScale,    1.0f ),
-		INIT_CONFIG_OPTION(  speechVolumeScale, 1.0f ),
-		INIT_CONFIG_OPTION(  safeMode,          false ),
+		INIT_CONFIG_OPTION (opengl, false),
+		INIT_CONFIG_OPTION2 (resolution, 640, 480),
+		INIT_CONFIG_OPTION (fullscreen, false),
+		INIT_CONFIG_OPTION (scanlines, false),
+		INIT_CONFIG_OPTION (scaler, 0),
+		INIT_CONFIG_OPTION (showFps, false),
+		INIT_CONFIG_OPTION (keepAspectRatio, false),
+		INIT_CONFIG_OPTION (gamma, 0.0f),
+		INIT_CONFIG_OPTION (soundDriver, audio_DRIVER_MIXSDL),
+		INIT_CONFIG_OPTION (soundQuality, audio_QUALITY_MEDIUM),
+		INIT_CONFIG_OPTION (use3doMusic, true),
+		INIT_CONFIG_OPTION (useRemixMusic, false),
+		INIT_CONFIG_OPTION (whichCoarseScan, OPT_PC),
+		INIT_CONFIG_OPTION (whichMenu, OPT_PC),
+		INIT_CONFIG_OPTION (whichFonts, OPT_PC),
+		INIT_CONFIG_OPTION (whichIntro, OPT_PC),
+		INIT_CONFIG_OPTION (whichShield, OPT_PC),
+		INIT_CONFIG_OPTION (smoothScroll, OPT_PC),
+		INIT_CONFIG_OPTION (meleeScale, TFB_SCALE_TRILINEAR),
+		INIT_CONFIG_OPTION (subtitles, true),
+		INIT_CONFIG_OPTION (stereoSFX, false),
+		INIT_CONFIG_OPTION (musicVolumeScale, 1.0f),
+		INIT_CONFIG_OPTION (sfxVolumeScale, 1.0f),
+		INIT_CONFIG_OPTION (speechVolumeScale, 1.0f),
+		INIT_CONFIG_OPTION (safeMode, false),
+
+		INIT_CONFIG_OPTION (multi_flee, false),
 	};
 	struct options_struct defaults = options;
 	int optionsResult;
@@ -277,6 +278,7 @@ main (int argc, char *argv[])
 	if (options.logFile != NULL)
 	{
 		int i;
+
 		freopen (options.logFile, "w", stderr);
 #ifdef UNBUFFERED_LOGFILE
 		setbuf (stderr, NULL);
@@ -287,18 +289,17 @@ main (int argc, char *argv[])
 
 	if (options.runMode == runMode_version)
 	{
- 		printf ("%d.%d.%d%s\n", UQM_MAJOR_VERSION, UQM_MINOR_VERSION,
+		printf ("%d.%d.%d%s\n", UQM_MAJOR_VERSION, UQM_MINOR_VERSION,
 				UQM_PATCH_VERSION, UQM_EXTRA_VERSION);
 		log_showBox (false, false);
 		return EXIT_SUCCESS;
 	}
-	
+
 	log_add (log_User, "The Ur-Quan Masters v%d.%d.%d%s (compiled %s %s)\n"
-	        "This software comes with ABSOLUTELY NO WARRANTY;\n"
+			"This software comes with ABSOLUTELY NO WARRANTY;\n"
 			"for details see the included 'COPYING' file.\n",
 			UQM_MAJOR_VERSION, UQM_MINOR_VERSION,
-			UQM_PATCH_VERSION, UQM_EXTRA_VERSION,
-			__DATE__, __TIME__);
+			UQM_PATCH_VERSION, UQM_EXTRA_VERSION, __DATE__, __TIME__);
 #ifdef NETPLAY
 	log_add (log_User, "Netplay protocol version %d.%d. Netplay opponent "
 			"must have UQM %d.%d.%d or later.",
@@ -308,7 +309,7 @@ main (int argc, char *argv[])
 #endif
 
 	if (errBuffer[0] != '\0')
-	{	// Have some saved error to log
+	{							// Have some saved error to log
 		log_add (log_Error, "%s", errBuffer);
 		errBuffer[0] = '\0';
 	}
@@ -321,7 +322,7 @@ main (int argc, char *argv[])
 	}
 
 	if (optionsResult != EXIT_SUCCESS)
-	{	// Options parsing failed. Oh, well.
+	{							// Options parsing failed. Oh, well.
 		log_add (log_Fatal, "Run with -h to see the allowed arguments.");
 		return optionsResult;
 	}
@@ -343,15 +344,16 @@ main (int argc, char *argv[])
 		getUserConfigOptions (&options);
 	}
 
-	{	/* remove old control template names */
+	{							/* remove old control template names */
 		int i;
 
 		for (i = 0; i < 6; ++i)
 		{
 			char cfgkey[64];
 
-			snprintf(cfgkey, sizeof(cfgkey), "config.keys.%d.name", i + 1);
-			cfgkey[sizeof(cfgkey) - 1] = '\0';
+			snprintf (cfgkey, sizeof (cfgkey), "config.keys.%d.name",
+					i + 1);
+			cfgkey[sizeof (cfgkey) - 1] = '\0';
 
 			res_Remove (cfgkey);
 		}
@@ -382,6 +384,8 @@ main (int argc, char *argv[])
 	sfxVolumeScale = options.sfxVolumeScale.value;
 	speechVolumeScale = options.speechVolumeScale.value;
 	optAddons = options.addons;
+
+	opt_multi_flee = options.multi_flee.value;
 
 	prepareContentDir (options.contentDir, options.addonDir, argv[0]);
 	prepareMeleeDir ();
@@ -424,23 +428,24 @@ main (int argc, char *argv[])
 	   ProcessThreadLifecycles... */
 	// initAudio (snddriver, soundflags);
 	// Make sure that the compiler treats multidim arrays the way we expect
-	assert (sizeof (int [NUM_TEMPLATES * NUM_KEYS]) ==
-			sizeof (int [NUM_TEMPLATES][NUM_KEYS]));
+	assert (sizeof (int[NUM_TEMPLATES * NUM_KEYS]) ==
+			sizeof (int[NUM_TEMPLATES][NUM_KEYS]));
 	TFB_SetInputVectors (ImmediateInputState.menu, NUM_MENU_KEYS,
-			(volatile int *)ImmediateInputState.key, NUM_TEMPLATES, NUM_KEYS);
+			(volatile int *) ImmediateInputState.key, NUM_TEMPLATES,
+			NUM_KEYS);
 	TFB_InitInput (TFB_INPUTDRIVER_SDL, 0);
 
 	StartThread (Starcon2Main, NULL, 1024, "Starcon2Main");
 
-	for (i = 0; i < 2000 && !MainExited; )
+	for (i = 0; i < 2000 && !MainExited;)
 	{
 		if (QuitPosted)
-		{	/* Try to stop the main thread, but limited number of times */
+		{						/* Try to stop the main thread, but limited number of times */
 			SignalStopMainThread ();
 			++i;
 		}
 		else if (!GameActive)
-		{	// Throttle down the main loop when game is inactive
+		{						// Throttle down the main loop when game is inactive
 			SleepThread (ONE_SECOND / 4);
 		}
 
@@ -476,7 +481,7 @@ main (int argc, char *argv[])
 		UnInitThreadSystem ();
 		mem_uninit ();
 	}
-	
+
 	return EXIT_SUCCESS;
 }
 
@@ -485,8 +490,9 @@ saveErrorV (const char *fmt, va_list list)
 {
 	int len = strlen (errBuffer);
 	int left = sizeof (errBuffer) - len;
+
 	if (len > 0 && left > 0)
-	{	// Already something there
+	{							// Already something there
 		errBuffer[len] = '\n';
 		++len;
 		--left;
@@ -577,7 +583,8 @@ getUserConfigOptions (struct options_struct *options)
 	// Most of the user config options are only applied if they
 	// have not already been set (i.e. on the commandline)
 
-	if (res_IsInteger ("config.reswidth") && res_IsInteger ("config.resheight")
+	if (res_IsInteger ("config.reswidth")
+			&& res_IsInteger ("config.resheight")
 			&& !options->resolution.set)
 	{
 		options->resolution.width = res_GetInteger ("config.reswidth");
@@ -586,7 +593,7 @@ getUserConfigOptions (struct options_struct *options)
 	}
 
 	if (res_IsBoolean ("config.alwaysgl") && !options->opengl.set)
-	{	// config.alwaysgl is processed differently than others
+	{							// config.alwaysgl is processed differently than others
 		// Only set when it's 'true'
 		if (res_GetBoolean ("config.alwaysgl"))
 		{
@@ -601,10 +608,11 @@ getUserConfigOptions (struct options_struct *options)
 	getBoolConfigValue (&options->fullscreen, "config.fullscreen");
 	getBoolConfigValue (&options->scanlines, "config.scanlines");
 	getBoolConfigValue (&options->showFps, "config.showfps");
-	getBoolConfigValue (&options->keepAspectRatio, "config.keepaspectratio");
+	getBoolConfigValue (&options->keepAspectRatio,
+			"config.keepaspectratio");
 
 	getBoolConfigValue (&options->subtitles, "config.subtitles");
-	
+
 	getBoolConfigValueXlat (&options->whichMenu, "config.textmenu",
 			OPT_PC, OPT_3DO);
 	getBoolConfigValueXlat (&options->whichFonts, "config.textgradients",
@@ -625,21 +633,21 @@ getUserConfigOptions (struct options_struct *options)
 			TFB_SCALE_TRILINEAR, TFB_SCALE_STEP);
 
 	if (getListConfigValue (&options->soundDriver, "config.audiodriver",
-			audioDriverList))
+					audioDriverList))
 	{
 		// XXX: I don't know if we should turn speech off in this case.
 		//   This affects which version of the alien script will be used.
 		if (options->soundDriver.value == audio_DRIVER_NOSOUND)
 			options->speechVolumeScale.value = 0.0f;
 	}
-	
+
 	getListConfigValue (&options->soundQuality, "config.audioquality",
 			audioQualityList);
 	getBoolConfigValue (&options->stereoSFX, "config.positionalsfx");
 	getVolumeConfigValue (&options->musicVolumeScale, "config.musicvol");
 	getVolumeConfigValue (&options->sfxVolumeScale, "config.sfxvol");
 	getVolumeConfigValue (&options->speechVolumeScale, "config.speechvol");
-	
+
 	if (res_IsInteger ("config.player1control"))
 	{
 		PlayerControls[0] = res_GetInteger ("config.player1control");
@@ -651,7 +659,7 @@ getUserConfigOptions (struct options_struct *options)
 			PlayerControls[0] = CONTROL_TEMPLATE_KB_1;
 		}
 	}
-	
+
 	if (res_IsInteger ("config.player2control"))
 	{
 		/* This is an unsigned, so no < 0 check is necessary */
@@ -688,8 +696,8 @@ enum
 };
 
 static const char *optString = "+r:foc:b:spC:n:?hM:S:T:m:q:ug:l:i:vwxk";
-static struct option longOptions[] = 
-{
+
+static struct option longOptions[] = {
 	{"res", 1, NULL, 'r'},
 	{"fullscreen", 0, NULL, 'f'},
 	{"opengl", 0, NULL, 'o'},
@@ -760,7 +768,7 @@ setListOption (struct int_option *option, const char *strval,
 	bool found;
 
 	if (!list)
-		return false; // not found
+		return false;			// not found
 
 	found = lookupOptionValue (list, strval, &option->value);
 	option->set = found;
@@ -779,7 +787,7 @@ setVolumeOption (struct float_option *option, const char *strval,
 		const char *optName)
 {
 	int intVol;
-	
+
 	if (parseIntOption (strval, &intVol, optName) != 0)
 		return false;
 	parseIntVolume (intVol, &option->value);
@@ -808,6 +816,7 @@ parseOptions (int argc, char *argv[], struct options_struct *options)
 	while (!badArg)
 	{
 		int c;
+
 		optionIndex = -1;
 		c = getopt_long (argc, argv, optString, longOptions, &optionIndex);
 		if (c == -1)
@@ -832,6 +841,7 @@ parseOptions (int argc, char *argv[], struct options_struct *options)
 			case 'r':
 			{
 				int width, height;
+
 				if (sscanf (optarg, "%dx%d", &width, &height) != 2)
 				{
 					saveError ("Error: invalid argument specified "
@@ -868,7 +878,7 @@ parseOptions (int argc, char *argv[], struct options_struct *options)
 				break;
 			case 'b':
 				if (!setListOption (&options->meleeScale, optarg,
-						meleeScaleList))
+								meleeScaleList))
 				{
 					InvalidArgument (optarg, "--meleezoom or -b");
 					badArg = true;
@@ -885,28 +895,28 @@ parseOptions (int argc, char *argv[], struct options_struct *options)
 				break;
 			case 'M':
 				if (!setVolumeOption (&options->musicVolumeScale, optarg,
-						"music volume"))
+								"music volume"))
 				{
 					badArg = true;
 				}
 				break;
 			case 'S':
 				if (!setVolumeOption (&options->sfxVolumeScale, optarg,
-						"sfx volume"))
+								"sfx volume"))
 				{
 					badArg = true;
 				}
 				break;
 			case 'T':
 				if (!setVolumeOption (&options->speechVolumeScale, optarg,
-						"speech volume"))
+								"speech volume"))
 				{
 					badArg = true;
 				}
 				break;
 			case 'q':
 				if (!setListOption (&options->soundQuality, optarg,
-						audioQualityList))
+								audioQualityList))
 				{
 					InvalidArgument (optarg, "--audioquality or -q");
 					badArg = true;
@@ -917,7 +927,7 @@ parseOptions (int argc, char *argv[], struct options_struct *options)
 				break;
 			case 'g':
 				if (!setFloatOption (&options->gamma, optarg,
-						"gamma correction"))
+								"gamma correction"))
 				{
 					badArg = true;
 				}
@@ -927,7 +937,7 @@ parseOptions (int argc, char *argv[], struct options_struct *options)
 				break;
 			case 'C':
 				options->configDir = optarg;
-				break;			
+				break;
 			case 'i':
 				if (!setChoiceOption (&options->whichIntro, optarg))
 				{
@@ -972,7 +982,7 @@ parseOptions (int argc, char *argv[], struct options_struct *options)
 				break;
 			case SOUND_OPT:
 				if (setListOption (&options->soundDriver, optarg,
-						audioDriverList))
+								audioDriverList))
 				{
 					// XXX: I don't know if we should turn speech off in
 					//   this case. This affects which version of the alien
@@ -1002,6 +1012,7 @@ parseOptions (int argc, char *argv[], struct options_struct *options)
 			case ACCEL_OPT:
 			{
 				int value;
+
 				if (lookupOptionValue (accelList, optarg, &value))
 				{
 					force_platform = value;
@@ -1013,7 +1024,7 @@ parseOptions (int argc, char *argv[], struct options_struct *options)
 				}
 				break;
 			}
-	                case SAFEMODE_OPT:
+			case SAFEMODE_OPT:
 				setBoolOption (&options->safeMode, true);
 				break;
 #ifdef NETPLAY
@@ -1034,6 +1045,7 @@ parseOptions (int argc, char *argv[], struct options_struct *options)
 			case NETDELAY_OPT:
 			{
 				int temp;
+
 				if (parseIntOption (optarg, &temp, "network input delay")
 						== -1)
 				{
@@ -1132,11 +1144,12 @@ parseFloatOption (const char *str, float *f, const char *optName)
 }
 
 static void
-usage (FILE *out, const struct options_struct *defaults)
+usage (FILE * out, const struct options_struct *defaults)
 {
 	FILE *old = log_setOutput (out);
+
 	log_captureLines (LOG_CAPTURE_ALL);
-	
+
 	log_add (log_User, "Options:");
 	log_add (log_User, "  -r, --res=WIDTHxHEIGHT (default 640x480, bigger "
 			"works only with --opengl)");
@@ -1182,26 +1195,33 @@ usage (FILE *out, const struct options_struct *defaults)
 #ifdef NETPLAY
 	log_add (log_User, "  --nethostN=HOSTNAME (server to connect to for "
 			"player N (1=bottom, 2=top)");
-	log_add (log_User, "  --netportN=PORT (port to connect to/listen on for "
+	log_add (log_User,
+			"  --netportN=PORT (port to connect to/listen on for "
 			"player N (1=bottom, 2=top)");
-	log_add (log_User, "  --netdelay=FRAMES (number of frames to "
+	log_add (log_User,
+			"  --netdelay=FRAMES (number of frames to "
 			"buffer/delay network input for");
 #endif
-	log_add (log_User, "The following options can take either '3do' or 'pc' "
+	log_add (log_User,
+			"The following options can take either '3do' or 'pc' "
 			"as an option:");
 	log_add (log_User, "  -i, --intro : Intro/ending version (default %s)",
 			choiceOptString (&defaults->whichIntro));
-	log_add (log_User, "  --cscan     : coarse-scan display, pc=text, "
+	log_add (log_User,
+			"  --cscan     : coarse-scan display, pc=text, "
 			"3do=hieroglyphs (default %s)",
 			choiceOptString (&defaults->whichCoarseScan));
-	log_add (log_User, "  --menu      : menu type, pc=text, 3do=graphical "
+	log_add (log_User,
+			"  --menu      : menu type, pc=text, 3do=graphical "
 			"(default %s)", choiceOptString (&defaults->whichMenu));
 	log_add (log_User, "  --font      : font types and colors (default %s)",
 			choiceOptString (&defaults->whichFonts));
-	log_add (log_User, "  --shield    : slave shield type; pc=static, "
+	log_add (log_User,
+			"  --shield    : slave shield type; pc=static, "
 			"3do=throbbing (default %s)",
 			choiceOptString (&defaults->whichShield));
-	log_add (log_User, "  --scroll    : ff/frev during comm.  pc=per-page, "
+	log_add (log_User,
+			"  --scroll    : ff/frev during comm.  pc=per-page, "
 			"3do=smooth (default %s)",
 			choiceOptString (&defaults->smoothScroll));
 	log_setOutput (old);
@@ -1223,7 +1243,7 @@ choiceOptString (const struct int_option *option)
 			return "3do";
 		case OPT_PC:
 			return "pc";
-		default:  /* 0 */
+		default:				/* 0 */
 			return "none";
 	}
 }

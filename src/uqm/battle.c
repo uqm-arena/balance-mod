@@ -25,7 +25,7 @@
 #include "ship.h"
 #include "process.h"
 #include "tactrans.h"
-		// for flee_preprocess()
+// for flee_preprocess()
 #include "intel.h"
 #ifdef NETPLAY
 #	include "supermelee/netplay/netmelee.h"
@@ -44,19 +44,21 @@
 #include "libs/log.h"
 #include "libs/mathlib.h"
 
+#include "options.h"
+
 
 BYTE battle_counter[NUM_SIDES];
-		// The number of ships still available for battle to each side.
-		// A ship that has warped out is no longer available.
+// The number of ships still available for battle to each side.
+// A ship that has warped out is no longer available.
 BOOLEAN instantVictory;
 size_t battleInputOrder[NUM_SIDES];
-		// Indices of the sides in the order their input is processed.
-		// Network sides are last so that the sides will never be waiting
-		// on eachother, and games with a 0 frame delay are theoretically
-		// possible.
+// Indices of the sides in the order their input is processed.
+// Network sides are last so that the sides will never be waiting
+// on eachother, and games with a 0 frame delay are theoretically
+// possible.
 #ifdef NETPLAY
 BattleFrameCounter battleFrameCount;
-		// Used for synchronisation purposes during netplay.
+// Used for synchronisation purposes during netplay.
 #endif
 
 static BOOLEAN
@@ -64,9 +66,9 @@ RunAwayAllowed (void)
 {
 #ifdef SUPER_MELEE_RETREAT_BANNED
 	return (LOBYTE (GLOBAL (CurrentActivity)) == IN_ENCOUNTER
-			|| LOBYTE (GLOBAL (CurrentActivity)) == IN_LAST_BATTLE)
-			&& GET_GAME_STATE (STARBASE_AVAILABLE)
-			&& !GET_GAME_STATE (BOMB_CARRIER);
+	        || LOBYTE (GLOBAL (CurrentActivity)) == IN_LAST_BATTLE)
+	       && GET_GAME_STATE (STARBASE_AVAILABLE)
+	       && !GET_GAME_STATE (BOMB_CARRIER);
 #else
 	return 1;
 #endif
@@ -81,19 +83,20 @@ DoRunAway (STARSHIP *StarShipPtr)
 	StarShipPtr->state_flee = TRUE;
 #ifndef SUPER_MELEE_RETREAT_BANNED
 	// To be able to run away only once per melee
-	StarShipPtr->CanRunAway = FALSE;
+	if (!opt_multi_flee)
+		StarShipPtr->CanRunAway = FALSE;
 #endif
-	
+
 	if (GetPrimType (&DisplayArray[ElementPtr->PrimIndex]) == STAMP_PRIM
-			&& ElementPtr->life_span == NORMAL_LIFE
-			&& !(ElementPtr->state_flags & FINITE_LIFE)
-			&& ElementPtr->mass_points != MAX_SHIP_MASS * 10
-			&& !(ElementPtr->state_flags & APPEARING))
+	        && ElementPtr->life_span == NORMAL_LIFE
+	        && ! (ElementPtr->state_flags & FINITE_LIFE)
+	        && ElementPtr->mass_points != MAX_SHIP_MASS * 10
+	        && ! (ElementPtr->state_flags & APPEARING))
 	{
 #ifndef SUPER_MELEE_RETREAT_BANNED
-		if(LOBYTE (GLOBAL (CurrentActivity)) != SUPER_MELEE)
+		if (LOBYTE (GLOBAL (CurrentActivity)) != SUPER_MELEE)
 #endif
-		battle_counter[0]--;
+			battle_counter[0]--;
 
 		ElementPtr->turn_wait = 3;
 		ElementPtr->thrust_wait = 4;
@@ -102,22 +105,22 @@ DoRunAway (STARSHIP *StarShipPtr)
 		ElementPtr->mass_points = MAX_SHIP_MASS * 10;
 		ZeroVelocityComponents (&ElementPtr->velocity);
 		StarShipPtr->cur_status_flags &=
-				~(SHIP_AT_MAX_SPEED | SHIP_BEYOND_MAX_SPEED);
+		    ~ (SHIP_AT_MAX_SPEED | SHIP_BEYOND_MAX_SPEED);
 
 		SetPrimColor (&DisplayArray[ElementPtr->PrimIndex],
-				BUILD_COLOR (MAKE_RGB15 (0x0B, 0x00, 0x00), 0x2E));
-				// XXX: I think this is supposed to be the same as the
-				// first entry of the color cycle table in flee_preeprocess,
-				// but it is slightly different (0x0A as red value). - SvdB.
+		              BUILD_COLOR (MAKE_RGB15 (0x0B, 0x00, 0x00), 0x2E));
+		// XXX: I think this is supposed to be the same as the
+		// first entry of the color cycle table in flee_preeprocess,
+		// but it is slightly different (0x0A as red value). - SvdB.
 		SetPrimType (&DisplayArray[ElementPtr->PrimIndex], STAMPFILL_PRIM);
-	
+
 		StarShipPtr->ship_input_state = 0;
 	}
 	UnlockElement (StarShipPtr->hShip);
 }
 
 static void
-setupBattleInputOrder(void)
+setupBattleInputOrder (void)
 {
 	size_t i;
 
@@ -129,16 +132,20 @@ setupBattleInputOrder(void)
 
 	i = 0;
 	// First put the locally controlled players in the array.
-	for (j = 0; j < NUM_SIDES; j++) {
-		if (!(PlayerControl[j] & NETWORK_CONTROL)) {
+	for (j = 0; j < NUM_SIDES; j++)
+	{
+		if (! (PlayerControl[j] & NETWORK_CONTROL))
+		{
 			battleInputOrder[i] = j;
 			i++;
 		}
 	}
-	
+
 	// Next put the network controlled players in the array.
-	for (j = 0; j < NUM_SIDES; j++) {
-		if (PlayerControl[j] & NETWORK_CONTROL) {
+	for (j = 0; j < NUM_SIDES; j++)
+	{
+		if (PlayerControl[j] & NETWORK_CONTROL)
+		{
 			battleInputOrder[i] = j;
 			i++;
 		}
@@ -164,14 +171,14 @@ ProcessInput (void)
 #endif
 
 	CanRunAway = RunAwayAllowed ();
-		
+
 	for (sideI = 0; sideI < NUM_SIDES; sideI++)
 	{
 		HSTARSHIP hBattleShip, hNextShip;
 		size_t cur_player = battleInputOrder[sideI];
 
 		for (hBattleShip = GetHeadLink (&race_q[cur_player]);
-				hBattleShip != 0; hBattleShip = hNextShip)
+		        hBattleShip != 0; hBattleShip = hNextShip)
 		{
 			BATTLE_INPUT_STATE InputState;
 			STARSHIP *StarShipPtr;
@@ -184,24 +191,24 @@ ProcessInput (void)
 				// TODO: review and see if we have to do this every frame, or
 				//   if we can do this once somewhere
 				StarShipPtr->control = PlayerControl[cur_player];
-				
+
 				InputState = PlayerInput[cur_player]->handlers->frameInput (
-						PlayerInput[cur_player], StarShipPtr);
+				                 PlayerInput[cur_player], StarShipPtr);
 
 #if CREATE_JOURNAL
 				JournalInput (InputState);
 #endif /* CREATE_JOURNAL */
 #ifdef NETPLAY
-				if (!(PlayerControl[cur_player] & NETWORK_CONTROL))
+				if (! (PlayerControl[cur_player] & NETWORK_CONTROL))
 				{
-					BattleInputBuffer *bib = getBattleInputBuffer(cur_player);
+					BattleInputBuffer *bib = getBattleInputBuffer (cur_player);
 					Netplay_NotifyAll_battleInput (InputState);
 					flushPacketQueues ();
 
 					BattleInputBuffer_push (bib, InputState);
-							// Add this input to the end of the buffer.
+					// Add this input to the end of the buffer.
 					BattleInputBuffer_pop (bib, &InputState);
-							// Get the input from the front of the buffer.
+					// Get the input from the front of the buffer.
 				}
 #endif
 
@@ -210,12 +217,14 @@ ProcessInput (void)
 				{
 					if (InputState & BATTLE_LEFT)
 						StarShipPtr->ship_input_state |= LEFT;
-					else if (InputState & BATTLE_RIGHT)
-						StarShipPtr->ship_input_state |= RIGHT;
+					else
+						if (InputState & BATTLE_RIGHT)
+							StarShipPtr->ship_input_state |= RIGHT;
 					if (InputState & BATTLE_THRUST)
 						StarShipPtr->ship_input_state |= THRUST;
-                    else if (InputState & BATTLE_DOWN)
-						StarShipPtr->ship_input_state |= DOWN;
+					else
+						if (InputState & BATTLE_DOWN)
+							StarShipPtr->ship_input_state |= DOWN;
 					if (InputState & BATTLE_WEAPON)
 						StarShipPtr->ship_input_state |= WEAPON;
 					if (InputState & BATTLE_SPECIAL)
@@ -229,7 +238,7 @@ ProcessInput (void)
 			UnlockStarShip (&race_q[cur_player], hBattleShip);
 		}
 	}
-	
+
 #ifdef NETPLAY
 	flushPacketQueues ();
 #endif
@@ -251,10 +260,11 @@ BattleSong (BOOLEAN DoPlay)
 	{
 		if (LOBYTE (GLOBAL (CurrentActivity)) != IN_HYPERSPACE)
 			BattleRef = LoadMusic (BATTLE_MUSIC);
-		else if (GET_GAME_STATE (ARILOU_SPACE_SIDE) <= 1)
-			BattleRef = LoadMusic (HYPERSPACE_MUSIC);
 		else
-			BattleRef = LoadMusic (QUASISPACE_MUSIC);
+			if (GET_GAME_STATE (ARILOU_SPACE_SIDE) <= 1)
+				BattleRef = LoadMusic (HYPERSPACE_MUSIC);
+			else
+				BattleRef = LoadMusic (QUASISPACE_MUSIC);
 	}
 
 	if (DoPlay)
@@ -279,35 +289,36 @@ DoBattle (BATTLE_STATE *bs)
 
 #if defined (NETPLAY) && defined (NETPLAY_CHECKSUM)
 	if (getNumNetConnections() > 0 &&
-			battleFrameCount % NETPLAY_CHECKSUM_INTERVAL == 0)
+	        battleFrameCount % NETPLAY_CHECKSUM_INTERVAL == 0)
 	{
 		crc_State state;
 		Checksum checksum;
 
-		crc_init(&state);
+		crc_init (&state);
 		crc_processState (&state);
 		checksum = (Checksum) crc_finish (&state);
 
-		Netplay_NotifyAll_checksum ((uint32) battleFrameCount,
-				(uint32) checksum);
+		Netplay_NotifyAll_checksum ( (uint32) battleFrameCount,
+		                             (uint32) checksum);
 		flushPacketQueues ();
 		addLocalChecksum (battleFrameCount, checksum);
 	}
 #endif
 	ProcessInput ();
-			// Also calls NetInput()
+	// Also calls NetInput()
 #if defined (NETPLAY) && defined (NETPLAY_CHECKSUM)
 	if (getNumNetConnections() > 0)
 	{
 		size_t delay = getBattleInputDelay();
 
 		if (battleFrameCount >= delay
-				&& (battleFrameCount - delay) % NETPLAY_CHECKSUM_INTERVAL == 0)
+		        && (battleFrameCount - delay) % NETPLAY_CHECKSUM_INTERVAL == 0)
 		{
-			if (!(GLOBAL (CurrentActivity) & CHECK_ABORT))
+			if (! (GLOBAL (CurrentActivity) & CHECK_ABORT))
 			{
-				if (!verifyChecksums (battleFrameCount - delay)) {
-					GLOBAL(CurrentActivity) |= CHECK_ABORT;
+				if (!verifyChecksums (battleFrameCount - delay))
+				{
+					GLOBAL (CurrentActivity) |= CHECK_ABORT;
 					resetConnections (ResetReason_syncLoss);
 				}
 			}
@@ -339,25 +350,25 @@ DoBattle (BATTLE_STATE *bs)
 	}
 	UnbatchGraphics ();
 	UnlockMutex (GraphicsLock);
-	if ((!(GLOBAL (CurrentActivity) & IN_BATTLE)) ||
-			(GLOBAL (CurrentActivity) & (CHECK_ABORT | CHECK_LOAD)))
+	if ( (! (GLOBAL (CurrentActivity) & IN_BATTLE)) ||
+	        (GLOBAL (CurrentActivity) & (CHECK_ABORT | CHECK_LOAD)))
 	{
 		return FALSE;
 	}
 
 	battle_speed = HIBYTE (nth_frame);
-	if (battle_speed == (BYTE)~0)
+	if (battle_speed == (BYTE) ~0)
 	{	// maximum speed, nothing rendered at all
 		TaskSwitch ();
 	}
 	else
 	{
 		SleepThreadUntil (bs->NextTime
-				+ BATTLE_FRAME_RATE / (battle_speed + 1));
+		                  + BATTLE_FRAME_RATE / (battle_speed + 1));
 		bs->NextTime = GetTimeCounter ();
 	}
 
-	if ((GLOBAL (CurrentActivity) & IN_BATTLE) == 0)
+	if ( (GLOBAL (CurrentActivity) & IN_BATTLE) == 0)
 		return FALSE;
 
 #ifdef NETPLAY
@@ -374,10 +385,10 @@ GetPlayerOrder (COUNT i)
 	// processed first.
 	// If neither is network controlled, the top player (1) is handled
 	// first.
-	if (((PlayerControl[0] & NETWORK_CONTROL) &&
-			!NetConnection_getDiscriminant (netConnections[0])) ||
-			((PlayerControl[1] & NETWORK_CONTROL) &&
-			NetConnection_getDiscriminant (netConnections[1])))
+	if ( ( (PlayerControl[0] & NETWORK_CONTROL) &&
+	        !NetConnection_getDiscriminant (netConnections[0])) ||
+	        ( (PlayerControl[1] & NETWORK_CONTROL) &&
+	          NetConnection_getDiscriminant (netConnections[1])))
 		return i;
 	else
 		return 1 - i;
@@ -388,17 +399,18 @@ GetPlayerOrder (COUNT i)
 static BOOLEAN
 selectAllShips (SIZE num_ships)
 {
-	if (num_ships == 1) {
+	if (num_ships == 1)
+	{
 		// HyperSpace in full game.
 		return GetNextStarShip (NULL, 0);
 	}
-	
+
 #ifdef NETPLAY
-	if ((PlayerControl[0] & NETWORK_CONTROL) &&
-			(PlayerControl[1] & NETWORK_CONTROL))
+	if ( (PlayerControl[0] & NETWORK_CONTROL) &&
+	        (PlayerControl[1] & NETWORK_CONTROL))
 	{
 		log_add (log_Error, "Only one side at a time can be network "
-				"controlled.\n");
+		         "controlled.\n");
 		return FALSE;
 	}
 #endif
@@ -414,7 +426,8 @@ Battle (BattleFrameCallback *callback)
 	LockMutex (GraphicsLock);
 
 #if !(DEMO_MODE || CREATE_JOURNAL)
-	if (LOBYTE (GLOBAL (CurrentActivity)) != SUPER_MELEE) {
+	if (LOBYTE (GLOBAL (CurrentActivity)) != SUPER_MELEE)
+	{
 		// In Supermelee, the RNG is already initialised.
 		TFB_SeedRandom (GetTimeCounter ());
 	}
@@ -426,7 +439,7 @@ Battle (BattleFrameCallback *callback)
 #endif /* DEMO_MODE */
 
 	BattleSong (FALSE);
-	
+
 	num_ships = InitShips ();
 
 	if (instantVictory)
@@ -436,7 +449,7 @@ Battle (BattleFrameCallback *callback)
 		battle_counter[1] = 0;
 		instantVictory = FALSE;
 	}
-	
+
 	if (num_ships)
 	{
 		BATTLE_STATE bs;
@@ -459,7 +472,8 @@ Battle (BattleFrameCallback *callback)
 		setBattleStateConnections (&bs);
 #endif  /* NETPLAY */
 
-		if (!selectAllShips (num_ships)) {
+		if (!selectAllShips (num_ships))
+		{
 			GLOBAL (CurrentActivity) |= CHECK_ABORT;
 			goto AbortBattle;
 		}
@@ -470,7 +484,8 @@ Battle (BattleFrameCallback *callback)
 		initBattleStateDataConnections ();
 		{
 			bool allOk = negotiateReadyConnections (true, NetState_inBattle);
-			if (!allOk) {
+			if (!allOk)
+			{
 				GLOBAL (CurrentActivity) |= CHECK_ABORT;
 				goto AbortBattle;
 			}
@@ -478,14 +493,14 @@ Battle (BattleFrameCallback *callback)
 #endif  /* NETPLAY */
 		bs.InputFunc = DoBattle;
 		bs.frame_cb = callback;
-		bs.first_time = (BOOLEAN)(LOBYTE (GLOBAL (CurrentActivity)) ==
-				IN_HYPERSPACE);
+		bs.first_time = (BOOLEAN) (LOBYTE (GLOBAL (CurrentActivity)) ==
+		                           IN_HYPERSPACE);
 
 		UnlockMutex (GraphicsLock);
 		DoInput (&bs, FALSE);
 		LockMutex (GraphicsLock);
 
-AbortBattle:
+	AbortBattle:
 		if (LOBYTE (GLOBAL (CurrentActivity)) == SUPER_MELEE)
 		{
 			if (GLOBAL (CurrentActivity) & CHECK_ABORT)
@@ -494,10 +509,10 @@ AbortBattle:
 				// (just to the supermelee menu).
 #ifdef NETPLAY
 				UnlockMutex (GraphicsLock);
-				waitResetConnections(NetState_inSetup);
-						// A connection may already be in inSetup (set from
-						// GetMeleeStarship). This is not a problem, although
-						// it will generate a warning in debug mode.
+				waitResetConnections (NetState_inSetup);
+				// A connection may already be in inSetup (set from
+				// GetMeleeStarship). This is not a problem, although
+				// it will generate a warning in debug mode.
 				LockMutex (GraphicsLock);
 #endif
 
@@ -527,7 +542,7 @@ AbortBattle:
 	FreeBattleSong ();
 
 	UnlockMutex (GraphicsLock);
-	
+
 	return (BOOLEAN) (num_ships < 0);
 }
 

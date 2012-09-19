@@ -16,3 +16,10 @@ then
 else
     zip -r content/addons/balance-effects.zip content/addons/balance
 fi
+
+if [ $2 ]
+then
+    zip -r $2 content/addons/balance-retreat
+else
+    zip -r content/addons/balance-retreat.zip content/addons/balance-retreat
+fi
