@@ -19,9 +19,9 @@
 #ifndef _SETUPMENU_H
 #define _SETUPMENU_H
 
-#define MULTI_FLEE_SETUPMENU
-
 #include "controls.h"
+
+#include "setup.h" // For MULTI_FLEE_SETUPMENU
 
 typedef enum {
 	OPTVAL_DISABLED,

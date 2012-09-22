@@ -44,7 +44,6 @@
 #include <errno.h>
 #include <string.h>
 
-
 ACTIVITY LastActivity;
 BYTE PlayerControl[NUM_PLAYERS];
 
@@ -139,7 +138,14 @@ LoadKernel (int argc, char *argv[])
 		log_add(log_Error, "The Balance Mod effects package is missing.");
 		return FALSE;
 	}
-	
+#ifdef MULTI_FLEE_SETUPMENU
+	// Never run Retreat-patched Balance Mod without new setup strings
+	if (!loadAddon("balance-retreat"))
+	{
+		log_add(log_Error, "The Retreat Patch setup strings are missing.");
+		return FALSE;
+	}
+#endif
 	/* Now load the rest of the addons, in order. */
 	prepareAddons (optAddons);
 

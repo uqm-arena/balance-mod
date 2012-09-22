@@ -626,6 +626,8 @@ getUserConfigOptions (struct options_struct *options)
 
 	getBoolConfigValue (&options->use3doMusic, "config.3domusic");
 	getBoolConfigValue (&options->useRemixMusic, "config.remixmusic");
+	
+	getBoolConfigValue (&options->multi_flee, "config.multi_flee");
 
 	getBoolConfigValueXlat (&options->meleeScale, "config.smoothmelee",
 			TFB_SCALE_TRILINEAR, TFB_SCALE_STEP);
@@ -684,6 +686,9 @@ enum
 	ADDONDIR_OPT,
 	ACCEL_OPT,
 	SAFEMODE_OPT,
+	
+	MULTI_FLEE_OPT,
+	
 #ifdef NETPLAY
 	NETHOST1_OPT,
 	NETPORT1_OPT,
@@ -731,6 +736,9 @@ static struct option longOptions[] =
 	{"addondir", 1, NULL, ADDONDIR_OPT},
 	{"accel", 1, NULL, ACCEL_OPT},
 	{"safe", 0, NULL, SAFEMODE_OPT},
+	
+	{"multi_flee", 0, NULL, MULTI_FLEE_OPT},
+	
 #ifdef NETPLAY
 	{"nethost1", 1, NULL, NETHOST1_OPT},
 	{"netport1", 1, NULL, NETPORT1_OPT},
@@ -1022,6 +1030,9 @@ parseOptions (int argc, char *argv[], struct options_struct *options)
 	                case SAFEMODE_OPT:
 				setBoolOption (&options->safeMode, true);
 				break;
+			case MULTI_FLEE_OPT:
+				setBoolOption (&options->multi_flee, true);
+				break;
 #ifdef NETPLAY
 			case NETHOST1_OPT:
 				netplayOptions.peer[0].isServer = false;
@@ -1185,6 +1196,8 @@ usage (FILE *out, const struct options_struct *defaults)
 	log_add (log_User, "  --stereosfx (enables positional sound effects, "
 			"currently only for openal)");
 	log_add (log_User, "  --safe (start in safe mode)");
+	log_add (log_User, "  --multi_flee (allow multiple retreats per ship "
+			"in SuperMelee, default is off)");
 #ifdef NETPLAY
 	log_add (log_User, "  --nethostN=HOSTNAME (server to connect to for "
 			"player N (1=bottom, 2=top)");

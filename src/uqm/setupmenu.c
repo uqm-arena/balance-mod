@@ -134,7 +134,7 @@ static int menu_sizes[MENU_COUNT] = {
 #	ifdef MULTI_FLEE_SETUPMENU
 	5,
 #	else
-	4,ls
+	4,
 	
 #	endif /* MULTI_FLEE_SETUPMENU */
 
@@ -1372,6 +1372,10 @@ SetGlobalOptions (GLOBALOPTS *opts)
 	res_PutBoolean ("config.pulseshield", opts->shield == OPTVAL_3DO);
 	res_PutInteger ("config.player1control", opts->player1);
 	res_PutInteger ("config.player2control", opts->player2);
+
+#ifdef MULTI_FLEE_SETUPMENU
+	res_PutBoolean ("config.multi_flee", opts->multi_flee);
+#endif
 
 	switch (opts->adriver) {
 	case OPTVAL_SILENCE:
