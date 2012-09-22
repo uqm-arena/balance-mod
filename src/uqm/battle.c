@@ -62,14 +62,14 @@ BattleFrameCounter battleFrameCount;
 static BOOLEAN
 RunAwayAllowed (void)
 {
-#ifdef SUPER_MELEE_RETREAT_BANNED
-	return (LOBYTE (GLOBAL (CurrentActivity)) == IN_ENCOUNTER
-			|| LOBYTE (GLOBAL (CurrentActivity)) == IN_LAST_BATTLE)
-			&& GET_GAME_STATE (STARBASE_AVAILABLE)
-			&& !GET_GAME_STATE (BOMB_CARRIER);
-#else
-	return 1;
-#endif
+	if (!opt_allow_retreat)
+	{
+		return (LOBYTE (GLOBAL (CurrentActivity)) == IN_ENCOUNTER
+				|| LOBYTE (GLOBAL (CurrentActivity)) == IN_LAST_BATTLE)
+				&& GET_GAME_STATE (STARBASE_AVAILABLE)
+				&& !GET_GAME_STATE (BOMB_CARRIER);
+	} else
+		return 1;
 }
 
 static void
@@ -79,22 +79,17 @@ DoRunAway (STARSHIP *StarShipPtr)
 
 	LockElement (StarShipPtr->hShip, &ElementPtr);
 	StarShipPtr->state_flee = TRUE;
-#ifndef SUPER_MELEE_RETREAT_BANNED
 	// To be able to run away only once per melee
-	if (!opt_multi_flee)
+	if (!opt_multi_flee && opt_allow_retreat)
 	    StarShipPtr->CanRunAway = FALSE;
-#endif
-	
 	if (GetPrimType (&DisplayArray[ElementPtr->PrimIndex]) == STAMP_PRIM
 			&& ElementPtr->life_span == NORMAL_LIFE
 			&& !(ElementPtr->state_flags & FINITE_LIFE)
 			&& ElementPtr->mass_points != MAX_SHIP_MASS * 10
 			&& !(ElementPtr->state_flags & APPEARING))
 	{
-#ifndef SUPER_MELEE_RETREAT_BANNED
-		if(LOBYTE (GLOBAL (CurrentActivity)) != SUPER_MELEE)
-#endif
-		battle_counter[0]--;
+		if((LOBYTE (GLOBAL (CurrentActivity)) != SUPER_MELEE) || !opt_allow_retreat)
+			battle_counter[0]--;
 
 		ElementPtr->turn_wait = 3;
 		ElementPtr->thrust_wait = 4;
@@ -222,7 +217,9 @@ ProcessInput (void)
 					if (InputState & BATTLE_SPECIAL)
 						StarShipPtr->ship_input_state |= SPECIAL;
 
-					if (CanRunAway && (InputState & BATTLE_ESCAPE) && StarShipPtr->CanRunAway)
+					if (CanRunAway && (InputState & BATTLE_ESCAPE) &&
+					    (StarShipPtr->CanRunAway ||
+					    (LOBYTE (GLOBAL (CurrentActivity)) != SUPER_MELEE)))
 						DoRunAway (StarShipPtr);
 				}
 			}

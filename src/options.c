@@ -51,7 +51,8 @@ int optWhichShield;
 int optSmoothScroll;
 int optMeleeScale;
 
-int opt_multi_flee;
+BOOLEAN opt_multi_flee;
+BOOLEAN opt_allow_retreat;
 
 const char **optAddons;
 

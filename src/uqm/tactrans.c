@@ -503,16 +503,12 @@ new_ship (ELEMENT *DeadShipPtr)
 		{	// This may be a dead ship (crew_level == 0) or a warped out ship
 			UpdateShipFragCrew (DeadStarShipPtr);
 
-#ifdef SUPER_MELEE_RETREAT_BANNED
-			// Deactivate the ship (cannot be selected)
-			DeadStarShipPtr->SpeciesID = NO_ID;
-#else /* SUPER_MELEE_RETREAT_BANNED */
-			// Do not deactivate fleeing ships if in Supermelee
-			if(!DeadStarShipPtr->state_flee || (LOBYTE (GLOBAL (CurrentActivity)) != SUPER_MELEE))
+			// Do not deactivate ships fleeing from Supermelee
+			if(!DeadStarShipPtr->state_flee || !opt_allow_retreat ||
+			   (LOBYTE (GLOBAL (CurrentActivity)) != SUPER_MELEE))
 			{
 				DeadStarShipPtr->SpeciesID = NO_ID;
 			}
-#endif /* SUPER_MELEE_RETREAT_BANNED */
 		}
 
 		if (GetNextStarShip (DeadStarShipPtr, DeadStarShipPtr->playerNr))
@@ -916,11 +912,14 @@ ship_transition (ELEMENT *ElementPtr)
 				ShipImagePtr->current.location.y =
 						WRAP_Y (ShipImagePtr->current.location.y);
 			}
-#ifndef SUPER_MELEE_RETREAT_BANNED
-			RACE_DESC * RDPtr;
-			RDPtr = StarShipPtr->RaceDescPtr;
-			StarShipPtr->last_crew_level=RDPtr->ship_info.crew_level;
-#endif
+			
+			if (opt_allow_retreat)
+			{
+				RACE_DESC * RDPtr;
+				RDPtr = StarShipPtr->RaceDescPtr;
+				StarShipPtr->last_crew_level=RDPtr->ship_info.crew_level;
+			}
+			
 			ShipImagePtr->preprocess_func = ship_transition;
 			ShipImagePtr->death_func = cycle_ion_trail;
 			SetElementStarShip (ShipImagePtr, StarShipPtr);

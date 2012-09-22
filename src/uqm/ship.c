@@ -413,15 +413,12 @@ spawn_ship (STARSHIP *StarShipPtr)
 		if (RDPtr->ship_info.crew_level > RDPtr->ship_info.max_crew)
 			RDPtr->ship_info.crew_level = RDPtr->ship_info.max_crew;
 	}			// Deactivate the ship (cannot be selected)
-
-#ifndef SUPER_MELEE_RETREAT_BANNED
-	else 
+	else if (opt_allow_retreat)
 	{
 		RDPtr->ship_info.crew_level = StarShipPtr->last_crew_level;
 		if (RDPtr->ship_info.crew_level > RDPtr->ship_info.max_crew || !RDPtr->ship_info.crew_level)
 			RDPtr->ship_info.crew_level = RDPtr->ship_info.max_crew;
 	}
-#endif
 
 	StarShipPtr->energy_counter = 0;
 	StarShipPtr->weapon_counter = 0;

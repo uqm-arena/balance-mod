@@ -77,8 +77,8 @@ typedef struct globalopts_struct {
 	OPT_ADRIVERTYPE adriver;
 	OPT_AQUALITYTYPE aquality;
 	OPT_ENABLABLE fullscreen, subtitles, scanlines, fps, stereo, music3do, musicremix
-#	                                                       ifdef MULTI_FLEE_SETUPMENU
-	                                                                       ,multi_flee
+#	                                                       ifdef RETREAT_SETUPMENU
+	                                                            ,allow_retreat, multi_flee
 #	                                                       endif
 	                                                                                 ;
 OPT_CONSOLETYPE menu, text, cscan, scroll, intro, meleezoom, shield;

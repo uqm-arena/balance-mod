@@ -17,7 +17,7 @@
 #ifndef _SETUP_H
 #define _SETUP_H
 
-#define MULTI_FLEE_SETUPMENU
+#define RETREAT_SETUPMENU
 
 #include "displist.h"
 #include "globdata.h"

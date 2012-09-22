@@ -611,9 +611,9 @@ FillPickMeleeFrame (MeleeSetup *setup)
 				BuiltShipPtr->race_strings = 0;
 				BuiltShipPtr->icons = 0;
 				BuiltShipPtr->RaceDescPtr = 0;
-#ifndef SUPER_MELEE_RETREAT_BANNED
+				
 				BuiltShipPtr->CanRunAway = TRUE;
-#endif
+				
 				UnlockStarShip (&race_q[side], hBuiltShip);
 			}
 		}

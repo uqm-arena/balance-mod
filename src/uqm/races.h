@@ -277,12 +277,11 @@ struct STARSHIP
 			 * respawning while retreating, and by new_ship to keep
 			 * retreated ships selectable.
 			 */
-#ifndef SUPER_MELEE_RETREAT_BANNED
 	BOOLEAN CanRunAway;
 			// Added to forbid retreating for a ship more than 1 time
-#endif
-    BYTE auxiliary_counter;
-    BYTE static_counter;
+			
+	BYTE auxiliary_counter;
+	BYTE static_counter;
     
 	BYTE ship_input_state;
 	STATUS_FLAGS cur_status_flags;
