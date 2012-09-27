@@ -53,6 +53,7 @@ int optMeleeScale;
 
 BOOLEAN opt_multi_flee;
 BOOLEAN opt_allow_retreat;
+DWORD opt_retreat_wait;
 
 const char **optAddons;
 

@@ -54,10 +54,17 @@ size_t battleInputOrder[NUM_SIDES];
 		// Network sides are last so that the sides will never be waiting
 		// on eachother, and games with a 0 frame delay are theoretically
 		// possible.
-#ifdef NETPLAY
+//#ifdef NETPLAY
 BattleFrameCounter battleFrameCount;
 		// Used for synchronisation purposes during netplay.
-#endif
+
+		/* Retreat patch now uses this to determine when a
+		 * ship is permitted to warp out. All definitions
+		 * and declarations have thus been made unconditional,
+		 * along with line 369 in this file which is responsible
+		 * for incrementing it each frame.
+		 */
+//#endif
 
 static BOOLEAN
 RunAwayAllowed (void)
@@ -79,6 +86,7 @@ DoRunAway (STARSHIP *StarShipPtr)
 
 	LockElement (StarShipPtr->hShip, &ElementPtr);
 	StarShipPtr->state_flee = TRUE;
+	StarShipPtr->flee_counter++;
 	// To be able to run away only once per melee
 	if (!opt_multi_flee && opt_allow_retreat)
 	    StarShipPtr->CanRunAway = FALSE;
@@ -358,9 +366,9 @@ DoBattle (BATTLE_STATE *bs)
 	if ((GLOBAL (CurrentActivity) & IN_BATTLE) == 0)
 		return FALSE;
 
-#ifdef NETPLAY
+//#ifdef NETPLAY
 	battleFrameCount++;
-#endif
+//#endif
 	return TRUE;
 }
 

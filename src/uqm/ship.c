@@ -35,6 +35,7 @@
 #include "sounds.h"
 #include "libs/mathlib.h"
 // #include "ires_ind.h" <- not used, see rev 2958
+#include <libs/log.h>
 
 
 void
@@ -235,7 +236,14 @@ ship_preprocess (ELEMENT *ElementPtr)
 		(*RDPtr->preprocess_func) (ElementPtr);
 		cur_status_flags = StarShipPtr->cur_status_flags;
 	}
-
+	                                  /* Don't stomp on the one retreat rule, if active */
+	if ((!StarShipPtr->CanRunAway) && ((opt_multi_flee) || (StarShipPtr->flee_counter == 0)) &&
+	    ((battleFrameCount) >= (StarShipPtr->entrance_time + opt_retreat_wait)))
+	{
+		/* The time limit has expired, permit retreat */
+		StarShipPtr->CanRunAway = TRUE;
+	}
+	
 	if (ElementPtr->turn_wait)
 		--ElementPtr->turn_wait;
 	else if (cur_status_flags & (LEFT | RIGHT))
@@ -426,6 +434,8 @@ spawn_ship (STARSHIP *StarShipPtr)
 	StarShipPtr->auxiliary_counter = 0;
 	StarShipPtr->static_counter = 0;
 	StarShipPtr->state_flee = FALSE;
+	StarShipPtr->CanRunAway = FALSE; /* this will become TRUE after time limit expires */
+	StarShipPtr->entrance_time = battleFrameCount; /* used for calculating time limit */
 
 	hShip = StarShipPtr->hShip;
 	if (hShip == 0)

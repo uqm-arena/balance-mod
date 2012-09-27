@@ -279,7 +279,20 @@ struct STARSHIP
 			 */
 	BOOLEAN CanRunAway;
 			// Added to forbid retreating for a ship more than 1 time
-			
+
+	DWORD entrance_time;
+			/*
+			 * Contains the exact frame according to battleFrameCount that
+			 * the ship entered the arena. Used to determine when the ship
+			 * can be permitted to flee.
+			 */
+	BYTE flee_counter;
+			/*
+			 * Counts the number of times a ship has fled.
+			 * Used in ship_preprocess to determine if a ship should
+			 * be permitted to flee.
+			 */
+
 	BYTE auxiliary_counter;
 	BYTE static_counter;
     

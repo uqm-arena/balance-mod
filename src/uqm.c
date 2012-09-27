@@ -130,7 +130,7 @@ struct options_struct
 
 	DECL_CONFIG_OPTION(bool, allow_retreat);
 	DECL_CONFIG_OPTION(bool, multi_flee);
-
+	DECL_CONFIG_OPTION(int, retreat_wait);
 
 #define INIT_CONFIG_OPTION(name, val) \
 	{ val, false }
@@ -267,6 +267,8 @@ main (int argc, char *argv[])
 		
 		INIT_CONFIG_OPTION(  allow_retreat,     true ),
 		INIT_CONFIG_OPTION(  multi_flee,        false ),
+		INIT_CONFIG_OPTION(  retreat_wait,      600 ),
+
 	};
 	struct options_struct defaults = options;
 	int optionsResult;
@@ -392,7 +394,7 @@ main (int argc, char *argv[])
 
 	opt_allow_retreat = options.allow_retreat.value;
 	opt_multi_flee = options.multi_flee.value;
-
+	opt_retreat_wait = options.retreat_wait.value;
 
 	prepareContentDir (options.contentDir, options.addonDir, argv[0]);
 	prepareMeleeDir ();
@@ -582,6 +584,17 @@ getListConfigValue (struct int_option *option, const char *config_val,
 	return found;
 }
 
+/* Copied from getVolumeConfigValue, with minor changes */
+
+static void
+getIntConfigValue (struct int_option *option, const char *config_val)
+{
+	if (option->set || !res_IsInteger (config_val))
+		return;
+	option->value = res_GetInteger(config_val);
+	option->set = true;
+}
+
 static void
 getUserConfigOptions (struct options_struct *options)
 {
@@ -634,6 +647,7 @@ getUserConfigOptions (struct options_struct *options)
 	
 	getBoolConfigValue (&options->allow_retreat, "config.allow_retreat");
 	getBoolConfigValue (&options->multi_flee, "config.multi_flee");
+	getIntConfigValue  (&options->retreat_wait, "config.retreat_wait");
 
 	getBoolConfigValueXlat (&options->meleeScale, "config.smoothmelee",
 			TFB_SCALE_TRILINEAR, TFB_SCALE_STEP);
@@ -695,6 +709,7 @@ enum
 	
 	NO_SUPERMELEE_RETREAT_OPT,
 	MULTI_FLEE_OPT,
+	RETREAT_WAIT_OPT,
 	
 #ifdef NETPLAY
 	NETHOST1_OPT,
@@ -746,6 +761,7 @@ static struct option longOptions[] =
 	
 	{"no_allow_retreat", 0, NULL, NO_SUPERMELEE_RETREAT_OPT},
 	{"multi_flee", 0, NULL, MULTI_FLEE_OPT},
+	{"retreat_wait", 1, NULL, RETREAT_WAIT_OPT},
 	
 #ifdef NETPLAY
 	{"nethost1", 1, NULL, NETHOST1_OPT},
@@ -805,6 +821,18 @@ setVolumeOption (struct float_option *option, const char *strval,
 	if (parseIntOption (strval, &intVol, optName) != 0)
 		return false;
 	parseIntVolume (intVol, &option->value);
+	option->set = true;
+	return true;
+}
+
+/* Copied from setFloatOption, with minor changes */
+static bool
+setIntOption (struct int_option *option, const char *strval,
+		const char *optName)
+{
+	if (parseIntOption (strval, &option->value, optName) != 0)
+		return false;
+	parseIntOption (strval, &option->value, optName);
 	option->set = true;
 	return true;
 }
@@ -1043,6 +1071,16 @@ parseOptions (int argc, char *argv[], struct options_struct *options)
 			case MULTI_FLEE_OPT:
 				setBoolOption (&options->multi_flee, true);
 				break;
+			case RETREAT_WAIT_OPT:
+				setIntOption (&options->retreat_wait, optarg,
+					      "--retreat_wait");
+				/* 
+				 * The human-visible commandline option is specified in seconds,
+				 * but the option is stored internally as melee frames, which are
+				 * 1/24 of a second. We perform this conversion here.
+				 */
+				options->retreat_wait.value = options->retreat_wait.value * 24;
+				break;
 #ifdef NETPLAY
 			case NETHOST1_OPT:
 				netplayOptions.peer[0].isServer = false;
@@ -1212,6 +1250,8 @@ usage (FILE *out, const struct options_struct *defaults)
 			"default is off)");
 	log_add (log_User, "  --multi_flee (allow multiple retreats per ship "
 			"in SuperMelee, default is off)");
+	log_add (log_User, "  --retreat_wait (number of seconds to wait before "
+			"allowing a ship to flee in Supermelee, default is 25)");
 
 #ifdef NETPLAY
 	log_add (log_User, "  --nethostN=HOSTNAME (server to connect to for "

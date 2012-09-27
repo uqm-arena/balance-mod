@@ -40,6 +40,7 @@ extern int optMeleeScale;
 
 extern BOOLEAN opt_multi_flee;
 extern BOOLEAN opt_allow_retreat;
+extern DWORD opt_retreat_wait;
 
 extern BOOLEAN opt3doMusic;
 extern BOOLEAN optRemixMusic;
