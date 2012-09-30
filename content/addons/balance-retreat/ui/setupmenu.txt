@@ -34,7 +34,7 @@ Player One
 Player Two
 Control Set
 UQM Remixes
-Supermelee Retreat
+S-melee Retreat
 
 #(CAT_0_OPTS)
 320x240
