@@ -440,6 +440,7 @@ Ships may retreat in Supermelee.
 Music Volume
 SFX Volume
 Speech Volume
+Retreat Delay
 
 #(SLIDER_0_DESC)
 Sets the music volume.
@@ -449,6 +450,9 @@ Sets the sound effects volume.
 
 #(SLIDER_2_DESC)
 Sets the speech volume.
+
+#(SLIDER_3_DESC)
+Sets the delay before a ship can flee in Supermelee.
 
 #(BUTTONS)
 Quit Setup Menu

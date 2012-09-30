@@ -80,7 +80,12 @@ static void clear_control (WIDGET_CONTROLENTRY *widget);
 #define CHOICE_COUNT	   22
 #endif
 
+#ifdef RETREAT_SETUPMENU
+#define SLIDER_COUNT        4
+#else
 #define SLIDER_COUNT        3
+#endif
+
 #define BUTTON_COUNT       10
 #define LABEL_COUNT         4
 #define TEXTENTRY_COUNT     1
@@ -126,7 +131,7 @@ static int menu_sizes[MENU_COUNT] = {
 	+1
 #endif /* HAVE_OPENGL */
 #ifdef RETREAT_SETUPMENU
-	+1
+	+2
 #endif
 	,
 	11
@@ -181,6 +186,7 @@ static WIDGET *advanced_widgets[] = {
 	(WIDGET *)(&choices[16]),
 #ifdef RETREAT_SETUPMENU
 	(WIDGET *)(&choices[22]),
+	(WIDGET *)(&sliders[3]),
 #endif
 	(WIDGET *)(&buttons[1]) };
 	
@@ -415,6 +421,14 @@ SetDefaults (void)
 	sliders[0].value = opts.musicvol;
 	sliders[1].value = opts.sfxvol;
 	sliders[2].value = opts.speechvol;
+#ifdef RETREAT_SETUPMENU
+	/* 
+	 * This value is stored in melee frames (1/24 second), but
+	 * we want the slider to work with seconds, so we need
+	 * to perform conversion here.
+	 */
+	 sliders[3].value = (opts.retreat_wait / 24);
+#endif
 }
 
 static void
@@ -443,11 +457,18 @@ PropagateResults (void)
 	opts.player2 = choices[19].selected;
 	opts.musicremix = choices[21].selected;
 #ifdef RETREAT_SETUPMENU
-	opts.retreat = choices[22].selected;
+	opts.retreat = (choices[22].selected * 24);
 #endif
 	opts.musicvol = sliders[0].value;
 	opts.sfxvol = sliders[1].value;
 	opts.speechvol = sliders[2].value;
+#ifdef RETREAT_SETUPMENU
+	/*
+	 * As above, we need to convert between seconds
+	 * and frames for this value.
+	 */
+	opts.retreat_wait = (sliders[3].value * 24);
+#endif
 	SetGlobalOptions (&opts);
 }
 
@@ -1229,6 +1250,7 @@ GetGlobalOptions (GLOBALOPTS *opts)
 	opts->speechvol = (((int)(speechVolumeScale * 100.0f) + 2) / 5) * 5;
 #ifdef RETREAT_SETUPMENU
 	opts->retreat = opt_retreat;
+	opts->retreat_wait = opt_retreat_wait;
 #endif
 }
 
@@ -1343,6 +1365,7 @@ SetGlobalOptions (GLOBALOPTS *opts)
 	optWhichIntro = (opts->intro == OPTVAL_3DO) ? OPT_3DO : OPT_PC;
 #ifdef RETREAT_SETUPMENU
 	opt_retreat = opts->retreat;
+	opt_retreat_wait = opts->retreat_wait;
 #endif
 	PlayerControls[0] = opts->player1;
 	PlayerControls[1] = opts->player2;
@@ -1365,6 +1388,7 @@ SetGlobalOptions (GLOBALOPTS *opts)
 
 #ifdef RETREAT_SETUPMENU
 	res_PutInteger ("config.retreat", opts->retreat);
+	res_PutInteger ("config.retreat_wait", opts->retreat_wait);
 #endif
 
 	switch (opts->adriver) {
