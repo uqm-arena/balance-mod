@@ -265,7 +265,7 @@ main (int argc, char *argv[])
 		INIT_CONFIG_OPTION(  safeMode,          false ),
 		
 		INIT_CONFIG_OPTION(  retreat,		OPTVAL_ONEPERSHIP),
-		INIT_CONFIG_OPTION(  retreat_wait,      25 ),
+		INIT_CONFIG_OPTION(  retreat_wait,      600 ),
 
 	};
 	struct options_struct defaults = options;

@@ -117,6 +117,26 @@ PacketHandler_Init(NetConnection *conn, const Packet_Init *packet) {
 		errno = ENOSYS;
 		return -1;
 	}
+	
+	if ((opt_retreat != packet->retreat_options.retreat) ||
+	    (opt_retreat_wait != packet->retreat_options.retreat_wait))
+	{
+		/* 
+		* For now this uses 'unspecified' as a reason because adding another reason
+		* would mean altering the effects pack. This will be fine if this ever merges
+		* with balance mod master, but for now we want to make it possible to run 
+		* without content changes. We still make a full explanation in the log.
+		*/
+		sendAbort (conn, AbortReason_unspecified);
+		abortFeedback (conn, AbortReason_unspecified);
+		log_add (log_Error, "[RETREAT_PATCH] Retreat settings are inconsistent. We have: "
+				"opt_retreat = %d, opt_retreat_wait = %d, remote has: "
+				"opt_retreat = %d, opt_retreat_wait = %d.",
+				opt_retreat, opt_retreat_wait,
+				packet->retreat_options.retreat, packet->retreat_options.retreat_wait);
+		errno = ENOSYS;
+		return -1;
+	}
 
 	Netplay_remoteReady(conn);
 	

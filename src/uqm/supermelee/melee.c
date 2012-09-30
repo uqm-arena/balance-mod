@@ -2134,7 +2134,7 @@ Melee (void)
 		FlushInput ();
 	}
 }
-
+#define NETPLAY
 #ifdef NETPLAY
 void
 updateRandomSeed (MELEE_STATE *pMS, COUNT side, DWORD seed)
