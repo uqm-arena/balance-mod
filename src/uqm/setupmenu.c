@@ -457,7 +457,7 @@ PropagateResults (void)
 	opts.player2 = choices[19].selected;
 	opts.musicremix = choices[21].selected;
 #ifdef RETREAT_SETUPMENU
-	opts.retreat = (choices[22].selected * 24);
+	opts.retreat = choices[22].selected;
 #endif
 	opts.musicvol = sliders[0].value;
 	opts.sfxvol = sliders[1].value;
