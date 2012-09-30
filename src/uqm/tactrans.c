@@ -504,7 +504,7 @@ new_ship (ELEMENT *DeadShipPtr)
 			UpdateShipFragCrew (DeadStarShipPtr);
 
 			// Do not deactivate ships fleeing from Supermelee
-			if(!DeadStarShipPtr->state_flee || !opt_allow_retreat ||
+			if(!DeadStarShipPtr->state_flee || (opt_retreat==OPTVAL_DENY) ||
 			   (LOBYTE (GLOBAL (CurrentActivity)) != SUPER_MELEE))
 			{
 				DeadStarShipPtr->SpeciesID = NO_ID;
@@ -913,7 +913,7 @@ ship_transition (ELEMENT *ElementPtr)
 						WRAP_Y (ShipImagePtr->current.location.y);
 			}
 			
-			if (opt_allow_retreat)
+			if (opt_retreat != OPTVAL_DENY)
 			{
 				RACE_DESC * RDPtr;
 				RDPtr = StarShipPtr->RaceDescPtr;

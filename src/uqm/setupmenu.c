@@ -74,11 +74,7 @@ static void clear_control (WIDGET_CONTROLENTRY *widget);
 
 #define MENU_COUNT          8
 
-#ifdef RETREAT_SETUPMENU
-#	define CHOICE_COUNT 24
-#else
-#	define CHOICE_COUNT 22
-#endif
+#define CHOICE_COUNT	   23
 
 #define SLIDER_COUNT        3
 #define BUTTON_COUNT       10
@@ -102,10 +98,7 @@ typedef int (*HANDLER)(WIDGET *, int);
 static int choice_widths[CHOICE_COUNT] = {
 	3, 2, 3, 3, 2, 2, 2, 2, 2, 2, 
 	2, 2, 3, 2, 2, 3, 3, 2,	3, 3, 
-	3, 2
-#ifdef RETREAT_SETUPMENU
-	  ,2, 2
-#endif
+	3, 2, 3
 	   };
 
 static HANDLER button_handlers[BUTTON_COUNT] = {
@@ -122,22 +115,9 @@ static int menu_sizes[MENU_COUNT] = {
  * and make compilation of the new setup menu option conditional.
  */
 #ifdef HAVE_OPENGL
-
-#	ifdef RETREAT_SETUPMENU
-	7,
-#	else
-	5,
-#	endif /* RETREAT_SETUPMENU */
-
-#else
-
-#	ifdef RETREAT_SETUPMENU
 	6,
-#	else
-	4,
-	
-#	endif /* RETREAT_SETUPMENU */
-
+#else
+	5,
 #endif /* HAVE_OPENGL */
 	11
 };
@@ -189,10 +169,7 @@ static WIDGET *advanced_widgets[] = {
 	(WIDGET *)(&choices[12]),
 	(WIDGET *)(&choices[15]),
 	(WIDGET *)(&choices[16]),
-#ifdef RETREAT_SETUPMENU	
 	(WIDGET *)(&choices[22]),
-	(WIDGET *)(&choices[23]),
-#endif
 	(WIDGET *)(&buttons[1]) };
 	
 static WIDGET *keyconfig_widgets[] = {
@@ -420,10 +397,7 @@ SetDefaults (void)
 	choices[19].selected = opts.player2;
 	choices[20].selected = 0;
 	choices[21].selected = opts.musicremix;
-#ifdef RETREAT_SETUPMENU
-	choices[22].selected = opts.allow_retreat;
-	choices[23].selected = opts.multi_flee;
-#endif
+	choices[22].selected = opts.retreat;
 	sliders[0].value = opts.musicvol;
 	sliders[1].value = opts.sfxvol;
 	sliders[2].value = opts.speechvol;
@@ -454,10 +428,7 @@ PropagateResults (void)
 	opts.player1 = choices[18].selected;
 	opts.player2 = choices[19].selected;
 	opts.musicremix = choices[21].selected;
-#ifdef  RETREAT_SETUPMENU
-	opts.allow_retreat = choices[22].selected;
-	opts.multi_flee = choices[23].selected;
-#endif
+	opts.retreat = choices[22].selected;
 	opts.musicvol = sliders[0].value;
 	opts.sfxvol = sliders[1].value;
 	opts.speechvol = sliders[2].value;
@@ -1240,10 +1211,7 @@ GetGlobalOptions (GLOBALOPTS *opts)
 	opts->musicvol = (((int)(musicVolumeScale * 100.0f) + 2) / 5) * 5;
 	opts->sfxvol = (((int)(sfxVolumeScale * 100.0f) + 2) / 5) * 5;
 	opts->speechvol = (((int)(speechVolumeScale * 100.0f) + 2) / 5) * 5;
-#ifdef RETREAT_SETUPMENU
-	opts->allow_retreat = opt_allow_retreat ? OPTVAL_ENABLED : OPTVAL_DISABLED;
-	opts->multi_flee = opt_multi_flee ? OPTVAL_ENABLED : OPTVAL_DISABLED;
-#endif
+	opts->retreat = opt_retreat;
 }
 
 void
@@ -1355,10 +1323,7 @@ SetGlobalOptions (GLOBALOPTS *opts)
 	optWhichShield = (opts->shield == OPTVAL_3DO) ? OPT_3DO : OPT_PC;
 	optMeleeScale = (opts->meleezoom == OPTVAL_3DO) ? TFB_SCALE_TRILINEAR : TFB_SCALE_STEP;
 	optWhichIntro = (opts->intro == OPTVAL_3DO) ? OPT_3DO : OPT_PC;
-#ifdef RETREAT_SETUPMENU
-	opt_allow_retreat = opts->allow_retreat ? OPTVAL_ENABLED : OPTVAL_DISABLED;
-	opt_multi_flee = opts->multi_flee ? OPTVAL_ENABLED : OPTVAL_DISABLED;
-#endif
+	opt_retreat = opts->retreat;
 	PlayerControls[0] = opts->player1;
 	PlayerControls[1] = opts->player2;
 
@@ -1378,10 +1343,7 @@ SetGlobalOptions (GLOBALOPTS *opts)
 	res_PutInteger ("config.player1control", opts->player1);
 	res_PutInteger ("config.player2control", opts->player2);
 
-#ifdef RETREAT_SETUPMENU
-	res_PutBoolean ("config.allow_retreat", opts->allow_retreat);
-	res_PutBoolean ("config.multi_flee", opts->multi_flee);
-#endif
+	res_PutInteger ("config.retreat", opts->retreat);
 
 	switch (opts->adriver) {
 	case OPTVAL_SILENCE:

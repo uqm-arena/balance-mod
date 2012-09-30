@@ -128,8 +128,7 @@ struct options_struct
 	DECL_CONFIG_OPTION(float, speechVolumeScale);
 	DECL_CONFIG_OPTION(bool, safeMode);
 
-	DECL_CONFIG_OPTION(bool, allow_retreat);
-	DECL_CONFIG_OPTION(bool, multi_flee);
+	DECL_CONFIG_OPTION(int, retreat);
 	DECL_CONFIG_OPTION(int, retreat_wait);
 
 #define INIT_CONFIG_OPTION(name, val) \
@@ -265,9 +264,8 @@ main (int argc, char *argv[])
 		INIT_CONFIG_OPTION(  speechVolumeScale, 1.0f ),
 		INIT_CONFIG_OPTION(  safeMode,          false ),
 		
-		INIT_CONFIG_OPTION(  allow_retreat,     true ),
-		INIT_CONFIG_OPTION(  multi_flee,        false ),
-		INIT_CONFIG_OPTION(  retreat_wait,      600 ),
+		INIT_CONFIG_OPTION(  retreat,		OPTVAL_ONEPERSHIP),
+		INIT_CONFIG_OPTION(  retreat_wait,      25 ),
 
 	};
 	struct options_struct defaults = options;
@@ -392,8 +390,7 @@ main (int argc, char *argv[])
 	speechVolumeScale = options.speechVolumeScale.value;
 	optAddons = options.addons;
 
-	opt_allow_retreat = options.allow_retreat.value;
-	opt_multi_flee = options.multi_flee.value;
+	opt_retreat      = options.retreat.value;
 	opt_retreat_wait = options.retreat_wait.value;
 
 	prepareContentDir (options.contentDir, options.addonDir, argv[0]);
@@ -645,8 +642,7 @@ getUserConfigOptions (struct options_struct *options)
 	getBoolConfigValue (&options->use3doMusic, "config.3domusic");
 	getBoolConfigValue (&options->useRemixMusic, "config.remixmusic");
 	
-	getBoolConfigValue (&options->allow_retreat, "config.allow_retreat");
-	getBoolConfigValue (&options->multi_flee, "config.multi_flee");
+	getIntConfigValue  (&options->retreat,      "config.retreat");
 	getIntConfigValue  (&options->retreat_wait, "config.retreat_wait");
 
 	getBoolConfigValueXlat (&options->meleeScale, "config.smoothmelee",
@@ -707,8 +703,7 @@ enum
 	ACCEL_OPT,
 	SAFEMODE_OPT,
 	
-	NO_SUPERMELEE_RETREAT_OPT,
-	MULTI_FLEE_OPT,
+	SUPERMELEE_RETREAT_OPT,
 	RETREAT_WAIT_OPT,
 	
 #ifdef NETPLAY
@@ -759,8 +754,7 @@ static struct option longOptions[] =
 	{"accel", 1, NULL, ACCEL_OPT},
 	{"safe", 0, NULL, SAFEMODE_OPT},
 	
-	{"no_allow_retreat", 0, NULL, NO_SUPERMELEE_RETREAT_OPT},
-	{"multi_flee", 0, NULL, MULTI_FLEE_OPT},
+	{"retreat",      1, NULL, SUPERMELEE_RETREAT_OPT},
 	{"retreat_wait", 1, NULL, RETREAT_WAIT_OPT},
 	
 #ifdef NETPLAY
@@ -1066,11 +1060,9 @@ parseOptions (int argc, char *argv[], struct options_struct *options)
 	                case SAFEMODE_OPT:
 				setBoolOption (&options->safeMode, true);
 				break;
-			case NO_SUPERMELEE_RETREAT_OPT:
-				setBoolOption (&options->allow_retreat, false);
-			case MULTI_FLEE_OPT:
-				setBoolOption (&options->multi_flee, true);
-				break;
+			case SUPERMELEE_RETREAT_OPT:
+				setIntOption (&options->retreat, optarg,
+						"--supermelee-retreat");
 			case RETREAT_WAIT_OPT:
 				setIntOption (&options->retreat_wait, optarg,
 					      "--retreat_wait");
@@ -1246,10 +1238,8 @@ usage (FILE *out, const struct options_struct *defaults)
 	log_add (log_User, "  --safe (start in safe mode)");
 
 
-	log_add (log_User, "  --no_allow_retreat (Forbid retreating in Supermelee, "
-			"default is off)");
-	log_add (log_User, "  --multi_flee (allow multiple retreats per ship "
-			"in SuperMelee, default is off)");
+	log_add (log_User, "  --retreat (enables retreating in Supermelee, "
+			"0=deny, 1=oncepermelee, 2=allow, default is 1)");
 	log_add (log_User, "  --retreat_wait (number of seconds to wait before "
 			"allowing a ship to flee in Supermelee, default is 25)");
 

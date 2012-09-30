@@ -69,7 +69,7 @@ BattleFrameCounter battleFrameCount;
 static BOOLEAN
 RunAwayAllowed (void)
 {
-	if (!opt_allow_retreat)
+	if (!opt_retreat)
 	{
 		return (LOBYTE (GLOBAL (CurrentActivity)) == IN_ENCOUNTER
 				|| LOBYTE (GLOBAL (CurrentActivity)) == IN_LAST_BATTLE)
@@ -88,15 +88,15 @@ DoRunAway (STARSHIP *StarShipPtr)
 	StarShipPtr->state_flee = TRUE;
 	StarShipPtr->flee_counter++;
 	// To be able to run away only once per melee
-	if (!opt_multi_flee && opt_allow_retreat)
-	    StarShipPtr->CanRunAway = FALSE;
+	if (opt_retreat == OPTVAL_ONEPERSHIP)
+		StarShipPtr->CanRunAway = FALSE;
 	if (GetPrimType (&DisplayArray[ElementPtr->PrimIndex]) == STAMP_PRIM
 			&& ElementPtr->life_span == NORMAL_LIFE
 			&& !(ElementPtr->state_flags & FINITE_LIFE)
 			&& ElementPtr->mass_points != MAX_SHIP_MASS * 10
 			&& !(ElementPtr->state_flags & APPEARING))
 	{
-		if((LOBYTE (GLOBAL (CurrentActivity)) != SUPER_MELEE) || !opt_allow_retreat)
+		if((LOBYTE (GLOBAL (CurrentActivity)) != SUPER_MELEE) || (opt_retreat == OPTVAL_DENY))
 			battle_counter[0]--;
 
 		ElementPtr->turn_wait = 3;

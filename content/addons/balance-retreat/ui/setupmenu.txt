@@ -35,7 +35,6 @@ Player Two
 Control Set
 UQM Remixes
 Supermelee Retreat
-Retreats Per Match
 
 #(CAT_0_OPTS)
 320x240
@@ -424,24 +423,18 @@ modern soundtrack written by The Precursors.
 Requires a restart of UQM to take effect.
 
 #(CAT_22_OPTS)
-Disabled
-Enabled
+Deny
+Once
+Allow
 
 #(CAT_22_OPT_0_DESC)
-Ships may not retreat in Supermelee.
+Ships cannot retreat in Supermelee.
 
 #(CAT_22_OPT_1_DESC)
+Ships may retreat once per Supermelee.
+
+#(CAT_22_OPT_2_DESC)
 Ships may retreat in Supermelee.
-
-#(CAT_23_OPTS)
-Once
-Unlimited
-
-#(CAT_23_OPT_0_DESC)
-Ships may only retreat once per match in Supermelee.
-
-#(CAT_23_OPT_1_DESC)
-Ships may retreat in Supermelee without restriction.
 
 #(SLIDERS)
 Music Volume

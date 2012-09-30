@@ -38,8 +38,7 @@ extern int optWhichShield;
 extern int optSmoothScroll;
 extern int optMeleeScale;
 
-extern BOOLEAN opt_multi_flee;
-extern BOOLEAN opt_allow_retreat;
+extern int opt_retreat;
 extern DWORD opt_retreat_wait;
 
 extern BOOLEAN opt3doMusic;
