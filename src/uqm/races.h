@@ -279,6 +279,7 @@ struct STARSHIP
 			 */
 	BOOLEAN CanRunAway;
 			// Added to forbid retreating for a ship more than 1 time
+			// Now used for the retreat timer as well.
 
 	DWORD entrance_time;
 			/*

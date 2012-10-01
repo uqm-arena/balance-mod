@@ -200,6 +200,13 @@ static const struct option_list_value accelList[] =
 	{NULL, 0}
 };
 
+static const struct option_list_value retreatList[] =
+{
+	{"none",      OPTVAL_DENY},
+	{"once",      OPTVAL_ONEPERSHIP},
+	{"unlimited", OPTVAL_ALLOW},
+	{NULL, 0}
+};
 // Looks up the given string value in the given list and passes
 // the associated int value back. returns true if value was found.
 // The list is terminated by a NULL 'str' value.
@@ -1061,11 +1068,22 @@ parseOptions (int argc, char *argv[], struct options_struct *options)
 				setBoolOption (&options->safeMode, true);
 				break;
 			case SUPERMELEE_RETREAT_OPT:
-				setIntOption (&options->retreat, optarg,
-						"--supermelee-retreat");
+				if (!setListOption (&options->retreat, optarg, retreatList))
+					if (!setIntOption (&options->retreat, optarg,
+						      "--retreat"))
+					{
+						InvalidArgument (optarg, "--retreat");
+						badArg = true;
+					}
+				break;
 			case RETREAT_WAIT_OPT:
-				setIntOption (&options->retreat_wait, optarg,
-					      "--retreat_wait");
+				if (!setIntOption (&options->retreat_wait, optarg,
+					      "--retreat_wait"))
+				{
+					InvalidArgument (optarg, "--retreat_wait");
+					badArg = true;
+					break;
+				}
 				/* 
 				 * The human-visible commandline option is specified in seconds,
 				 * but the option is stored internally as melee frames, which are
@@ -1239,7 +1257,7 @@ usage (FILE *out, const struct options_struct *defaults)
 
 
 	log_add (log_User, "  --retreat (enables retreating in Supermelee, "
-			"0=deny, 1=oncepermelee, 2=allow, default is 1)");
+			"values are none, once, or unlimited)");
 	log_add (log_User, "  --retreat_wait (number of seconds to wait before "
 			"allowing a ship to flee in Supermelee, default is 25)");
 
