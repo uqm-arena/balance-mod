@@ -272,6 +272,10 @@ main (int argc, char *argv[])
 		INIT_CONFIG_OPTION(  safeMode,          false ),
 		
 		INIT_CONFIG_OPTION(  retreat,		OPTVAL_ONEPERSHIP),
+		/*
+		 * This is in melee frames (1/24 second), converted to seconds
+		 * on the fly when needed for user configuration purposes.
+		 */
 		INIT_CONFIG_OPTION(  retreat_wait,      600 ),
 
 	};
