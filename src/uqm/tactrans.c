@@ -290,6 +290,14 @@ cleanup_dead_ship (ELEMENT *DeadShipPtr)
 	ProcessSound ((SOUND)~0, NULL);
 
 	GetElementStarShip (DeadShipPtr, &DeadStarShipPtr);
+
+	if(DeadStarShipPtr->state_flee && opt_retreat != OPTVAL_DENY) 
+	{
+		RACE_DESC * RDPtr;
+		RDPtr = DeadStarShipPtr->RaceDescPtr;
+		DeadStarShipPtr->last_energy_level=RDPtr->ship_info.energy_level;
+	}
+
 	{
 		// Ship explosion has finished, or ship has just warped out
 		// if DeadStarShipPtr->crew_level != 0
@@ -663,6 +671,8 @@ ship_death (ELEMENT *ShipPtr)
 	}
 
 	StarShipPtr->cur_status_flags &= ~PLAY_VICTORY_DITTY;
+	if(opt_retreat != OPTVAL_DENY)
+		StarShipPtr->state_flee = FALSE;
 
 	DeltaEnergy (ShipPtr,
 			-(SIZE)StarShipPtr->RaceDescPtr->ship_info.energy_level);
@@ -912,14 +922,17 @@ ship_transition (ELEMENT *ElementPtr)
 				ShipImagePtr->current.location.y =
 						WRAP_Y (ShipImagePtr->current.location.y);
 			}
-			
-			if (opt_retreat != OPTVAL_DENY)
-			{
-				RACE_DESC * RDPtr;
-				RDPtr = StarShipPtr->RaceDescPtr;
-				StarShipPtr->last_crew_level=RDPtr->ship_info.crew_level;
+/*
+			if(StarShipPtr->state_flee) {
+				printf("DUMP\n");
+				if (opt_retreat != OPTVAL_DENY)
+				{
+					RACE_DESC * RDPtr;
+					RDPtr = StarShipPtr->RaceDescPtr;
+					StarShipPtr->last_energy_level=RDPtr->ship_info.energy_level;
+				}
 			}
-			
+*/
 			ShipImagePtr->preprocess_func = ship_transition;
 			ShipImagePtr->death_func = cycle_ion_trail;
 			SetElementStarShip (ShipImagePtr, StarShipPtr);
