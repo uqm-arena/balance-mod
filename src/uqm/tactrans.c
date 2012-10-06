@@ -922,17 +922,7 @@ ship_transition (ELEMENT *ElementPtr)
 				ShipImagePtr->current.location.y =
 						WRAP_Y (ShipImagePtr->current.location.y);
 			}
-/*
-			if(StarShipPtr->state_flee) {
-				printf("DUMP\n");
-				if (opt_retreat != OPTVAL_DENY)
-				{
-					RACE_DESC * RDPtr;
-					RDPtr = StarShipPtr->RaceDescPtr;
-					StarShipPtr->last_energy_level=RDPtr->ship_info.energy_level;
-				}
-			}
-*/
+
 			ShipImagePtr->preprocess_func = ship_transition;
 			ShipImagePtr->death_func = cycle_ion_trail;
 			SetElementStarShip (ShipImagePtr, StarShipPtr);
