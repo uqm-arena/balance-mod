@@ -285,13 +285,19 @@ preprocess_dead_ship (ELEMENT *DeadShipPtr)
 void
 cleanup_dead_ship (ELEMENT *DeadShipPtr)
 {
+	BOOLEAN isretreat;
 	STARSHIP *DeadStarShipPtr;
+	BYTE MiscElemCount;
+
+	MiscElemCount = 0;
 
 	ProcessSound ((SOUND)~0, NULL);
 
 	GetElementStarShip (DeadShipPtr, &DeadStarShipPtr);
 
-	if(DeadStarShipPtr->state_flee && opt_retreat != OPTVAL_DENY) 
+	isretreat = (DeadStarShipPtr->state_flee && opt_retreat != OPTVAL_DENY);
+
+	if(isretreat)
 	{
 		RACE_DESC * RDPtr;
 		RDPtr = DeadStarShipPtr->RaceDescPtr;
@@ -329,6 +335,21 @@ cleanup_dead_ship (ELEMENT *DeadShipPtr)
 				if (!(ElementPtr->state_flags & CREW_OBJECT)
 						|| ElementPtr->preprocess_func != crew_preprocess)
 				{
+					if(isretreat) 
+					{
+						if(MiscElemCount>=MISC_STORAGE_SIZE) {
+							fprintf(stderr, "Error: MISC_STORAGE_SIZE is too small!");
+						} else {
+							switch(StarShipPtr->SpeciesID) {
+								case CHMMR_ID:
+									if(ElementPtr->hit_points) {
+										((COUNT*)StarShipPtr->miscellanea_storage)[MiscElemCount] = ElementPtr->hit_points;
+										MiscElemCount++;
+									}
+									break;
+							}
+						}
+					}
 					// Set the element up for deletion.
 					SetPrimType (&DisplayArray[ElementPtr->PrimIndex],
 							NO_PRIM);

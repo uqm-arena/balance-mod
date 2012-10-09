@@ -666,6 +666,15 @@ spawn_satellites (ELEMENT *ElementPtr)
 		for (i = 0; i < NUM_SATELLITES; ++i)
 		{
 			HELEMENT hSatellite;
+			COUNT hit_points;
+
+			if(StarShipPtr->flee_counter) {	// SUPER_MELEE: If returning after retreat
+				hit_points = ((COUNT*)StarShipPtr->miscellanea_storage)[i];
+				if(!hit_points)		// Don't respawn sattelite, that was been destroyed before the last retreat
+					continue;
+			} else {
+				hit_points = SATELLITE_HITPOINTS;
+			}
 
 			hSatellite = AllocElement ();
 			if (hSatellite)
@@ -678,7 +687,7 @@ spawn_satellites (ELEMENT *ElementPtr)
 				SattPtr->state_flags = IGNORE_SIMILAR | APPEARING
 						| FINITE_LIFE;
 				SattPtr->life_span = NORMAL_LIFE + 1;
-				SattPtr->hit_points = SATELLITE_HITPOINTS;
+				SattPtr->hit_points = hit_points;
 				SattPtr->mass_points = SATELLITE_MASS;
 
 				angle = (i * FULL_CIRCLE + (NUM_SATELLITES >> 1))

@@ -31,6 +31,7 @@ typedef HLINK HSTARSHIP;
 #include "libs/sndlib.h"
 #include "libs/reslib.h"
 
+#define MISC_STORAGE_SIZE 4
 
 // TODO: remove RACES_PER_PLAYER remnant of SC1
 #define RACES_PER_PLAYER 7
@@ -289,6 +290,10 @@ struct STARSHIP
 			 * Counts the number of times a ship has fled.
 			 * Used in ship_preprocess to determine if a ship should
 			 * be permitted to flee.
+			 */
+	BYTE miscellanea_storage[sizeof(COUNT)*MISC_STORAGE_SIZE];
+			/* SUPER_MELEE: Is used to preserve miscellanea stuff of
+			 * some ships after retreat [like chmmr's sattelites]
 			 */
 
 	BYTE auxiliary_counter;
