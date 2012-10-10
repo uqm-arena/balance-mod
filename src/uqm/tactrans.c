@@ -285,7 +285,6 @@ preprocess_dead_ship (ELEMENT *DeadShipPtr)
 void
 cleanup_dead_ship (ELEMENT *DeadShipPtr)
 {
-	BOOLEAN isretreat;
 	STARSHIP *DeadStarShipPtr;
 	BYTE MiscElemCount;
 
@@ -295,9 +294,7 @@ cleanup_dead_ship (ELEMENT *DeadShipPtr)
 
 	GetElementStarShip (DeadShipPtr, &DeadStarShipPtr);
 
-	isretreat = (DeadStarShipPtr->state_flee && opt_retreat != OPTVAL_DENY);
-
-	if(isretreat)
+	if(IS_RETREAT(DeadStarShipPtr))
 	{
 		RACE_DESC * RDPtr;
 		RDPtr = DeadStarShipPtr->RaceDescPtr;
@@ -335,20 +332,21 @@ cleanup_dead_ship (ELEMENT *DeadShipPtr)
 				if (!(ElementPtr->state_flags & CREW_OBJECT)
 						|| ElementPtr->preprocess_func != crew_preprocess)
 				{
-					if(isretreat) 
+					while(IS_RETREAT(DeadStarShipPtr)) // "while" instead of "if" to avoid "goto"-s
 					{
 						if(MiscElemCount>=MISC_STORAGE_SIZE) {
-							fprintf(stderr, "Error: MISC_STORAGE_SIZE is too small!");
-						} else {
-							switch(StarShipPtr->SpeciesID) {
-								case CHMMR_ID:
-									if(ElementPtr->hit_points) {
-										((COUNT*)StarShipPtr->miscellanea_storage)[MiscElemCount] = ElementPtr->hit_points;
-										MiscElemCount++;
-									}
-									break;
-							}
+							fprintf(stderr, "Error: MISC_STORAGE_SIZE is too small!\n");
+							break;
 						}
+						switch(StarShipPtr->SpeciesID) {
+							case CHMMR_ID:
+								if(ElementPtr->hit_points) {
+									((COUNT*)StarShipPtr->miscellanea_storage)[MiscElemCount] = ElementPtr->hit_points;
+									MiscElemCount++;
+								}
+								break;
+						}
+						break;
 					}
 					// Set the element up for deletion.
 					SetPrimType (&DisplayArray[ElementPtr->PrimIndex],
