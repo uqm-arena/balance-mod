@@ -42,6 +42,7 @@
 #include "sounds.h"
 #include "libs/mathlib.h"
 #include "ships/ship.h"
+#include <libs/log.h>
 
 static void cleanup_dead_ship (ELEMENT *ElementPtr);
 
@@ -335,7 +336,7 @@ cleanup_dead_ship (ELEMENT *DeadShipPtr)
 					while(IS_RETREAT(DeadStarShipPtr)) // "while" instead of "if" to avoid "goto"-s
 					{
 						if(MiscElemCount>=MISC_STORAGE_SIZE) {
-							fprintf(stderr, "Error: MISC_STORAGE_SIZE is too small!\n");
+							log_add(log_Error, "Error: MISC_STORAGE_SIZE is too small!\n");
 							break;
 						}
 						switch(StarShipPtr->SpeciesID) {
@@ -344,6 +345,8 @@ cleanup_dead_ship (ELEMENT *DeadShipPtr)
 									((COUNT*)StarShipPtr->miscellanea_storage)[MiscElemCount] = ElementPtr->hit_points;
 									MiscElemCount++;
 								}
+								break;
+							default:
 								break;
 						}
 						break;

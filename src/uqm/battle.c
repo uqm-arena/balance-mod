@@ -90,7 +90,10 @@ DoRunAway (STARSHIP *StarShipPtr)
 	// To be able to run away only once per melee
 	if (opt_retreat == OPTVAL_ONEPERSHIP)
 		StarShipPtr->CanRunAway = FALSE;
-	if (GetPrimType (&DisplayArray[ElementPtr->PrimIndex]) == STAMP_PRIM
+	if ((GetPrimType (&DisplayArray[ElementPtr->PrimIndex]) == STAMP_PRIM ||
+	    /* or it's a cloaked Ilwrath */
+	    (StarShipPtr->SpeciesID == ILWRATH_ID &&
+	     GetPrimType (&DisplayArray[ElementPtr->PrimIndex]) == STAMPFILL_PRIM))
 			&& ElementPtr->life_span == NORMAL_LIFE
 			&& !(ElementPtr->state_flags & FINITE_LIFE)
 			&& ElementPtr->mass_points != MAX_SHIP_MASS * 10
