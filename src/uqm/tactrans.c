@@ -42,7 +42,7 @@
 #include "sounds.h"
 #include "libs/mathlib.h"
 #include "ships/ship.h"
-#include <libs/log.h>
+#include "libs/log.h"
 
 static void cleanup_dead_ship (ELEMENT *ElementPtr);
 
