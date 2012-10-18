@@ -134,7 +134,7 @@ PacketHandler_Init(NetConnection *conn, const Packet_Init *packet) {
 				"opt_retreat = %d, opt_retreat_wait = %d.",
 				opt_retreat, opt_retreat_wait,
 				packet->retreat_options.retreat, packet->retreat_options.retreat_wait);
-		errno = ENOSYS;
+		errno = EINVAL;
 		return -1;
 	}
 
