@@ -265,8 +265,8 @@ struct STARSHIP
 			// In battle: frames left before special can be used
 	BYTE energy_counter;
 			// In battle: frames left before energy regeneration
-    BYTE auxiliary_counter;
-    BYTE static_counter;
+	BYTE auxiliary_counter;
+	BYTE static_counter;
     
 	BYTE ship_input_state;
 	STATUS_FLAGS cur_status_flags;
