@@ -642,8 +642,8 @@ ship_death (ELEMENT *ShipPtr)
 			fprintf(stderr, "fixing Ilwarth %d\n", StarShipPtr->SpeciesID);
 	    	PRIMITIVE *lpPrim;
 	    	lpPrim = & (DisplayArray)[ShipPtr->PrimIndex];
-	    	SetPrimType(lpPrim, STAMPFILL_PRIM);
-	    	SetPrimColor(lpPrim, INVIS_COLOR);
+	    	SetPrimType(lpPrim, STAMP_PRIM);
+	    	SetPrimColor(lpPrim, BLACK_COLOR);
 		}
 	}
 
