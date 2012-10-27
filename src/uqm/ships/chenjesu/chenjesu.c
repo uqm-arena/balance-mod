@@ -181,7 +181,7 @@ crystal_postprocess (ELEMENT *ElementPtr)
 {
 	STARSHIP *StarShipPtr;
 	MISSILE_BLOCK MissileBlock;
-    SIZE twirl;
+	SIZE twirl;
     
 	GetElementStarShip (ElementPtr, &StarShipPtr);
 	MissileBlock.cx = ElementPtr->next.location.x;
@@ -397,38 +397,41 @@ static void
 spawn_doggy (ELEMENT *ElementPtr)
 {
 	HELEMENT hDoggyElement;
-    STARSHIP *StarShipPtr;
+	STARSHIP *StarShipPtr;
     
-    GetElementStarShip (ElementPtr, &StarShipPtr);
+	GetElementStarShip (ElementPtr, &StarShipPtr);
     
 	if (StarShipPtr->hShip)
 	{
 		LockElement (StarShipPtr->hShip, &ElementPtr);
     
-        if ((hDoggyElement = AllocElement ()) != 0)
-        {
-            COUNT angle;
-            ELEMENT *DoggyElementPtr;
-            SIZE offset;
+		if ((hDoggyElement = AllocElement ()) != 0)
+		{
+			COUNT angle;
+			ELEMENT *DoggyElementPtr;
+			SIZE offset;
 
-            ElementPtr->state_flags |= DEFY_PHYSICS;
+			ElementPtr->state_flags |= DEFY_PHYSICS;
 
-            PutElement (hDoggyElement);
-            LockElement (hDoggyElement, &DoggyElementPtr);
-            DoggyElementPtr->hit_points = DOGGY_HITS;
-            DoggyElementPtr->mass_points = DOGGY_MASS;
-            DoggyElementPtr->thrust_wait = 0;
-            DoggyElementPtr->playerNr = ElementPtr->playerNr;
-            DoggyElementPtr->state_flags = APPEARING;
-            DoggyElementPtr->life_span = NORMAL_LIFE;
-            SetPrimType (&(GLOBAL (DisplayArray))[DoggyElementPtr->PrimIndex],
-                    STAMP_PRIM);
-            {
-                DoggyElementPtr->preprocess_func = doggy_preprocess;
-                DoggyElementPtr->postprocess_func = NULL;
-                DoggyElementPtr->collision_func = doggy_collision;
-                DoggyElementPtr->death_func = doggy_death;
-            }
+			PutElement (hDoggyElement);
+			LockElement (hDoggyElement, &DoggyElementPtr);
+			DoggyElementPtr->hit_points = DOGGY_HITS;
+			DoggyElementPtr->mass_points = DOGGY_MASS;
+			DoggyElementPtr->thrust_wait = 0;
+			DoggyElementPtr->playerNr = ElementPtr->playerNr;
+			DoggyElementPtr->state_flags = APPEARING;
+			DoggyElementPtr->life_span = NORMAL_LIFE;
+
+			DoggyElementPtr->triggers_teleport_safety = TRUE;
+    
+			SetPrimType (&(GLOBAL (DisplayArray))[DoggyElementPtr->PrimIndex],
+				     STAMP_PRIM);
+			{
+				DoggyElementPtr->preprocess_func = doggy_preprocess;
+				DoggyElementPtr->postprocess_func = NULL;
+				DoggyElementPtr->collision_func = doggy_collision;
+				DoggyElementPtr->death_func = doggy_death;
+			}
 
 			// The free DOGI spawns a greater distance away from the ship.
 			if (StarShipPtr->RaceDescPtr->preprocess_func == chenjesu_entrance)
@@ -448,14 +451,14 @@ spawn_doggy (ELEMENT *ElementPtr)
 					DOGGY_SPEED, NORMALIZE_FACING (ANGLE_TO_FACING (angle)));
 
 			SetElementStarShip (DoggyElementPtr, StarShipPtr);
-            ProcessSound (SetAbsSoundIndex (
+			ProcessSound (SetAbsSoundIndex (
 						/* RELEASE_DOGGY */
 				StarShipPtr->RaceDescPtr->ship_data.ship_sounds, 4), DoggyElementPtr);
 			UnlockElement (hDoggyElement);
-        }
+	}
        
         UnlockElement (StarShipPtr->hShip);
-    }
+	}
 }
 
 static COUNT

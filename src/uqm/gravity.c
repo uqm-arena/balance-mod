@@ -185,8 +185,15 @@ Overlap (ELEMENT *ElementPtr)
 					 SetEquFrameIndex (TestElementPtr->current.image.farray[0],
 					 TestElementPtr->current.image.frame);
 			TestElementControl.EndPoint = TestElementControl.IntersectStamp.origin;
+			if (DrawablesIntersect (&ElementControl, &TestElementControl, MAX_TIME_VALUE) && 
+			    (ElementPtr->is_teleporting) && !(TestElementPtr->triggers_teleport_safety))
+			    /* Let Arilou telefrag if it's not hitting a safe object. */
+			{
+				return FALSE;
+			}
 			if (DrawablesIntersect (&ElementControl,
-					&TestElementControl, MAX_TIME_VALUE))
+					&TestElementControl, MAX_TIME_VALUE)
+			)
 			{
 				UnlockElement (hTestElement);
 
