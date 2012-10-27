@@ -329,6 +329,8 @@ TrackShip (ELEMENT *Tracker, COUNT *pfacing)
 	{
 		LockElement (hShip, &Trackee);
 		hNextShip = GetSuccElement (Trackee);
+		if (OBJECT_CLOAKED(Trackee))
+			fprintf(stderr, "Object cloaked\n");
 		if ((Trackee->state_flags & PLAYER_SHIP)
 				&& !elementsOfSamePlayer (Trackee, Tracker)
 				&& (!OBJECT_CLOAKED (Trackee)

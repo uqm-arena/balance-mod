@@ -635,14 +635,15 @@ ship_death (ELEMENT *ShipPtr)
 	// if the ship was cloaked upon destruction
 	// Having the cloak on for one side and off for one causes
 	// a desynch in net play
-        if (StarShipPtr->SpeciesID = ILWRATH_ID)
-        {
+    if (StarShipPtr->SpeciesID = ILWRATH_ID && StarShipPtr->crew_level == 0)
+    {
 		if (GetPrimType (&DisplayArray[ShipPtr->PrimIndex]) == STAMPFILL_PRIM)
 		{
-	        	PRIMITIVE *lpPrim;
-	        	lpPrim = &(GLOBAL (DisplayArray))[ShipPtr->PrimIndex];
-	        	SetPrimType(lpPrim, STAMPFILL_PRIM);
-	        	SetPrimColor(lpPrim, INVIS_COLOR);
+			fprintf(stderr, "fixing Ilwarth %d\n", StarShipPtr->SpeciesID);
+	    	PRIMITIVE *lpPrim;
+	    	lpPrim = & (DisplayArray)[ShipPtr->PrimIndex];
+	    	SetPrimType(lpPrim, STAMPFILL_PRIM);
+	    	SetPrimColor(lpPrim, INVIS_COLOR);
 		}
 	}
 
