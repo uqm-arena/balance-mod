@@ -178,6 +178,7 @@ arilou_preprocess (ELEMENT *ElementPtr)
 
 			ElementPtr->state_flags |= NONSOLID | FINITE_LIFE | CHANGING;
 			ElementPtr->life_span = TRANSIT_TIME;
+			ElementPtr->is_teleporting = TRUE;
 
 			ElementPtr->next.image.farray =	StarShipPtr->RaceDescPtr->ship_data.special;
 			ElementPtr->next.image.frame = StarShipPtr->RaceDescPtr->ship_data.special[0];
@@ -302,6 +303,8 @@ arilou_preprocess (ELEMENT *ElementPtr)
 				StarShipPtr->special_counter = SPECIAL_STUN;
 				ElementPtr->thrust_wait = SPECIAL_STUN;
 				ElementPtr->turn_wait = SPECIAL_STUN;
+				
+				ElementPtr->is_teleporting = FALSE;
 			}
 		}
 		else

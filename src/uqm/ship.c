@@ -516,6 +516,9 @@ spawn_ship (STARSHIP *StarShipPtr)
 		ShipElementPtr->postprocess_func = ship_postprocess;
 		ShipElementPtr->death_func = ship_death;
 		ShipElementPtr->collision_func = collision;
+
+		ShipElementPtr->triggers_teleport_safety = TRUE;
+
 		ZeroVelocityComponents (&ShipElementPtr->velocity);
 
 		SetElementStarShip (ShipElementPtr, StarShipPtr);

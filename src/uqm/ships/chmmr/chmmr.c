@@ -709,6 +709,8 @@ spawn_satellites (ELEMENT *ElementPtr)
 				SattPtr->death_func = satellite_death;
 				SattPtr->collision_func = satellite_collision;
 
+				SattPtr->triggers_teleport_safety = TRUE;
+
 				SetElementStarShip (SattPtr, StarShipPtr);
 
 				SetPrimType (&(GLOBAL (DisplayArray))[

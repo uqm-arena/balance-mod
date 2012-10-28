@@ -60,6 +60,9 @@ spawn_planet (void)
 		} while (CalculateGravity (PlanetElementPtr)
 				|| Overlap (PlanetElementPtr));
 		PlanetElementPtr->mass_points = PlanetElementPtr->hit_points;
+
+		PlanetElementPtr->triggers_teleport_safety = TRUE;
+
 		UnlockElement (hPlanetElement);
 
 		PutElement (hPlanetElement);
@@ -185,6 +188,9 @@ spawn_asteroid (ELEMENT *ElementPtr)
 		AsteroidElementPtr->preprocess_func = asteroid_preprocess;
 		AsteroidElementPtr->death_func = spawn_rubble;
 		AsteroidElementPtr->collision_func = collision;
+
+		AsteroidElementPtr->triggers_teleport_safety = TRUE;
+
 		UnlockElement (hAsteroidElement);
 
 		PutElement (hAsteroidElement);

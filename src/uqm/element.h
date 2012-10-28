@@ -113,6 +113,10 @@ struct element
 	SIZE playerNr;
 
 	ELEMENT_FLAGS state_flags;
+
+	BOOLEAN triggers_teleport_safety;
+	BOOLEAN is_teleporting;
+
 	union
 	{
 		COUNT life_span;

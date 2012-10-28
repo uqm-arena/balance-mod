@@ -23,7 +23,7 @@
 #define UQM_MINOR_VERSION_S  "7"
 #define UQM_PATCH_VERSION     0
 #define UQM_PATCH_VERSION_S  "0"
-#define UQM_EXTRA_VERSION    " + Net Melee Balance Mod v2.04 + Retreat Patch 0.06"
+#define UQM_EXTRA_VERSION    " + Net Melee Balance Mod v2.05 + Retreat Patch 0.06"
 /* The final version is interpreted as:
  * printf ("%d.%d.%d%s", UQM_MAJOR_VERSION, UQM_MINOR_VERSION,
  * 		UQM_PATCH_VERSION, UQM_EXTRA_VERSION);
