@@ -454,7 +454,7 @@ draw_reticle (ELEMENT* ElementPtr)
 
 			LockElement (hReticleElement, &ReticlePtr);
 			ReticlePtr->playerNr = NEUTRAL_PLAYER_NUM;
-			ReticlePtr->state_flags = APPEARING | FINITE_LIFE | NONSOLID;
+			ReticlePtr->state_flags = APPEARING | FINITE_LIFE | NONSOLID | BACKGROUND_OBJECT;
 			SetPrimType (&DisplayArray[ReticlePtr->PrimIndex], STAMP_PRIM);
 			ReticlePtr->current.image.farray = reticle;
 			ReticlePtr->current.location = ElementPtr->current.location;
