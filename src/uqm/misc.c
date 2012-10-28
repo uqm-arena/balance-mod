@@ -412,8 +412,8 @@ AbandonShip (ELEMENT *ShipPtr, ELEMENT *TargetPtr,
 }
 
 // Use visual indicators when two ships of the same type are fighting to differentiate the two.
-/* void
-draw_reticle (ELEMENT *ElementPtr)
+void
+draw_reticle (ELEMENT* ElementPtr)
 {
 	STARSHIP *StarShipPtr, *EnemyShipPtr;
 	HELEMENT hObject, hNextObject, hEnemyShip;
@@ -472,4 +472,4 @@ draw_reticle (ELEMENT *ElementPtr)
 	}
 	
 	UnlockElement (StarShipPtr->hShip);
-} */
+}

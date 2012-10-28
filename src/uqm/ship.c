@@ -275,7 +275,7 @@ ship_preprocess (ELEMENT *ElementPtr)
 			if (!(StarShipPtr && StarShipPtr->SpeciesID == SUPOX_ID))
 				spawn_ion_trail (ElementPtr);
 				
-			// draw_reticle (ElementPtr);
+			draw_reticle (ElementPtr);
 		}
 	}
 
