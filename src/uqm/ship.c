@@ -274,10 +274,10 @@ ship_preprocess (ELEMENT *ElementPtr)
 		{
 			if (!(StarShipPtr && StarShipPtr->SpeciesID == SUPOX_ID))
 				spawn_ion_trail (ElementPtr);
-				
-			draw_reticle (ElementPtr);
 		}
 	}
+	if (!OBJECT_CLOAKED (ElementPtr))
+		draw_reticle (ElementPtr);
 
 	if (LOBYTE (GLOBAL (CurrentActivity)) <= IN_ENCOUNTER)
 		PreProcessStatus (ElementPtr);
