@@ -412,8 +412,8 @@ AbandonShip (ELEMENT *ShipPtr, ELEMENT *TargetPtr,
 }
 
 // Use visual indicators when two ships of the same type are fighting to differentiate the two.
-/* void
-draw_reticle (ELEMENT *ElementPtr)
+void
+draw_reticle (ELEMENT* ElementPtr)
 {
 	STARSHIP *StarShipPtr, *EnemyShipPtr;
 	HELEMENT hObject, hNextObject, hEnemyShip;
@@ -454,7 +454,7 @@ draw_reticle (ELEMENT *ElementPtr)
 
 			LockElement (hReticleElement, &ReticlePtr);
 			ReticlePtr->playerNr = NEUTRAL_PLAYER_NUM;
-			ReticlePtr->state_flags = APPEARING | FINITE_LIFE | NONSOLID;
+			ReticlePtr->state_flags = APPEARING | FINITE_LIFE | NONSOLID | BACKGROUND_OBJECT;
 			SetPrimType (&DisplayArray[ReticlePtr->PrimIndex], STAMP_PRIM);
 			ReticlePtr->current.image.farray = reticle;
 			ReticlePtr->current.location = ElementPtr->current.location;
@@ -472,4 +472,4 @@ draw_reticle (ELEMENT *ElementPtr)
 	}
 	
 	UnlockElement (StarShipPtr->hShip);
-} */
+}

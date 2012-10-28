@@ -242,6 +242,7 @@ extern void MoveGalaxy (VIEW_STATE view_state, SIZE dx, SIZE dy);
 
 extern BOOLEAN CalculateGravity (ELEMENT *ElementPtr);
 
+extern void draw_reticle ( ELEMENT* ElementPtr );
 
 #endif /* _ELEMENT_H */
 
