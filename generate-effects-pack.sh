@@ -1,10 +1,8 @@
 #! /bin/sh
 
 # Generates a zipped effects pack in content/addons by default.
-# If there are parameters, the first will be interpreted as a fully
-# qualified path for the base effects path and the second (if any)
-# will be interpreted as a fully qualified path for the allow-retreat
-# string pack.
+# If there is a parameter, it will be interpreted as a fully
+# qualified path for the new effects pack.
 #
 # Copying and distribution of this file, with or without modification,
 # are permitted in any medium without royalty provided the copyright
@@ -15,17 +13,8 @@
 if [ $1 ]
 then
     cd content/addons
-    zip -r $1 balance
+    zip -r $1 balance balance-retreat
 else
     cd content/addons
-    zip -r balance-effects.zip balance
-fi
-
-if [ $2 ]
-then
-    cd content/addons
-    zip -r $2 balance-retreat
-else
-    cd content/addons
-    zip -r balance-retreat.zip balance-retreat
+    zip -r balance-effects-unified.zip balance balance-retreat
 fi
