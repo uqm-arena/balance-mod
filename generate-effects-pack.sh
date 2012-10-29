@@ -12,7 +12,9 @@
 
 if [ $1 ]
 then
-    zip -r $1 content/addons/balance
+    cd content/addons
+    zip -r $1 balance
 else
-    zip -r content/addons/balance-effects.zip content/addons/balance
+    cd content/addons/
+    zip -r balance-effects.zip balance
 fi
