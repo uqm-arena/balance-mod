@@ -168,11 +168,15 @@ ship_preprocess (ELEMENT *ElementPtr)
 	{
 		cur_status_flags |= StarShipPtr->ship_input_state
 				& (LEFT | RIGHT | THRUST | DOWN | WEAPON | SPECIAL);
+
+		/* Pkunk won't be stomped on now */
+		if(StarShipPtr->is_respawning)
+			StarShipPtr->is_respawning = FALSE;
 	}
 	else
 	{	// Preprocessing for the first time
-
-		if(StarShipPtr->crew_level) {
+		                             /* Don't stomp on respawning Pkunk */
+		if((StarShipPtr->crew_level) && (!StarShipPtr->is_respawning)) {
 			RDPtr->ship_info.crew_level=StarShipPtr->crew_level;
 			RDPtr->ship_info.energy_level=StarShipPtr->last_energy_level;
 		}
