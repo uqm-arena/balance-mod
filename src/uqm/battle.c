@@ -96,7 +96,7 @@ DoRunAway (STARSHIP *StarShipPtr)
 	     GetPrimType (&DisplayArray[ElementPtr->PrimIndex]) == STAMPFILL_PRIM))
 			&& ElementPtr->life_span == NORMAL_LIFE
 			&& !(ElementPtr->state_flags & FINITE_LIFE)
-			&& ElementPtr->mass_points != MAX_SHIP_MASS * 10
+			&& ElementPtr->mass_points != RETREATER_MASS
 			&& !(ElementPtr->state_flags & APPEARING))
 	{
 		if((LOBYTE (GLOBAL (CurrentActivity)) != SUPER_MELEE) || (opt_retreat == OPTVAL_DENY))
@@ -106,7 +106,7 @@ DoRunAway (STARSHIP *StarShipPtr)
 		ElementPtr->thrust_wait = 4;
 		ElementPtr->colorCycleIndex = 0;
 		ElementPtr->preprocess_func = flee_preprocess;
-		ElementPtr->mass_points = MAX_SHIP_MASS * 10;
+		ElementPtr->mass_points = RETREATER_MASS;
 		ZeroVelocityComponents (&ElementPtr->velocity);
 		StarShipPtr->cur_status_flags &=
 				~(SHIP_AT_MAX_SPEED | SHIP_BEYOND_MAX_SPEED);

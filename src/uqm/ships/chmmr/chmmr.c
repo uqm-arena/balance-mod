@@ -328,7 +328,7 @@ chmmr_postprocess (ELEMENT *ElementPtr)
 			ELEMENT *ShipElementPtr;
 
 			LockElement (ElementPtr->hTarget, &ShipElementPtr);
-			if (!GRAVITY_MASS (ShipElementPtr->mass_points + 1))
+			if (!((ShipElementPtr->mass_points + 1) > RETREATER_MASS))
 			{
 				SIZE i, dx, dy;
 				COUNT angle, magnitude;
