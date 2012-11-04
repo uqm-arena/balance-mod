@@ -750,15 +750,6 @@ ship_death (ELEMENT *ShipPtr)
 				CalcSoundPosition (ShipPtr), ShipPtr, GAME_SOUND_PRIORITY + 1);
 	}
 
-	if (VictoriousStarShipPtr != NULL)
-		VictoriousStarShipPtr->cur_status_flags |= PLAY_VICTORY_DITTY;
-
-	// The winner is set once per battle. If both ships die, this function is
-	// called twice, once for each ship. We need to preserve the winner
-	// determined on the first call.
-	if (winnerStarShip == NULL)
-		winnerStarShip = VictoriousStarShipPtr;
-
 	if(opt_retreat != OPTVAL_DENY) {
 		switch(StarShipPtr->SpeciesID) {
 			case PKUNK_ID:
@@ -770,6 +761,15 @@ ship_death (ELEMENT *ShipPtr)
 				break;
 		}
 	}
+
+	if (VictoriousStarShipPtr != NULL)
+		VictoriousStarShipPtr->cur_status_flags |= PLAY_VICTORY_DITTY;
+
+	// The winner is set once per battle. If both ships die, this function is
+	// called twice, once for each ship. We need to preserve the winner
+	// determined on the first call.
+	if (winnerStarShip == NULL)
+		winnerStarShip = VictoriousStarShipPtr;
 
 	if (LOBYTE (GLOBAL (CurrentActivity)) == SUPER_MELEE)
 		MeleeShipDeath (StarShipPtr);
