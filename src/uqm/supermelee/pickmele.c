@@ -432,6 +432,35 @@ CrossOutShip (FRAME frame, COUNT shipNr)
 	SetContext (OldContext);
 }
 
+/*
+ * Visually mark a retreated ship in the ship selection box.
+ * Copied from CrossOutShip with only minor changes.
+ *
+ * 'frame' is the PickMeleeFrame for the player.
+ * 'shipI' is the index in the ship list.
+ * Pre: caller holds the graphics lock.
+ */
+void
+mark_retreated_ship (FRAME frame, COUNT shipNr)
+{
+	CONTEXT OldContext;
+	STAMP s;
+	BYTE row = PickMelee_GetShipRow (shipNr);
+	BYTE col = PickMelee_GetShipColumn (shipNr);
+	
+	OldContext = SetContext (OffScreenContext);
+	
+	SetContextFGFrame (frame);
+	
+	s.origin.x = 3 + ((ICON_WIDTH + 2) * col);
+	s.origin.y = 9 + ((ICON_HEIGHT + 2) * row);
+	s.frame = SetAbsFrameIndex (retreat_status_frame, 3);
+	// Cross for through the ship image.
+	DrawStamp (&s);
+	
+	SetContext (OldContext);
+}
+
 // Draw the value of the fleet in the top right of the PickMeleeFrame.
 // Pre: caller holds the graphics lock.
 static void

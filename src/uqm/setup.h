@@ -40,6 +40,8 @@ extern FRAME FlagStatFrame;
 extern FRAME MiscDataFrame;
 extern FRAME FontGradFrame;
 
+extern FRAME retreat_status_frame;
+
 extern CONTEXT OffScreenContext;
 		// OffScreenContext can often refer to a deleted ForeGroundFrame
 		// Always call SetContextFGFrame() before drawing anything to it

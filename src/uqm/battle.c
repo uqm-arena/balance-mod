@@ -121,6 +121,20 @@ DoRunAway (STARSHIP *StarShipPtr)
 	
 		StarShipPtr->ship_input_state = 0;
 	}
+
+	/* [allow-retreat] Mark the retreated ship in the ship selection box */
+	if((LOBYTE (GLOBAL (CurrentActivity)) == SUPER_MELEE))
+	{
+		LockMutex (GraphicsLock);
+	
+		FRAME frame;
+
+		frame = SetAbsFrameIndex (PickMeleeFrame, StarShipPtr->playerNr);
+		mark_retreated_ship (frame, StarShipPtr->index);
+
+		UnlockMutex (GraphicsLock);
+	}
+		
 	UnlockElement (StarShipPtr->hShip);
 }
 

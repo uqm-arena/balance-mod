@@ -64,6 +64,9 @@ FRAME StatusFrame;
 FRAME FlagStatFrame;
 FRAME MiscDataFrame;
 FRAME FontGradFrame;
+
+FRAME retreat_status_frame;
+
 Mutex GraphicsLock;
 STRING GameStrings;
 QUEUE disp_q;
@@ -218,6 +221,10 @@ InitKernel (void)
 
 	StatusFrame = CaptureDrawable (LoadGraphic (STATUS_MASK_PMAP_ANIM));
 	if (StatusFrame == NULL)
+		return FALSE;
+
+	retreat_status_frame = CaptureDrawable (LoadGraphic (RETREAT_SLASH_MASK_PMAP_ANIM));
+	if (retreat_status_frame == NULL)
 		return FALSE;
 
 	GameStrings = CaptureStringTable (LoadStringTable (STARCON_GAME_STRINGS));
