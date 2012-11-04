@@ -435,7 +435,6 @@ pkunk_preprocess (ELEMENT *ElementPtr)
 			PhoenixPtr->life_span = 1;
 
 			PhoenixPtr->death_func = intercept_pkunk_death;
-
 			SetElementStarShip (PhoenixPtr, StarShipPtr);
 
 			UnlockElement (hPhoenix);

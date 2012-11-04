@@ -656,6 +656,7 @@ explosion_preprocess (ELEMENT *ShipPtr)
 void
 ship_death (ELEMENT *ShipPtr)
 {
+
 	STARSHIP *StarShipPtr;
 	STARSHIP *VictoriousStarShipPtr;
 	HELEMENT hElement, hNextElement;
@@ -665,20 +666,21 @@ ship_death (ELEMENT *ShipPtr)
 	StopMusic ();
 
 	GetElementStarShip (ShipPtr, &StarShipPtr);
+
         
 	// Enable Ilwrath's cloak visibility for both sides
 	// if the ship was cloaked upon destruction
 	// Having the cloak on for one side and off for one causes
 	// a desynch in net play
-    if (StarShipPtr->SpeciesID = ILWRATH_ID && StarShipPtr->crew_level == 0)
-    {
+	if (StarShipPtr->SpeciesID == ILWRATH_ID && StarShipPtr->crew_level == 0)
+	{
 		if (GetPrimType (&DisplayArray[ShipPtr->PrimIndex]) == STAMPFILL_PRIM)
 		{
 			fprintf(stderr, "fixing Ilwarth %d\n", StarShipPtr->SpeciesID);
-	    	PRIMITIVE *lpPrim;
-	    	lpPrim = & (DisplayArray)[ShipPtr->PrimIndex];
-	    	SetPrimType(lpPrim, STAMP_PRIM);
-	    	SetPrimColor(lpPrim, BLACK_COLOR);
+		PRIMITIVE *lpPrim;
+		lpPrim = & (DisplayArray)[ShipPtr->PrimIndex];
+		SetPrimType(lpPrim, STAMP_PRIM);
+		SetPrimColor(lpPrim, BLACK_COLOR);
 		}
 	}
 
@@ -756,6 +758,18 @@ ship_death (ELEMENT *ShipPtr)
 	// determined on the first call.
 	if (winnerStarShip == NULL)
 		winnerStarShip = VictoriousStarShipPtr;
+
+	if(opt_retreat != OPTVAL_DENY) {
+		switch(StarShipPtr->SpeciesID) {
+			case PKUNK_ID:
+				if(StarShipPtr->RaceDescPtr->data) {
+					return;
+				}
+				break;
+			default:
+				break;
+		}
+	}
 
 	if (LOBYTE (GLOBAL (CurrentActivity)) == SUPER_MELEE)
 		MeleeShipDeath (StarShipPtr);
