@@ -85,11 +85,6 @@ DoRunAway (STARSHIP *StarShipPtr)
 	ELEMENT *ElementPtr;
 
 	LockElement (StarShipPtr->hShip, &ElementPtr);
-	StarShipPtr->state_flee = TRUE;
-	StarShipPtr->flee_counter++;
-	// To be able to run away only once per melee
-	if (opt_retreat == OPTVAL_ONEPERSHIP)
-		StarShipPtr->CanRunAway = FALSE;
 	if ((GetPrimType (&DisplayArray[ElementPtr->PrimIndex]) == STAMP_PRIM ||
 	    /* or it's a cloaked Ilwrath */
 	    (StarShipPtr->SpeciesID == ILWRATH_ID &&
@@ -99,6 +94,12 @@ DoRunAway (STARSHIP *StarShipPtr)
 			&& ElementPtr->mass_points != RETREATER_MASS
 			&& !(ElementPtr->state_flags & APPEARING))
 	{
+		StarShipPtr->state_flee = TRUE;
+		StarShipPtr->flee_counter++;
+		// To be able to run away only once per melee
+		if (opt_retreat == OPTVAL_ONEPERSHIP)
+			StarShipPtr->CanRunAway = FALSE;
+
 		if((LOBYTE (GLOBAL (CurrentActivity)) != SUPER_MELEE) || (opt_retreat == OPTVAL_DENY))
 			battle_counter[0]--;
 

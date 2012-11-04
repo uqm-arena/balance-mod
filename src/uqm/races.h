@@ -31,6 +31,8 @@ typedef HLINK HSTARSHIP;
 #include "libs/sndlib.h"
 #include "libs/reslib.h"
 
+#define IS_RETREAT(StarShipPtr) ((StarShipPtr->state_flee) && (opt_retreat != OPTVAL_DENY))
+
 #define MISC_STORAGE_SIZE 4
 
 // TODO: remove RACES_PER_PLAYER remnant of SC1

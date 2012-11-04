@@ -20,6 +20,8 @@
 #include "races.h"
 #include "units.h"
 #include "libs/log.h"
+#include "options.h"
+#include "globdata.h"
 
 //#define DEBUG_GRAVITY
 
@@ -32,6 +34,7 @@ CalculateGravity (ELEMENT *ElementPtr)
 	retval = FALSE;
 	HasGravity = (BOOLEAN)(CollidingElement (ElementPtr)
 			&& GRAVITY_MASS (ElementPtr->mass_points + 1));
+
 	for (hTestElement = GetHeadElement ();
 			hTestElement != 0; hTestElement = hSuccElement)
 	{
@@ -39,6 +42,7 @@ CalculateGravity (ELEMENT *ElementPtr)
 		ELEMENT *TestElementPtr;
 
 		LockElement (hTestElement, &TestElementPtr);
+
 		if (TestElementPtr != ElementPtr
 				&& CollidingElement (TestElementPtr)
 				&& (TestHasGravity =
@@ -46,6 +50,24 @@ CalculateGravity (ELEMENT *ElementPtr)
 		{
 			COUNT abs_dx, abs_dy;
 			SIZE dx, dy;
+			if (TestElementPtr->state_flags & PLAYER_SHIP) {
+				STARSHIP *TestStarShipPtr;
+				GetElementStarShip (TestElementPtr, &TestStarShipPtr);
+				if (IS_RETREAT(TestStarShipPtr)) {
+					STARSHIP *StarShipPtr;
+					GetElementStarShip (ElementPtr, &StarShipPtr);
+					if(StarShipPtr != NULL) {
+						switch(StarShipPtr->SpeciesID) {
+								case VUX_ID:
+									// To make able to VUX to spawn near to retreating ship
+									TestHasGravity = FALSE;
+									break;
+								default:
+									break;
+						}
+					}
+				}
+			}
 
 			if (!(ElementPtr->state_flags & PRE_PROCESS))
 			{

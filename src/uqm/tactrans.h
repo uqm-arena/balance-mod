@@ -40,8 +40,6 @@ extern void flee_preprocess (ELEMENT *ElementPtr);
 extern void StopDitty (void);
 extern void ResetWinnerStarShip (void);
 
-#define IS_RETREAT(StarShipPtr) ((StarShipPtr->state_flee) && (opt_retreat != OPTVAL_DENY))
-
 #endif  /* _TACTRANS_H */
 
 
