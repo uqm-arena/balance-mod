@@ -186,8 +186,8 @@ case "$HOST_SYSTEM" in
 		LIB_vorbisfile_LDFLAGS="-L/usr/local/lib -lvorbisfile -lvorbis"
 		;;
 	MINGW32*|CYGWIN*|cegcc)
-		LIB_vorbisfile_CFLAGS="-I/usr/local/include"
-		LIB_vorbisfile_LDFLAGS="-L/usr/local/lib -lvorbisfile -lvorbis -lm -logg"
+		LIB_vorbisfile_CFLAGS=""
+		LIB_vorbisfile_LDFLAGS="-lvorbisfile -lvorbis -lm -logg"
 		;;
 	Darwin)
 		LIB_vorbisfile_CFLAGS="-D__MACOSX__"
@@ -209,8 +209,6 @@ case "$HOST_SYSTEM" in
 		;;
 	Darwin)
 		## Apple does not ship pkg-config on Mac OSX
-		;;
-	MINGW32*)
 		;;
 	*)
 		LIB_vorbisfile_DETECT="try_pkgconfig_lib vorbisfile vorbisfile"
@@ -262,8 +260,8 @@ LIB_zlib_NAME="zlib"
 LIB_zlib_CFLAGS=""
 case "$HOST_SYSTEM" in
 	MINGW32*|CYGWIN*|cegcc)
-		LIB_zlib_CFLAGS="-I/usr/include"
-		LIB_zlib_LDFLAGS="-L/usr/lib -lm -lzdll"
+		LIB_zlib_CFLAGS=""
+		LIB_zlib_LDFLAGS"-lzdll"
 		;;
 	ARMV5|WINSCW|GCCE)
 		LIB_zlib_LDFLAGS=""
@@ -279,8 +277,6 @@ case "$HOST_SYSTEM" in
 		;;
 	Darwin)
 		## Apple does not ship pkg-config on Mac OSX
-		;;
-	MINGW32*)
 		;;
 	*)
 		LIB_zlib_DETECT="try_pkgconfig_lib zlib zlib"
