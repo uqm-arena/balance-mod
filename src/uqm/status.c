@@ -25,6 +25,8 @@
 #include "options.h"
 #include "init.h"
 		// for NUM_PLAYERS
+#include "battle.h"
+		/* for battleFrameCount */
 
 #include <stdio.h>
 #include <string.h>
@@ -40,6 +42,49 @@ InitStatusOffsets (void)
 	//   not a constant, contrary to what its name suggests.
 	status_y_offsets[0] = GOOD_GUY_YOFFS; // bottom player
 	status_y_offsets[1] = BAD_GUY_YOFFS;  // top player
+}
+
+/*
+ * Draws the retreat_wait counter for a ship.
+ * Based on DrawBattleCrewAmount.
+ * 
+ * StarShipPtr: the starship crew is to be drawn for.
+ */
+void
+draw_retreat_clock (STARSHIP *StarShipPtr)
+{
+	#define MAX_TIMER_DIGITS 3
+
+	RECT r;
+	TEXT t;
+	COORD y_offs;
+	UNICODE buf[40];
+
+	int time_left = ((StarShipPtr->entrance_time + opt_retreat_wait) - battleFrameCount);
+
+	assert ((StarShipPtr->playerNr > -1) && (StarShipPtr->playerNr < 2));
+	y_offs = status_y_offsets[StarShipPtr->playerNr];
+	
+	t.baseline.x = BATTLE_TIMER_XOFFS;
+	t.baseline.y = BATTLE_TIMER_YOFFS + y_offs;
+	t.align = ALIGN_LEFT;
+	t.pStr = buf;
+	t.CharCount = (COUNT)~0;
+	
+	r.corner.x = t.baseline.x;
+	r.corner.y = t.baseline.y - 5;
+	r.extent.width = 6 * MAX_TIMER_DIGITS + 6;
+	r.extent.height = 5;
+	
+	/* if the ship can retreat, write 0 to the buffer */
+	sprintf (buf, "%d",(StarShipPtr->CanRunAway) ? 0 : (time_left / 24));
+	SetContextFont (StarConFont);
+	
+	SetContextForeGroundColor (
+		BUILD_COLOR (MAKE_RGB15 (0x0A, 0x0A, 0x0A), 0x08));
+	DrawFilledRectangle (&r);
+	SetContextForeGroundColor (BLACK_COLOR);
+	font_DrawText (&t);
 }
 
 static void
@@ -395,6 +440,17 @@ PreProcessStatus (ELEMENT *ShipPtr)
 					old_status_flags, cur_status_flags, 1);
 		}
 	}
+
+	/* Draw the retreat timer if we have a nonzero retreat_wait,
+	 * and our ship is not retreating already. Do not draw it
+	 * if our ship has retreated already and we're in one retreat
+	 * mode.
+	 */
+	if ((opt_retreat_wait > 0) && !(StarShipPtr->state_flee) &&
+	    !((StarShipPtr->flee_counter) && (opt_retreat == OPTVAL_ONEPERSHIP)))
+	{
+		draw_retreat_clock (StarShipPtr);
+	}
 }
 
 void
@@ -579,4 +635,3 @@ PostProcessStatus (ELEMENT *ShipPtr)
 		StarShipPtr->old_status_flags = cur_status_flags;
 	}
 }
-
