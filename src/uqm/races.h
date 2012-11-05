@@ -37,6 +37,7 @@ typedef HLINK HSTARSHIP;
 #define IS_COMINGBACK(StarShipPtr) ((StarShipPtr->crew_level) && (!StarShipPtr->is_respawning) && (opt_retreat != OPTVAL_DENY))
 
 #define MISC_STORAGE_SIZE 4
+#define PRESERVE_LIMPETS 24
 
 // TODO: remove RACES_PER_PLAYER remnant of SC1
 #define RACES_PER_PLAYER 7
@@ -300,6 +301,9 @@ struct STARSHIP
 			/* SUPER_MELEE: Is used to preserve miscellanea stuff of
 			 * some ships after retreat [like chmmr's sattelites]
 			 */
+	STAMP limpets_stamps[PRESERVE_LIMPETS];
+			// SUPER_MELEE: Is used to vux' preserve limpets on ships' icons
+	BYTE limpets;
 	BOOLEAN is_respawning;
 			/*
 			 * Used by ship_preprocess to avoid restoring a respawned Pkunk's

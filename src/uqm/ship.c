@@ -217,6 +217,17 @@ ship_preprocess (ELEMENT *ElementPtr)
 				if (!PLRPlaying ((MUSIC_REF)~0) && OpponentAlive (StarShipPtr))
 					BattleSong (TRUE);
 			}
+			if (ElementPtr->state_flags & APPEARING)
+			{
+				if (IS_COMINGBACK(StarShipPtr))
+				{
+					int i=0;
+					// TODO: move here crew_level and energy_level preservation
+					// TODO: preserve limpets' positions on ships' icons
+					while (i < StarShipPtr->limpets)
+						ModifySilhouette (ElementPtr, &StarShipPtr->limpets_stamps[i++], MODIFY_IMAGE);
+				}
+			}
 			return;
 		}
 		else
@@ -448,9 +459,9 @@ spawn_ship (STARSHIP *StarShipPtr)
 		StarShipPtr->special_counter = 0;
 		StarShipPtr->auxiliary_counter = 0;
 		StarShipPtr->static_counter = 0;
+		StarShipPtr->limpets = 0;
 		StarShipPtr->state_flee = FALSE;
 	}
-	printf("%i\n", StarShipPtr->static_counter);
 	StarShipPtr->CanRunAway = FALSE; /* this will become TRUE after time limit expires */
 	StarShipPtr->entrance_time = battleFrameCount; /* used for calculating time limit */
 

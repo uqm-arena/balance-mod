@@ -246,6 +246,7 @@ ModifySilhouette (ELEMENT *ElementPtr, STAMP *modify_stamp,
 	STARSHIP *StarShipPtr;
 	CONTEXT OldContext;
 
+
 	f = 0;
 	ObjectIntersect.IntersectStamp = *modify_stamp;
 	GetFrameRect (ObjectIntersect.IntersectStamp.frame, &or);
