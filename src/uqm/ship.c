@@ -436,7 +436,13 @@ spawn_ship (STARSHIP *StarShipPtr)
 			RDPtr->ship_info.crew_level = RDPtr->ship_info.max_crew;
 	}
 
-	if(!IS_COMINGBACK(StarShipPtr)) {
+	if(IS_COMINGBACK(StarShipPtr)) {
+		memcpy(
+				&StarShipPtr->RaceDescPtr->characteristics,
+				&StarShipPtr->characteristics, 
+				sizeof(CHARACTERISTIC_STUFF)
+			);
+	} else {
 		StarShipPtr->energy_counter = 0;
 		StarShipPtr->weapon_counter = 0;
 		StarShipPtr->special_counter = 0;

@@ -314,6 +314,13 @@ cleanup_dead_ship (ELEMENT *DeadShipPtr)
 		DeadStarShipPtr->crew_level =
 				DeadStarShipPtr->RaceDescPtr->ship_info.crew_level;
 
+		// Record characteristics state. It may be changed due to vux' limpets.
+		memcpy(
+				&DeadStarShipPtr->characteristics, 
+				&DeadStarShipPtr->RaceDescPtr->characteristics,
+				sizeof(CHARACTERISTIC_STUFF)
+			);
+
 		MusicStarted = FALSE;
 
 		for (hElement = GetHeadElement (); hElement; hElement = hSuccElement)
