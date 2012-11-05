@@ -31,7 +31,10 @@ typedef HLINK HSTARSHIP;
 #include "libs/sndlib.h"
 #include "libs/reslib.h"
 
-#define IS_RETREAT(StarShipPtr) ((StarShipPtr->state_flee) && (opt_retreat != OPTVAL_DENY))
+#define IS_RETREAT(StarShipPtr) ((StarShipPtr->state_flee) && (StarShipPtr->RaceDescPtr->ship_info.crew_level != 0) && (opt_retreat != OPTVAL_DENY))
+
+								/* Don't stomp on respawning Pkunk */
+#define IS_COMINGBACK(StarShipPtr) ((StarShipPtr->crew_level) && (!StarShipPtr->is_respawning) && (opt_retreat != OPTVAL_DENY))
 
 #define MISC_STORAGE_SIZE 4
 
