@@ -314,6 +314,13 @@ cleanup_dead_ship (ELEMENT *DeadShipPtr)
 		DeadStarShipPtr->crew_level =
 				DeadStarShipPtr->RaceDescPtr->ship_info.crew_level;
 
+		// Record characteristics state. It may be changed due to vux' limpets.
+		memcpy(
+				&DeadStarShipPtr->characteristics, 
+				&DeadStarShipPtr->RaceDescPtr->characteristics,
+				sizeof(CHARACTERISTIC_STUFF)
+			);
+
 		MusicStarted = FALSE;
 
 		for (hElement = GetHeadElement (); hElement; hElement = hSuccElement)
@@ -713,8 +720,6 @@ ship_death (ELEMENT *ShipPtr)
 	}
 
 	StarShipPtr->cur_status_flags &= ~PLAY_VICTORY_DITTY;
-	if(opt_retreat != OPTVAL_DENY)
-		StarShipPtr->state_flee = FALSE;
 
 	DeltaEnergy (ShipPtr,
 			-(SIZE)StarShipPtr->RaceDescPtr->ship_info.energy_level);
@@ -754,12 +759,14 @@ ship_death (ELEMENT *ShipPtr)
 		switch(StarShipPtr->SpeciesID) {
 			case PKUNK_ID:
 				if(StarShipPtr->RaceDescPtr->data) {
-					return;
+					if(!StarShipPtr->state_flee)
+						return;
 				}
 				break;
 			default:
 				break;
 		}
+		StarShipPtr->state_flee = FALSE;
 	}
 
 	if (VictoriousStarShipPtr != NULL)

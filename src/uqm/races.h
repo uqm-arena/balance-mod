@@ -31,9 +31,13 @@ typedef HLINK HSTARSHIP;
 #include "libs/sndlib.h"
 #include "libs/reslib.h"
 
-#define IS_RETREAT(StarShipPtr) ((StarShipPtr->state_flee) && (opt_retreat != OPTVAL_DENY))
+#define IS_RETREAT(StarShipPtr) ((StarShipPtr->state_flee) && (StarShipPtr->RaceDescPtr->ship_info.crew_level != 0) && (opt_retreat != OPTVAL_DENY))
+
+								/* Don't stomp on respawning Pkunk */
+#define IS_COMINGBACK(StarShipPtr) ((StarShipPtr->crew_level) && (!StarShipPtr->is_respawning) && (opt_retreat != OPTVAL_DENY))
 
 #define MISC_STORAGE_SIZE 4
+#define PRESERVE_LIMPETS 24
 
 // TODO: remove RACES_PER_PLAYER remnant of SC1
 #define RACES_PER_PLAYER 7
@@ -297,6 +301,9 @@ struct STARSHIP
 			/* SUPER_MELEE: Is used to preserve miscellanea stuff of
 			 * some ships after retreat [like chmmr's sattelites]
 			 */
+	STAMP limpets_stamps[PRESERVE_LIMPETS];
+			// SUPER_MELEE: Is used to vux' preserve limpets on ships' icons
+	BYTE limpets;
 	BOOLEAN is_respawning;
 			/*
 			 * Used by ship_preprocess to avoid restoring a respawned Pkunk's
@@ -304,6 +311,11 @@ struct STARSHIP
 			 * 
 			 * TODO: This is an evil ugly hack, there has to be a better way
 			 * to do this.
+			 */
+
+	CHARACTERISTIC_STUFF characteristics;
+			/* SUPER_MELEE: Is used to preserve "characteristics" after
+			 * retreat. It's useful to save vux' limpets' effect.
 			 */
 
 	BYTE auxiliary_counter;
