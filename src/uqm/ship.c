@@ -448,11 +448,17 @@ spawn_ship (STARSHIP *StarShipPtr)
 	}
 
 	if(IS_COMINGBACK(StarShipPtr)) {
+		// To preserve slowness due to vux' limpets
 		memcpy(
 				&StarShipPtr->RaceDescPtr->characteristics,
 				&StarShipPtr->characteristics, 
 				sizeof(CHARACTERISTIC_STUFF)
 			);
+
+		// To preserve pkunk's respawning ability after retreat
+		RDPtr->data = StarShipPtr->last_RD_data;			 // This's used to record "next pkunk" pointer
+		RDPtr->init_weapon_func = StarShipPtr->last_RD_init_weapon_func; // This's unfortunately used to preserve 
+										 // "death_func" in "pkunk.c"
 	} else {
 		StarShipPtr->energy_counter = 0;
 		StarShipPtr->weapon_counter = 0;
@@ -548,7 +554,9 @@ spawn_ship (STARSHIP *StarShipPtr)
 		ShipElementPtr->hTarget = 0;
 
 		UnlockElement (hShip);
+		printf("< %p\n", ShipElementPtr->death_func);
 	}
+
 
 	return (hShip != 0);
 }

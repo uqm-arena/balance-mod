@@ -301,7 +301,13 @@ cleanup_dead_ship (ELEMENT *DeadShipPtr)
 	{
 		RACE_DESC * RDPtr;
 		RDPtr = DeadStarShipPtr->RaceDescPtr;
+
 		DeadStarShipPtr->last_energy_level=RDPtr->ship_info.energy_level;
+
+		// To preserve pkunk's respawning ability after retreat:
+		DeadStarShipPtr->last_RD_data = RDPtr->data;				// This's used to record "next pkunk" pointer
+		DeadStarShipPtr->last_RD_init_weapon_func = RDPtr->init_weapon_func;	// This's unfortunately used to preserve 
+										 	// "death_func" in "pkunk.c"
 	}
 
 	{
