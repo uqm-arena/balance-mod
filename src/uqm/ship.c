@@ -554,7 +554,6 @@ spawn_ship (STARSHIP *StarShipPtr)
 		ShipElementPtr->hTarget = 0;
 
 		UnlockElement (hShip);
-		printf("< %p\n", ShipElementPtr->death_func);
 	}
 
 

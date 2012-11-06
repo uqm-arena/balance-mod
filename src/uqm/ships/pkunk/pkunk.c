@@ -441,7 +441,6 @@ pkunk_preprocess (ELEMENT *ElementPtr)
 			InsertElement (hPhoenix, GetHeadElement ());
 		}
 		StarShipPtr->RaceDescPtr->data = (intptr_t) hPhoenix;
-		printf("%i\n", StarShipPtr->RaceDescPtr->data);
 
 		if (ElementPtr->hTarget == 0)
 			StarShipPtr->RaceDescPtr->preprocess_func = 0;
