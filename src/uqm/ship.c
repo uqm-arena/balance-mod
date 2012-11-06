@@ -456,11 +456,6 @@ spawn_ship (STARSHIP *StarShipPtr)
 				&StarShipPtr->characteristics, 
 				sizeof(CHARACTERISTIC_STUFF)
 			);
-
-		// To preserve pkunk's respawning ability after retreat
-		RDPtr->data = StarShipPtr->last_RD_data;			 // This's used to record "next pkunk" pointer
-		RDPtr->init_weapon_func = StarShipPtr->last_RD_init_weapon_func; // This's unfortunately used to preserve 
-										 // "death_func" in "pkunk.c"
 	} else {
 		StarShipPtr->energy_counter = 0;
 		StarShipPtr->weapon_counter = 0;
@@ -470,8 +465,9 @@ spawn_ship (STARSHIP *StarShipPtr)
 #ifdef DRAW_LIMPETS_ON_RETURN
 		StarShipPtr->limpets = 0;
 #endif
-		StarShipPtr->state_flee = FALSE;
 	}
+	StarShipPtr->state_flee = FALSE;
+	printf("%p %p %i\n", RDPtr->data, RDPtr->init_weapon_func, StarShipPtr->static_counter);
 	StarShipPtr->CanRunAway = FALSE; /* this will become TRUE after time limit expires */
 	StarShipPtr->entrance_time = battleFrameCount; /* used for calculating time limit */
 

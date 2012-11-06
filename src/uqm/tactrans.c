@@ -303,11 +303,20 @@ cleanup_dead_ship (ELEMENT *DeadShipPtr)
 		RDPtr = DeadStarShipPtr->RaceDescPtr;
 
 		DeadStarShipPtr->last_energy_level=RDPtr->ship_info.energy_level;
+		
+		switch(DeadStarShipPtr->SpeciesID) {
+			case PKUNK_ID:
+				// To prevent memleak
+				if(DeadStarShipPtr->RaceDescPtr->data) {
+					RemoveElement ((HELEMENT)(DeadStarShipPtr->RaceDescPtr->data));
+					FreeElement ((HELEMENT)(DeadStarShipPtr->RaceDescPtr->data));
+					DeadStarShipPtr->RaceDescPtr->data = 0;
+				}
+				break;
+			default:
+				break;
+		}
 
-		// To preserve pkunk's respawning ability after retreat:
-		DeadStarShipPtr->last_RD_data = RDPtr->data;				// This's used to record "next pkunk" pointer
-		DeadStarShipPtr->last_RD_init_weapon_func = RDPtr->init_weapon_func;	// This's unfortunately used to preserve 
-										 	// "death_func" in "pkunk.c"
 	}
 
 	{
@@ -690,10 +699,10 @@ ship_death (ELEMENT *ShipPtr)
 		if (GetPrimType (&DisplayArray[ShipPtr->PrimIndex]) == STAMPFILL_PRIM)
 		{
 			fprintf(stderr, "fixing Ilwarth %d\n", StarShipPtr->SpeciesID);
-		PRIMITIVE *lpPrim;
-		lpPrim = & (DisplayArray)[ShipPtr->PrimIndex];
-		SetPrimType(lpPrim, STAMP_PRIM);
-		SetPrimColor(lpPrim, BLACK_COLOR);
+			PRIMITIVE *lpPrim;
+			lpPrim = & (DisplayArray)[ShipPtr->PrimIndex];
+			SetPrimType(lpPrim, STAMP_PRIM);
+			SetPrimColor(lpPrim, BLACK_COLOR);
 		}
 	}
 
