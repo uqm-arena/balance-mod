@@ -221,11 +221,13 @@ ship_preprocess (ELEMENT *ElementPtr)
 			{
 				if (IS_COMINGBACK(StarShipPtr))
 				{
+#ifdef DRAW_LIMPETS_ON_RETURN
 					int i=0;
 					// TODO: move here crew_level and energy_level preservation
 					// TODO: preserve limpets' positions on ships' icons
 					while (i < StarShipPtr->limpets  &&  i < PRESERVE_LIMPETS /* just in case */)
 						ModifySilhouette (ElementPtr, &StarShipPtr->limpets_stamps[i++], MODIFY_IMAGE);
+#endif
 				}
 			}
 			return;
@@ -465,7 +467,9 @@ spawn_ship (STARSHIP *StarShipPtr)
 		StarShipPtr->special_counter = 0;
 		StarShipPtr->auxiliary_counter = 0;
 		StarShipPtr->static_counter = 0;
+#ifdef DRAW_LIMPETS_ON_RETURN
 		StarShipPtr->limpets = 0;
+#endif
 		StarShipPtr->state_flee = FALSE;
 	}
 	StarShipPtr->CanRunAway = FALSE; /* this will become TRUE after time limit expires */

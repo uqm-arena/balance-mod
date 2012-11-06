@@ -228,8 +228,10 @@ limpet_collision (ELEMENT *ElementPtr0, POINT *pPt0,
 				StarShipPtr->RaceDescPtr->ship_data.weapon[0], (COUNT)TFB_Random ()
 				);
 
+#ifdef DRAW_LIMPETS_ON_RETURN
 		if(EnemyShipPtr->limpets < PRESERVE_LIMPETS)
 			memcpy(&EnemyShipPtr->limpets_stamps[EnemyShipPtr->limpets++], &s, sizeof(STAMP));
+#endif
 
 		ModifySilhouette (ElementPtr1, &s, MODIFY_IMAGE);
 	}
