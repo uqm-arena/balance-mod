@@ -89,14 +89,13 @@ DoRunAway (STARSHIP *StarShipPtr)
 			// TODO: move Ilwrath cloak check here
 			break;
 		case ANDROSYNTH_ID:
-			if(StarShipPtr->cur_status_flags & SPECIAL)
+			if(StarShipPtr->cur_status_flags & SHIP_BEYOND_MAX_SPEED)
 				return;
 			break;
 		default:
 			break;
 	}
 
-	printf("- limpets: %i\n", StarShipPtr->limpets);
 	LockElement (StarShipPtr->hShip, &ElementPtr);
 	if ((GetPrimType (&DisplayArray[ElementPtr->PrimIndex]) == STAMP_PRIM ||
 	    /* or it's a cloaked Ilwrath */
@@ -148,7 +147,6 @@ DoRunAway (STARSHIP *StarShipPtr)
 		UnlockMutex (GraphicsLock);
 	}
 	
-	printf("+ limpets: %i\n", StarShipPtr->limpets);
 	UnlockElement (StarShipPtr->hShip);
 }
 
