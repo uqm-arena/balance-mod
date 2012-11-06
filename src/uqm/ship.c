@@ -466,8 +466,8 @@ spawn_ship (STARSHIP *StarShipPtr)
 		StarShipPtr->limpets = 0;
 #endif
 	}
+
 	StarShipPtr->state_flee = FALSE;
-	printf("%p %p %i\n", RDPtr->data, RDPtr->init_weapon_func, StarShipPtr->static_counter);
 	StarShipPtr->CanRunAway = FALSE; /* this will become TRUE after time limit expires */
 	StarShipPtr->entrance_time = battleFrameCount; /* used for calculating time limit */
 

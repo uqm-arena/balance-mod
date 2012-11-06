@@ -288,7 +288,6 @@ intercept_pkunk_death (ELEMENT *ElementPtr)
 							ShipPtr->death_func;
 							
 			/* Make sure we're not attempting to flee */
-			printf("%i\n", StarShipPtr->state_flee);
 			if (!StarShipPtr->state_flee)
 			{
 				ElementPtr->death_func = new_pkunk;
@@ -420,7 +419,6 @@ pkunk_preprocess (ELEMENT *ElementPtr)
 	if (ElementPtr->state_flags & APPEARING)
 	{
 		HELEMENT hPhoenix = 0;
-		printf("TEST\n");
         // TODO: Verify this
 		if (((TFB_Random () >> 10) % 100) < (INITIAL_RESPAWN_CHANCE - 1)
 				- (StarShipPtr->static_counter * RESPAWN_CHANCE_DECREMENT))
@@ -428,7 +426,6 @@ pkunk_preprocess (ELEMENT *ElementPtr)
 
 		if (hPhoenix)
 		{
-			printf("TEST2\n");
 			ELEMENT *PhoenixPtr;
 
 			LockElement (hPhoenix, &PhoenixPtr);
