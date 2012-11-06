@@ -224,7 +224,7 @@ ship_preprocess (ELEMENT *ElementPtr)
 					int i=0;
 					// TODO: move here crew_level and energy_level preservation
 					// TODO: preserve limpets' positions on ships' icons
-					while (i < StarShipPtr->limpets)
+					while (i < StarShipPtr->limpets  &&  i < PRESERVE_LIMPETS /* just in case */)
 						ModifySilhouette (ElementPtr, &StarShipPtr->limpets_stamps[i++], MODIFY_IMAGE);
 				}
 			}
