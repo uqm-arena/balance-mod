@@ -309,8 +309,6 @@ ship_preprocess (ELEMENT *ElementPtr)
 				spawn_ion_trail (ElementPtr);
 		}
 	}
-	if (!OBJECT_CLOAKED (ElementPtr))
-		draw_reticle (ElementPtr);
 
 	if (LOBYTE (GLOBAL (CurrentActivity)) <= IN_ENCOUNTER)
 		PreProcessStatus (ElementPtr);
@@ -321,6 +319,9 @@ ship_postprocess (ELEMENT *ElementPtr)
 {
 	STARSHIP *StarShipPtr;
 	RACE_DESC *RDPtr;
+
+	if (!OBJECT_CLOAKED (ElementPtr))
+		draw_reticle (ElementPtr);
 
 	if (ElementPtr->crew_level == 0)
 		return;
