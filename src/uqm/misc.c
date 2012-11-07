@@ -435,7 +435,10 @@ draw_reticle (ELEMENT* ElementPtr)
 			GetElementStarShip (ObjectPtr, &EnemyShipPtr);
 			
 			if (StarShipPtr->SpeciesID == EnemyShipPtr->SpeciesID)
+			{
 				hEnemyShip = hObject;
+				break;
+			}
 		}
 		
 		UnlockElement (hObject);
@@ -444,6 +447,10 @@ draw_reticle (ELEMENT* ElementPtr)
 	if (hEnemyShip) // "!OBJECT_CLOAKED (ElementPtr)" is taken care of elsewhere.
 	{
 		HELEMENT hReticleElement;
+		ELEMENT *EnemyPtr;
+
+		LockElement (hEnemyShip, &EnemyPtr);
+		GetElementStarShip (EnemyPtr, &EnemyShipPtr);
 
 		// Reticle frame stays on top of other images.
 		hReticleElement = AllocElement ();
@@ -459,16 +466,18 @@ draw_reticle (ELEMENT* ElementPtr)
 			ReticlePtr->current.image.farray = reticle;
 			ReticlePtr->current.location = ElementPtr->current.location;
 
-			if (PlayerControl[ElementPtr->playerNr] & HUMAN_CONTROL)
-				ReticlePtr->current.image.frame = SetAbsFrameIndex (reticle[0], 0);
-			else
-				ReticlePtr->current.image.frame = SetAbsFrameIndex (reticle[0], 1);
+			if ((PlayerControl[ElementPtr->playerNr] & HUMAN_CONTROL) && (PlayerControl[EnemyPtr->playerNr] & HUMAN_CONTROL))
+				ReticlePtr->current.image.frame = SetAbsFrameIndex (reticle[0], ElementPtr->playerNr > EnemyPtr->playerNr);
+			else 
+				ReticlePtr->current.image.frame = SetAbsFrameIndex (reticle[0], !(PlayerControl[ElementPtr->playerNr] & HUMAN_CONTROL));
 
 			ReticlePtr->life_span = 1;
 			SetElementStarShip (ReticlePtr, StarShipPtr);
 			UnlockElement (hReticleElement);
 			InsertElement (hReticleElement, GetTailElement ());
 		}
+
+		UnlockElement (hEnemyShip);
 	}
 	
 	UnlockElement (StarShipPtr->hShip);
