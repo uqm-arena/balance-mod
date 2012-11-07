@@ -128,6 +128,8 @@ struct options_struct
 	DECL_CONFIG_OPTION(float, speechVolumeScale);
 	DECL_CONFIG_OPTION(bool, safeMode);
 
+	DECL_CONFIG_OPTION(int, reticles);
+
 	DECL_CONFIG_OPTION(int, retreat);
 	DECL_CONFIG_OPTION(int, retreat_wait);
 
@@ -207,6 +209,20 @@ static const struct option_list_value retreatList[] =
 	{"unlimited", OPTVAL_ALLOW},
 	{NULL, 0}
 };
+
+static const struct option_list_value reticlesList[] =
+{
+	{"0",		false},
+	{"no",		false},
+	{"none",	false},
+	{"false",	false},
+	{"disable",	false},
+	{"1",		true},
+	{"yes",		true},
+	{"true",	true},
+	{"enable",	true},
+	{NULL, 0}
+};
 // Looks up the given string value in the given list and passes
 // the associated int value back. returns true if value was found.
 // The list is terminated by a NULL 'str' value.
@@ -270,8 +286,10 @@ main (int argc, char *argv[])
 		INIT_CONFIG_OPTION(  sfxVolumeScale,    1.0f ),
 		INIT_CONFIG_OPTION(  speechVolumeScale, 1.0f ),
 		INIT_CONFIG_OPTION(  safeMode,          false ),
+
+		INIT_CONFIG_OPTION(  reticles,		true ),
 		
-		INIT_CONFIG_OPTION(  retreat,		OPTVAL_ONEPERSHIP),
+		INIT_CONFIG_OPTION(  retreat,		OPTVAL_ONEPERSHIP ),
 		/*
 		 * This is in melee frames (1/24 second), converted to seconds
 		 * on the fly when needed for user configuration purposes.
@@ -401,7 +419,9 @@ main (int argc, char *argv[])
 	speechVolumeScale = options.speechVolumeScale.value;
 	optAddons = options.addons;
 
-	opt_retreat      = options.retreat.value;
+	opt_reticles	 = options.reticles.value;
+
+	opt_retreat	 = options.retreat.value;
 	opt_retreat_wait = options.retreat_wait.value;
 
 	prepareContentDir (options.contentDir, options.addonDir, argv[0]);
@@ -653,6 +673,7 @@ getUserConfigOptions (struct options_struct *options)
 	getBoolConfigValue (&options->use3doMusic, "config.3domusic");
 	getBoolConfigValue (&options->useRemixMusic, "config.remixmusic");
 	
+	getIntConfigValue  (&options->reticles,     "config.reticles");
 	getIntConfigValue  (&options->retreat,      "config.retreat");
 	getIntConfigValue  (&options->retreat_wait, "config.retreat_wait");
 
@@ -714,6 +735,8 @@ enum
 	ACCEL_OPT,
 	SAFEMODE_OPT,
 	
+	RETICLES_OPT,
+	
 	SUPERMELEE_RETREAT_OPT,
 	RETREAT_WAIT_OPT,
 	
@@ -764,8 +787,10 @@ static struct option longOptions[] =
 	{"addondir", 1, NULL, ADDONDIR_OPT},
 	{"accel", 1, NULL, ACCEL_OPT},
 	{"safe", 0, NULL, SAFEMODE_OPT},
+
+	{"reticles",	 1, NULL, RETICLES_OPT},
 	
-	{"retreat",      1, NULL, SUPERMELEE_RETREAT_OPT},
+	{"retreat",	 1, NULL, SUPERMELEE_RETREAT_OPT},
 	{"retreat_wait", 1, NULL, RETREAT_WAIT_OPT},
 	
 #ifdef NETPLAY
@@ -1071,6 +1096,15 @@ parseOptions (int argc, char *argv[], struct options_struct *options)
 	                case SAFEMODE_OPT:
 				setBoolOption (&options->safeMode, true);
 				break;
+			case RETICLES_OPT:
+				if (!setListOption (&options->reticles, optarg, reticlesList))
+					if (!setIntOption (&options->reticles, optarg,
+						      "--reticles"))
+					{
+						InvalidArgument (optarg, "--reticles");
+						badArg = true;
+					}
+				break;
 			case SUPERMELEE_RETREAT_OPT:
 				if (!setListOption (&options->retreat, optarg, retreatList))
 					if (!setIntOption (&options->retreat, optarg,
@@ -1259,10 +1293,11 @@ usage (FILE *out, const struct options_struct *defaults)
 			"currently only for openal)");
 	log_add (log_User, "  --safe (start in safe mode)");
 
+	log_add (log_User, "  --reticles=VALUE (reticles in melee; disable, enable)");
 
-	log_add (log_User, "  --retreat (enables retreating in Supermelee, "
+	log_add (log_User, "  --retreat=VALUE (enables retreating in Supermelee, "
 			"values are none, once, or unlimited)");
-	log_add (log_User, "  --retreat_wait (number of seconds to wait before "
+	log_add (log_User, "  --retreat_wait=SECONDS (number of seconds to wait before "
 			"allowing a ship to flee in Supermelee, default is 25)");
 
 #ifdef NETPLAY

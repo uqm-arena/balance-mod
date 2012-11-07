@@ -34,6 +34,7 @@ Player One
 Player Two
 Control Set
 UQM Remixes
+Reticles
 S-melee Retreat
 
 #(CAT_0_OPTS)
@@ -423,17 +424,30 @@ modern soundtrack written by The Precursors.
 Requires a restart of UQM to take effect.
 
 #(CAT_22_OPTS)
+Disabled
+Enabled
+
+#(CAT_22_OPT_0_DESC)
+There will be no reticles in melee.
+(as in original version)
+
+#(CAT_22_OPT_1_DESC)
+Enable reticles in melee to recognize own
+and enemy ships in case of ship-duplicate
+battle.
+
+#(CAT_23_OPTS)
 Deny
 Once
 Allow
 
-#(CAT_22_OPT_0_DESC)
+#(CAT_23_OPT_0_DESC)
 Ships cannot retreat in Supermelee.
 
-#(CAT_22_OPT_1_DESC)
+#(CAT_23_OPT_1_DESC)
 Ships may retreat once per Supermelee.
 
-#(CAT_22_OPT_2_DESC)
+#(CAT_23_OPT_2_DESC)
 Ships may retreat in Supermelee.
 
 #(SLIDERS)

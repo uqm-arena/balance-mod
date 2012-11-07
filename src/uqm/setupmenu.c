@@ -75,9 +75,9 @@ static void clear_control (WIDGET_CONTROLENTRY *widget);
 #define MENU_COUNT          8
 
 #ifdef RETREAT_SETUPMENU
-#define CHOICE_COUNT	   23
+#define CHOICE_COUNT	   24
 #else
-#define CHOICE_COUNT	   22
+#define CHOICE_COUNT	   23
 #endif
 
 #ifdef RETREAT_SETUPMENU
@@ -107,7 +107,7 @@ typedef int (*HANDLER)(WIDGET *, int);
 static int choice_widths[CHOICE_COUNT] = {
 	3, 2, 3, 3, 2, 2, 2, 2, 2, 2, 
 	2, 2, 3, 2, 2, 3, 3, 2,	3, 3, 
-	3, 2
+	3, 2, 2
 #ifdef RETREAT_SETUPMENU
 	, 3
 #endif
@@ -119,7 +119,7 @@ static HANDLER button_handlers[BUTTON_COUNT] = {
 	do_keyconfig };
 
 static int menu_sizes[MENU_COUNT] = {
-	7, 5, 7, 9, 2, 5,
+	7, 5, 7, 10, 2, 5,
 
 /*
  * Outer #ifdef is original to UQM and makes compilation of an OpenGL
@@ -175,6 +175,7 @@ static WIDGET *engine_widgets[] = {
 	(WIDGET *)(&choices[13]),
 	(WIDGET *)(&choices[11]),
 	(WIDGET *)(&choices[17]),
+	(WIDGET *)(&choices[22]),
 	(WIDGET *)(&buttons[1]) };
 
 static WIDGET *advanced_widgets[] = {
@@ -185,7 +186,7 @@ static WIDGET *advanced_widgets[] = {
 	(WIDGET *)(&choices[15]),
 	(WIDGET *)(&choices[16]),
 #ifdef RETREAT_SETUPMENU
-	(WIDGET *)(&choices[22]),
+	(WIDGET *)(&choices[23]),
 	(WIDGET *)(&sliders[3]),
 #endif
 	(WIDGET *)(&buttons[1]) };
@@ -415,8 +416,9 @@ SetDefaults (void)
 	choices[19].selected = opts.player2;
 	choices[20].selected = 0;
 	choices[21].selected = opts.musicremix;
+	choices[22].selected = opts.reticles;
 #ifdef RETREAT_SETUPMENU
-	choices[22].selected = opts.retreat;
+	choices[23].selected = opts.retreat;
 #endif
 	sliders[0].value = opts.musicvol;
 	sliders[1].value = opts.sfxvol;
@@ -456,8 +458,9 @@ PropagateResults (void)
 	opts.player1 = choices[18].selected;
 	opts.player2 = choices[19].selected;
 	opts.musicremix = choices[21].selected;
+	opts.reticles = choices[22].selected;
 #ifdef RETREAT_SETUPMENU
-	opts.retreat = choices[22].selected;
+	opts.retreat = choices[23].selected;
 #endif
 	opts.musicvol = sliders[0].value;
 	opts.sfxvol = sliders[1].value;
@@ -1248,6 +1251,7 @@ GetGlobalOptions (GLOBALOPTS *opts)
 	opts->musicvol = (((int)(musicVolumeScale * 100.0f) + 2) / 5) * 5;
 	opts->sfxvol = (((int)(sfxVolumeScale * 100.0f) + 2) / 5) * 5;
 	opts->speechvol = (((int)(speechVolumeScale * 100.0f) + 2) / 5) * 5;
+	opts->reticles = opt_reticles;
 #ifdef RETREAT_SETUPMENU
 	opts->retreat = opt_retreat;
 	opts->retreat_wait = opt_retreat_wait;
@@ -1363,6 +1367,7 @@ SetGlobalOptions (GLOBALOPTS *opts)
 	optWhichShield = (opts->shield == OPTVAL_3DO) ? OPT_3DO : OPT_PC;
 	optMeleeScale = (opts->meleezoom == OPTVAL_3DO) ? TFB_SCALE_TRILINEAR : TFB_SCALE_STEP;
 	optWhichIntro = (opts->intro == OPTVAL_3DO) ? OPT_3DO : OPT_PC;
+	opt_reticles = opts->reticles;
 #ifdef RETREAT_SETUPMENU
 	opt_retreat = opts->retreat;
 	opt_retreat_wait = opts->retreat_wait;
@@ -1386,6 +1391,7 @@ SetGlobalOptions (GLOBALOPTS *opts)
 	res_PutInteger ("config.player1control", opts->player1);
 	res_PutInteger ("config.player2control", opts->player2);
 
+	res_PutInteger ("config.reticles", opts->reticles == OPTVAL_ENABLED);
 #ifdef RETREAT_SETUPMENU
 	res_PutInteger ("config.retreat", opts->retreat);
 	res_PutInteger ("config.retreat_wait", opts->retreat_wait);

@@ -41,6 +41,7 @@ extern int optMeleeScale;
 extern int opt_retreat;
 extern DWORD opt_retreat_wait;
 
+extern BOOLEAN opt_reticles;
 extern BOOLEAN opt3doMusic;
 extern BOOLEAN optRemixMusic;
 extern BOOLEAN optSubtitles;
