@@ -73,7 +73,7 @@ static void clear_control (WIDGET_CONTROLENTRY *widget);
 #endif
 
 #define MENU_COUNT          8
-#define CHOICE_COUNT       22
+#define CHOICE_COUNT       23
 #define SLIDER_COUNT        3
 #define BUTTON_COUNT       10
 #define LABEL_COUNT         4
@@ -96,7 +96,8 @@ typedef int (*HANDLER)(WIDGET *, int);
 static int choice_widths[CHOICE_COUNT] = {
 	3, 2, 3, 3, 2, 2, 2, 2, 2, 2, 
 	2, 2, 3, 2, 2, 3, 3, 2,	3, 3, 
-	3, 2 };
+	3, 2, 2
+};
 
 static HANDLER button_handlers[BUTTON_COUNT] = {
 	quit_main_menu, quit_sub_menu, do_graphics, do_engine,
@@ -104,7 +105,7 @@ static HANDLER button_handlers[BUTTON_COUNT] = {
 	do_keyconfig };
 
 static int menu_sizes[MENU_COUNT] = {
-	7, 5, 7, 9, 2, 5,
+	7, 5, 7, 10, 2, 5,
 #ifdef HAVE_OPENGL
 	5,
 #else
@@ -151,6 +152,7 @@ static WIDGET *engine_widgets[] = {
 	(WIDGET *)(&choices[13]),
 	(WIDGET *)(&choices[11]),
 	(WIDGET *)(&choices[17]),
+	(WIDGET *)(&choices[22]),
 	(WIDGET *)(&buttons[1]) };
 
 static WIDGET *advanced_widgets[] = {
@@ -388,6 +390,8 @@ SetDefaults (void)
 	choices[20].selected = 0;
 	choices[21].selected = opts.musicremix;
 
+	choices[22].selected = opts.reticles;
+
 	sliders[0].value = opts.musicvol;
 	sliders[1].value = opts.sfxvol;
 	sliders[2].value = opts.speechvol;
@@ -418,6 +422,8 @@ PropagateResults (void)
 	opts.player1 = choices[18].selected;
 	opts.player2 = choices[19].selected;
 	opts.musicremix = choices[21].selected;
+
+	opts.reticles = choices[22].selected;
 
 	opts.musicvol = sliders[0].value;
 	opts.sfxvol = sliders[1].value;
@@ -1201,7 +1207,8 @@ GetGlobalOptions (GLOBALOPTS *opts)
 	opts->musicvol = (((int)(musicVolumeScale * 100.0f) + 2) / 5) * 5;
 	opts->sfxvol = (((int)(sfxVolumeScale * 100.0f) + 2) / 5) * 5;
 	opts->speechvol = (((int)(speechVolumeScale * 100.0f) + 2) / 5) * 5;
-	
+
+	opts->reticles = opt_reticles;
 }
 
 void
@@ -1313,6 +1320,9 @@ SetGlobalOptions (GLOBALOPTS *opts)
 	optWhichShield = (opts->shield == OPTVAL_3DO) ? OPT_3DO : OPT_PC;
 	optMeleeScale = (opts->meleezoom == OPTVAL_3DO) ? TFB_SCALE_TRILINEAR : TFB_SCALE_STEP;
 	optWhichIntro = (opts->intro == OPTVAL_3DO) ? OPT_3DO : OPT_PC;
+
+	opt_reticles = opts->reticles;
+
 	PlayerControls[0] = opts->player1;
 	PlayerControls[1] = opts->player2;
 
@@ -1331,6 +1341,8 @@ SetGlobalOptions (GLOBALOPTS *opts)
 	res_PutBoolean ("config.pulseshield", opts->shield == OPTVAL_3DO);
 	res_PutInteger ("config.player1control", opts->player1);
 	res_PutInteger ("config.player2control", opts->player2);
+
+	res_PutInteger ("config.reticles", opts->reticles == OPTVAL_ENABLED);
 
 	switch (opts->adriver) {
 	case OPTVAL_SILENCE:

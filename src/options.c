@@ -52,6 +52,7 @@ int optSmoothScroll;
 int optMeleeScale;
 const char **optAddons;
 
+BOOLEAN opt_reticles;
 BOOLEAN opt3doMusic;
 BOOLEAN optRemixMusic;
 BOOLEAN optSubtitles;

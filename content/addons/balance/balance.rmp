@@ -1,3 +1,4 @@
+text.setupmenu = STRTAB:addons/balance/ui/setupmenu.txt
 graphics.reticle.large = GFXRES:addons/balance/battle/reticle-big.ani
 graphics.reticle.medium = GFXRES:addons/balance/battle/reticle-med.ani
 graphics.reticle.small = GFXRES:addons/balance/battle/reticle-sml.ani

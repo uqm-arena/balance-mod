@@ -38,6 +38,7 @@ extern int optWhichShield;
 extern int optSmoothScroll;
 extern int optMeleeScale;
 
+extern BOOLEAN opt_reticles;
 extern BOOLEAN opt3doMusic;
 extern BOOLEAN optRemixMusic;
 extern BOOLEAN optSubtitles;

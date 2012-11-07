@@ -287,7 +287,7 @@ ship_postprocess (ELEMENT *ElementPtr)
 	STARSHIP *StarShipPtr;
 	RACE_DESC *RDPtr;
 
-	if (!OBJECT_CLOAKED (ElementPtr))
+	if ((!OBJECT_CLOAKED (ElementPtr)) && (opt_reticles))
 		draw_reticle (ElementPtr);
 
 	if (ElementPtr->crew_level == 0)

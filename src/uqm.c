@@ -128,6 +128,8 @@ struct options_struct
 	DECL_CONFIG_OPTION(float, speechVolumeScale);
 	DECL_CONFIG_OPTION(bool, safeMode);
 
+	DECL_CONFIG_OPTION(int, reticles);
+	
 #define INIT_CONFIG_OPTION(name, val) \
 	{ val, false }
 
@@ -197,6 +199,19 @@ static const struct option_list_value accelList[] =
 	{NULL, 0}
 };
 
+static const struct option_list_value reticlesList[] =
+{
+	{"0",		false},
+	{"no",		false},
+	{"none",	false},
+	{"false",	false},
+	{"disable",	false},
+	{"1",		true},
+	{"yes",		true},
+	{"true",	true},
+	{"enable",	true},
+	{NULL, 0}
+};
 // Looks up the given string value in the given list and passes
 // the associated int value back. returns true if value was found.
 // The list is terminated by a NULL 'str' value.
@@ -260,6 +275,9 @@ main (int argc, char *argv[])
 		INIT_CONFIG_OPTION(  sfxVolumeScale,    1.0f ),
 		INIT_CONFIG_OPTION(  speechVolumeScale, 1.0f ),
 		INIT_CONFIG_OPTION(  safeMode,          false ),
+
+		INIT_CONFIG_OPTION(  reticles,		true ),
+
 	};
 	struct options_struct defaults = options;
 	int optionsResult;
@@ -382,6 +400,8 @@ main (int argc, char *argv[])
 	sfxVolumeScale = options.sfxVolumeScale.value;
 	speechVolumeScale = options.speechVolumeScale.value;
 	optAddons = options.addons;
+
+	opt_reticles	 = options.reticles.value;
 
 	prepareContentDir (options.contentDir, options.addonDir, argv[0]);
 	prepareMeleeDir ();
@@ -571,6 +591,17 @@ getListConfigValue (struct int_option *option, const char *config_val,
 	return found;
 }
 
+/* Copied from getVolumeConfigValue, with minor changes */
+
+static void
+getIntConfigValue (struct int_option *option, const char *config_val)
+{
+	if (option->set || !res_IsInteger (config_val))
+		return;
+	option->value = res_GetInteger(config_val);
+	option->set = true;
+}
+
 static void
 getUserConfigOptions (struct options_struct *options)
 {
@@ -620,6 +651,8 @@ getUserConfigOptions (struct options_struct *options)
 
 	getBoolConfigValue (&options->use3doMusic, "config.3domusic");
 	getBoolConfigValue (&options->useRemixMusic, "config.remixmusic");
+
+	getIntConfigValue  (&options->reticles,     "config.reticles");
 
 	getBoolConfigValueXlat (&options->meleeScale, "config.smoothmelee",
 			TFB_SCALE_TRILINEAR, TFB_SCALE_STEP);
@@ -678,6 +711,9 @@ enum
 	ADDONDIR_OPT,
 	ACCEL_OPT,
 	SAFEMODE_OPT,
+
+	RETICLES_OPT,
+
 #ifdef NETPLAY
 	NETHOST1_OPT,
 	NETPORT1_OPT,
@@ -725,6 +761,9 @@ static struct option longOptions[] =
 	{"addondir", 1, NULL, ADDONDIR_OPT},
 	{"accel", 1, NULL, ACCEL_OPT},
 	{"safe", 0, NULL, SAFEMODE_OPT},
+
+	{"reticles",	 1, NULL, RETICLES_OPT},
+
 #ifdef NETPLAY
 	{"nethost1", 1, NULL, NETHOST1_OPT},
 	{"netport1", 1, NULL, NETPORT1_OPT},
@@ -783,6 +822,18 @@ setVolumeOption (struct float_option *option, const char *strval,
 	if (parseIntOption (strval, &intVol, optName) != 0)
 		return false;
 	parseIntVolume (intVol, &option->value);
+	option->set = true;
+	return true;
+}
+
+/* Copied from setFloatOption, with minor changes */
+static bool
+setIntOption (struct int_option *option, const char *strval,
+	      const char *optName)
+{
+	if (parseIntOption (strval, &option->value, optName) != 0)
+		return false;
+	parseIntOption (strval, &option->value, optName);
 	option->set = true;
 	return true;
 }
@@ -1016,6 +1067,15 @@ parseOptions (int argc, char *argv[], struct options_struct *options)
 	                case SAFEMODE_OPT:
 				setBoolOption (&options->safeMode, true);
 				break;
+			case RETICLES_OPT:
+				if (!setListOption (&options->reticles, optarg, reticlesList))
+					if (!setIntOption (&options->reticles, optarg,
+						      "--reticles"))
+					{
+						InvalidArgument (optarg, "--reticles");
+						badArg = true;
+					}
+				break;
 #ifdef NETPLAY
 			case NETHOST1_OPT:
 				netplayOptions.peer[0].isServer = false;
@@ -1179,6 +1239,9 @@ usage (FILE *out, const struct options_struct *defaults)
 	log_add (log_User, "  --stereosfx (enables positional sound effects, "
 			"currently only for openal)");
 	log_add (log_User, "  --safe (start in safe mode)");
+
+	log_add (log_User, "  --reticles=VALUE (reticles in melee; disable, enable)");
+
 #ifdef NETPLAY
 	log_add (log_User, "  --nethostN=HOSTNAME (server to connect to for "
 			"player N (1=bottom, 2=top)");
