@@ -698,7 +698,9 @@ ship_death (ELEMENT *ShipPtr)
 	{
 		if (GetPrimType (&DisplayArray[ShipPtr->PrimIndex]) == STAMPFILL_PRIM)
 		{
+#ifdef DEBUG
 			fprintf(stderr, "fixing Ilwarth %d\n", StarShipPtr->SpeciesID);
+#endif
 			PRIMITIVE *lpPrim;
 			lpPrim = & (DisplayArray)[ShipPtr->PrimIndex];
 			SetPrimType(lpPrim, STAMP_PRIM);
