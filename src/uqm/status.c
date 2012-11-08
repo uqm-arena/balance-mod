@@ -77,7 +77,7 @@ draw_retreat_clock (STARSHIP *StarShipPtr)
 	r.extent.height = 5;
 	
 	/* if the ship can retreat, write 0 to the buffer */
-	sprintf (buf, "%d",(StarShipPtr->CanRunAway) ? 0 : (time_left / 24));
+	sprintf (buf, "%d",(StarShipPtr->CanRunAway) ? 0 : ((time_left / 24) + 1));
 	SetContextFont (StarConFont);
 	
 	SetContextForeGroundColor (
