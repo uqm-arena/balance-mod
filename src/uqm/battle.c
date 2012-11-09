@@ -84,19 +84,21 @@ DoRunAway (STARSHIP *StarShipPtr)
 {
 	ELEMENT *ElementPtr;
 
+	LockElement (StarShipPtr->hShip, &ElementPtr);
 	switch(StarShipPtr->SpeciesID) {
 		case ILWRATH_ID:
 			// TODO: move Ilwrath cloak check here
 			break;
 		case ANDROSYNTH_ID:
-			if(StarShipPtr->cur_status_flags & SHIP_BEYOND_MAX_SPEED)
+			if((ElementPtr->next.image.farray) ==
+			   (StarShipPtr->RaceDescPtr->ship_data.special)
+			)
 				return;
 			break;
 		default:
 			break;
 	}
 
-	LockElement (StarShipPtr->hShip, &ElementPtr);
 	if ((GetPrimType (&DisplayArray[ElementPtr->PrimIndex]) == STAMP_PRIM ||
 	    /* or it's a cloaked Ilwrath */
 	    (StarShipPtr->SpeciesID == ILWRATH_ID &&
