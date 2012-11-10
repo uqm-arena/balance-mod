@@ -40,6 +40,5 @@ uqm_INSTALL_SHARED_content_MODE="go+rX"
 uqm_INSTALL_BINS=wrapper
 uqm_INSTALL_BIN_wrapper_SRC="$BUILD_WORK/uqm-wrapper"
 uqm_INSTALL_BIN_wrapper_DEST="uqm-improved-netmelee"
->>>>>>> allow-retreat
 uqm_INSTALL_BIN_wrapper_MODE="0755"
 
