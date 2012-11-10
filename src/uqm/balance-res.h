@@ -30,6 +30,6 @@
 #define RETICLE_BIG_MASK_PMAP_ANIM "graphics.reticle.large"
 #define RETICLE_MED_MASK_PMAP_ANIM "graphics.reticle.medium"
 #define RETICLE_SML_MASK_PMAP_ANIM "graphics.reticle.small"
-#define RETREAT_SLASH_MASK_PMAP_ANIM "graphics.retreatslash"
+#define RETREAT_SLASH_MASK_PMAP_ANIM "graphics.retreat_reticle"
 
 #endif /* BALANCE_RES_H */

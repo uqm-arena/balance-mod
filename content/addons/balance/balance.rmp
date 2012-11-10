@@ -1,6 +1,6 @@
 text.setupmenu = STRTAB:addons/balance/ui/setupmenu.txt
 text.balance_strings = STRTAB:addons/balance/balance-strings.txt
-graphics.retreatslash = GFXRES:addons/balance/ui/retreatslash.ani
+graphics.retreat_reticle = GFXRES:addons/balance/ui/retreat_reticle.ani
 graphics.reticle.large = GFXRES:addons/balance/battle/reticle-big.ani
 graphics.reticle.medium = GFXRES:addons/balance/battle/reticle-med.ani
 graphics.reticle.small = GFXRES:addons/balance/battle/reticle-sml.ani
