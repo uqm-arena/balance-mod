@@ -69,6 +69,9 @@ FRAME retreat_status_frame;
 
 Mutex GraphicsLock;
 STRING GameStrings;
+
+STRING balance_strings;
+
 QUEUE disp_q;
 
 uio_Repository *repository;
@@ -141,14 +144,7 @@ LoadKernel (int argc, char *argv[])
 		log_add(log_Error, "The Balance Mod effects package is missing.");
 		return FALSE;
 	}
-#ifdef RETREAT_SETUPMENU
-	// Never run Retreat-patched Balance Mod without new setup strings
-	if (!loadAddon("balance-retreat"))
-	{
-		log_add(log_Error, "The Retreat Patch setup strings are missing.");
-		return FALSE;
-	}
-#endif
+
 	/* Now load the rest of the addons, in order. */
 	prepareAddons (optAddons);
 
@@ -229,6 +225,10 @@ InitKernel (void)
 
 	GameStrings = CaptureStringTable (LoadStringTable (STARCON_GAME_STRINGS));
 	if (GameStrings == 0)
+		return FALSE;
+
+	balance_strings = CaptureStringTable (LoadStringTable (BALANCE_STRINGS));
+	if (balance_strings == 0)
 		return FALSE;
 
 	MicroFont = LoadFont (MICRO_FONT);

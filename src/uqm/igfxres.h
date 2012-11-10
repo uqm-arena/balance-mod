@@ -272,10 +272,3 @@
 #define UMGAH_BCS_MASK_PMAP_ANIM "graphics.umgahcaster"
 #define VAULT_MASK_PMAP_ANIM "graphics.syreenvault"
 #define WRECK_MASK_PMAP_ANIM "graphics.urquanwreck"
-
-// Balance Mod Additions:
-#define RETICLE_BIG_MASK_PMAP_ANIM "graphics.reticle.large"
-#define RETICLE_MED_MASK_PMAP_ANIM "graphics.reticle.medium"
-#define RETICLE_SML_MASK_PMAP_ANIM "graphics.reticle.small"
-
-#define RETREAT_SLASH_MASK_PMAP_ANIM "graphics.retreatslash"

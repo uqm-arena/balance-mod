@@ -51,6 +51,8 @@ typedef enum NetplayAbortReason {
 	AbortReason_invalidHash,
 	AbortReason_protocolError,
 			// Network is in an inconsistent state.
+	
+	AbortReason_retreatMismatch
 } NetplayAbortReason;
 
 // Sent before resetting the connection. A game in progress is terminated.

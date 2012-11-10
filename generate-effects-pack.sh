@@ -13,8 +13,8 @@
 if [ $1 ]
 then
     cd content/addons
-    zip -r $1 balance balance-retreat
+    zip -r $1 balance
 else
     cd content/addons
-    zip -r balance-effects-unified.zip balance balance-retreat
+    zip -r balance-effects-unified.zip balance
 fi

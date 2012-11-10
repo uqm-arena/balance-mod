@@ -444,9 +444,9 @@ PreProcessStatus (ELEMENT *ShipPtr)
 	/* Draw the retreat timer if we have a nonzero retreat_wait,
 	 * and our ship is not retreating already. Do not draw it
 	 * if our ship has retreated already and we're in one retreat
-	 * mode.
+	 * mode, or if we're not allowing retreat at all.
 	 */
-	if ((opt_retreat_wait > 0) && !(StarShipPtr->state_flee) &&
+	if ((opt_retreat) && (opt_retreat_wait > 0) && !(StarShipPtr->state_flee) &&
 	    !((StarShipPtr->flee_counter) && (opt_retreat == OPTVAL_ONEPERSHIP)))
 	{
 		draw_retreat_clock (StarShipPtr);

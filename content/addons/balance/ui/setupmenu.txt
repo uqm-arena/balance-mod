@@ -35,6 +35,7 @@ Player Two
 Control Set
 UQM Remixes
 Reticles
+S-melee Retreat
 
 #(CAT_0_OPTS)
 320x240
@@ -435,10 +436,25 @@ Enable reticles in melee to recognize own
 and enemy ships in case of ship-duplicate
 battle.
 
+#(CAT_23_OPTS)
+Deny
+Once
+Allow
+
+#(CAT_23_OPT_0_DESC)
+Ships cannot retreat in Supermelee.
+
+#(CAT_23_OPT_1_DESC)
+Ships may retreat once per Supermelee.
+
+#(CAT_23_OPT_2_DESC)
+Ships may retreat in Supermelee.
+
 #(SLIDERS)
 Music Volume
 SFX Volume
 Speech Volume
+Retreat Delay
 
 #(SLIDER_0_DESC)
 Sets the music volume.
@@ -448,6 +464,9 @@ Sets the sound effects volume.
 
 #(SLIDER_2_DESC)
 Sets the speech volume.
+
+#(SLIDER_3_DESC)
+Sets the delay before a ship can flee in Supermelee.
 
 #(BUTTONS)
 Quit Setup Menu

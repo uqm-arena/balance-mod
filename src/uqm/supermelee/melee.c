@@ -60,6 +60,7 @@
 #include "libs/log.h"
 #include "libs/uio.h"
 
+#include "../balance-strings.h"
 
 #include <assert.h>
 #include <string.h>
@@ -2210,6 +2211,9 @@ abortReasonString (NetplayAbortReason reason)
 			return GAME_STRING (NETMELEE_STRING_BASE + 28);
 					// "Connection aborted due to an internal protocol "
 					// "error."
+		case AbortReason_retreatMismatch:
+			return BALANCE_STRING (BALANCE_NETMELEE_STRING_BASE + 0);
+					// "Retreat settings are inconsistent."
 	}
 	
 	return NULL;
