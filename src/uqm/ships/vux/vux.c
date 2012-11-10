@@ -146,7 +146,9 @@ limpet_collision (ELEMENT *ElementPtr0, POINT *pPt0,
 
 
 	if (ElementPtr1->state_flags & PLAYER_SHIP
-	&& !((EnemyShipPtr && EnemyShipPtr->SpeciesID == UMGAH_ID)  // Make sure this works
+	&& !((EnemyShipPtr && EnemyShipPtr->SpeciesID == UMGAH_ID)
+			&& ElementPtr1->current.image.farray == EnemyShipPtr->RaceDescPtr->ship_data.special)
+    && !((EnemyShipPtr && EnemyShipPtr->SpeciesID == ANDROSYNTH_ID)
 			&& ElementPtr1->current.image.farray == EnemyShipPtr->RaceDescPtr->ship_data.special))
 	{
 		int thrust_loss;
