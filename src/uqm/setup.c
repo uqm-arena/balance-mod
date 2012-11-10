@@ -44,7 +44,6 @@
 #include <errno.h>
 #include <string.h>
 
-
 ACTIVITY LastActivity;
 BYTE PlayerControl[NUM_PLAYERS];
 
@@ -65,6 +64,9 @@ FRAME StatusFrame;
 FRAME FlagStatFrame;
 FRAME MiscDataFrame;
 FRAME FontGradFrame;
+
+FRAME retreat_status_frame;
+
 Mutex GraphicsLock;
 STRING GameStrings;
 QUEUE disp_q;
@@ -139,7 +141,14 @@ LoadKernel (int argc, char *argv[])
 		log_add(log_Error, "The Balance Mod effects package is missing.");
 		return FALSE;
 	}
-	
+#ifdef RETREAT_SETUPMENU
+	// Never run Retreat-patched Balance Mod without new setup strings
+	if (!loadAddon("balance-retreat"))
+	{
+		log_add(log_Error, "The Retreat Patch setup strings are missing.");
+		return FALSE;
+	}
+#endif
 	/* Now load the rest of the addons, in order. */
 	prepareAddons (optAddons);
 
@@ -212,6 +221,10 @@ InitKernel (void)
 
 	StatusFrame = CaptureDrawable (LoadGraphic (STATUS_MASK_PMAP_ANIM));
 	if (StatusFrame == NULL)
+		return FALSE;
+
+	retreat_status_frame = CaptureDrawable (LoadGraphic (RETREAT_SLASH_MASK_PMAP_ANIM));
+	if (retreat_status_frame == NULL)
 		return FALSE;
 
 	GameStrings = CaptureStringTable (LoadStringTable (STARCON_GAME_STRINGS));

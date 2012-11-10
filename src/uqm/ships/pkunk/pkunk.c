@@ -21,6 +21,7 @@
 #include "resinst.h"
 #include "uqm/globdata.h"
 #include "libs/mathlib.h"
+#include "uqm/tactrans.h"
 
 // Core characteristics
 #define MAX_CREW 8
@@ -285,8 +286,16 @@ intercept_pkunk_death (ELEMENT *ElementPtr)
 			StarShipPtr->RaceDescPtr->init_weapon_func =
 					(COUNT (*) (ELEMENT *ElementPtr, HELEMENT Weapon[]))
 							ShipPtr->death_func;
-
-			ElementPtr->death_func = new_pkunk;
+							
+			/* Make sure we're not attempting to flee */
+			if (!StarShipPtr->state_flee)
+			{
+				ElementPtr->death_func = new_pkunk;
+				StarShipPtr->is_respawning = TRUE;
+			} else
+			{
+				ElementPtr->death_func = ship_death;
+			}
 		}
 		UnlockElement (StarShipPtr->hShip);
 	}
@@ -410,7 +419,6 @@ pkunk_preprocess (ELEMENT *ElementPtr)
 	if (ElementPtr->state_flags & APPEARING)
 	{
 		HELEMENT hPhoenix = 0;
-        
         // TODO: Verify this
 		if (((TFB_Random () >> 10) % 100) < (INITIAL_RESPAWN_CHANCE - 1)
 				- (StarShipPtr->static_counter * RESPAWN_CHANCE_DECREMENT))
@@ -426,7 +434,6 @@ pkunk_preprocess (ELEMENT *ElementPtr)
 			PhoenixPtr->life_span = 1;
 
 			PhoenixPtr->death_func = intercept_pkunk_death;
-
 			SetElementStarShip (PhoenixPtr, StarShipPtr);
 
 			UnlockElement (hPhoenix);

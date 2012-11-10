@@ -19,9 +19,9 @@
 #include "options.h"
 #include "libs/compiler.h"
 
-#if defined (NETPLAY)
+//#if defined (NETPLAY)
 typedef DWORD BattleFrameCounter;
-#endif
+//#endif
 
 #include "init.h"
 		// For NUM_SIDES
@@ -40,9 +40,9 @@ typedef struct battlestate_struct {
 
 extern BYTE battle_counter[NUM_SIDES];
 extern BOOLEAN instantVictory;
-#if defined (NETPLAY)
+//#if defined (NETPLAY)
 extern BattleFrameCounter battleFrameCount;
-#endif
+//#endif
 #ifdef NETPLAY
 COUNT GetPlayerOrder (COUNT i);
 #else

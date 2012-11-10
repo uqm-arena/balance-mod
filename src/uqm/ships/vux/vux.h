@@ -19,5 +19,7 @@
 
 RACE_DESC *init_vux (void);
 
+void vux_drawlimpet_onicon (ELEMENT *ElementPtr);
+
 #endif  /* VUX_H */
 

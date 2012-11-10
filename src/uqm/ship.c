@@ -35,6 +35,7 @@
 #include "sounds.h"
 #include "libs/mathlib.h"
 // #include "ires_ind.h" <- not used, see rev 2958
+#include <libs/log.h>
 
 
 void
@@ -167,9 +168,18 @@ ship_preprocess (ELEMENT *ElementPtr)
 	{
 		cur_status_flags |= StarShipPtr->ship_input_state
 				& (LEFT | RIGHT | THRUST | DOWN | WEAPON | SPECIAL);
+
+		/* Pkunk won't be stomped on now */
+		if(StarShipPtr->is_respawning)
+			StarShipPtr->is_respawning = FALSE;
 	}
 	else
 	{	// Preprocessing for the first time
+		if(IS_COMINGBACK(StarShipPtr)) {
+			RDPtr->ship_info.crew_level=StarShipPtr->crew_level;
+			RDPtr->ship_info.energy_level=StarShipPtr->last_energy_level;
+		}
+
 		ElementPtr->crew_level = RDPtr->ship_info.crew_level;
 
 		if (ElementPtr->playerNr == NPC_PLAYER_NUM
@@ -207,6 +217,22 @@ ship_preprocess (ELEMENT *ElementPtr)
 				if (!PLRPlaying ((MUSIC_REF)~0) && OpponentAlive (StarShipPtr))
 					BattleSong (TRUE);
 			}
+			if (ElementPtr->state_flags & APPEARING)
+			{
+				if (IS_COMINGBACK(StarShipPtr))
+				{
+					if(StarShipPtr->limpets)
+					{
+						int i=0;
+						// TODO: preserve limpets' positions on ships' icons
+						while (i < StarShipPtr->limpets)
+						{
+							vux_drawlimpet_onicon(ElementPtr);
+							i++;
+						}
+					}
+				}
+			}
 			return;
 		}
 		else
@@ -235,7 +261,14 @@ ship_preprocess (ELEMENT *ElementPtr)
 		(*RDPtr->preprocess_func) (ElementPtr);
 		cur_status_flags = StarShipPtr->cur_status_flags;
 	}
-
+	                                  /* Don't stomp on the one retreat rule, if active */
+	if ((!StarShipPtr->CanRunAway) && ((opt_retreat==OPTVAL_ALLOW) || (StarShipPtr->flee_counter == 0)) &&
+	    ((battleFrameCount) >= (StarShipPtr->entrance_time + opt_retreat_wait)))
+	{
+		/* The time limit has expired, permit retreat */
+		StarShipPtr->CanRunAway = TRUE;
+	}
+	
 	if (ElementPtr->turn_wait)
 		--ElementPtr->turn_wait;
 	else if (cur_status_flags & (LEFT | RIGHT))
@@ -413,13 +446,32 @@ spawn_ship (STARSHIP *StarShipPtr)
 
 		if (RDPtr->ship_info.crew_level > RDPtr->ship_info.max_crew)
 			RDPtr->ship_info.crew_level = RDPtr->ship_info.max_crew;
+	}			// Deactivate the ship (cannot be selected)
+	else if (opt_retreat != OPTVAL_DENY)
+	{
+		if (RDPtr->ship_info.crew_level > RDPtr->ship_info.max_crew || !RDPtr->ship_info.crew_level)
+			RDPtr->ship_info.crew_level = RDPtr->ship_info.max_crew;
 	}
 
-	StarShipPtr->energy_counter = 0;
-	StarShipPtr->weapon_counter = 0;
-	StarShipPtr->special_counter = 0;
-	StarShipPtr->auxiliary_counter = 0;
-	StarShipPtr->static_counter = 0;
+	if(IS_COMINGBACK(StarShipPtr)) {
+		// To preserve slowness due to vux' limpets
+		memcpy(
+				&StarShipPtr->RaceDescPtr->characteristics,
+				&StarShipPtr->characteristics, 
+				sizeof(CHARACTERISTIC_STUFF)
+			);
+	} else {
+		StarShipPtr->energy_counter = 0;
+		StarShipPtr->weapon_counter = 0;
+		StarShipPtr->special_counter = 0;
+		StarShipPtr->auxiliary_counter = 0;
+		StarShipPtr->static_counter = 0;
+		StarShipPtr->limpets = 0;
+	}
+
+	StarShipPtr->state_flee = FALSE;
+	StarShipPtr->CanRunAway = FALSE; /* this will become TRUE after time limit expires */
+	StarShipPtr->entrance_time = battleFrameCount; /* used for calculating time limit */
 
 	hShip = StarShipPtr->hShip;
 	if (hShip == 0)
@@ -505,6 +557,7 @@ spawn_ship (STARSHIP *StarShipPtr)
 
 		UnlockElement (hShip);
 	}
+
 
 	return (hShip != 0);
 }

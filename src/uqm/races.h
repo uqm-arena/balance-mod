@@ -31,6 +31,12 @@ typedef HLINK HSTARSHIP;
 #include "libs/sndlib.h"
 #include "libs/reslib.h"
 
+#define IS_RETREAT(StarShipPtr) ((StarShipPtr->state_flee) && (StarShipPtr->RaceDescPtr->ship_info.crew_level != 0) && (opt_retreat != OPTVAL_DENY))
+
+								/* Don't stomp on respawning Pkunk */
+#define IS_COMINGBACK(StarShipPtr) ((StarShipPtr->crew_level) && (!StarShipPtr->is_respawning) && (opt_retreat != OPTVAL_DENY))
+
+#define MISC_STORAGE_SIZE 4
 
 // TODO: remove RACES_PER_PLAYER remnant of SC1
 #define RACES_PER_PLAYER 7
@@ -265,6 +271,64 @@ struct STARSHIP
 			// In battle: frames left before special can be used
 	BYTE energy_counter;
 			// In battle: frames left before energy regeneration
+	BOOLEAN state_flee;
+			/*
+			 * This is added by the warpout patch so a ship can know if
+			 * it's warping out. Currently used by Pkunk to prevent
+			 * respawning while retreating, and by new_ship to keep
+			 * retreated ships selectable.
+			 */
+	BOOLEAN CanRunAway;
+			// Added to forbid retreating for a ship more than 1 time
+			// Now used for the retreat timer as well.
+
+	DWORD entrance_time;
+			/*
+			 * Contains the exact frame according to battleFrameCount that
+			 * the ship entered the arena. Used to determine when the ship
+			 * can be permitted to flee.
+			 */
+
+	BYTE flee_counter;
+			/*
+			 * Counts the number of times a ship has fled.
+			 * Used in ship_preprocess to determine if a ship should
+			 * be permitted to flee.
+			 */
+
+	BOOLEAN is_respawning;
+			/*
+			 * Used by ship_preprocess to avoid restoring a respawned Pkunk's
+			 * crew level to the value it was when Pkunk warped out.
+			 * 
+			 * TODO: This is an evil ugly hack, there has to be a better way
+			 * to do this.
+			 */
+
+	BYTE last_energy_level;
+			// SUPER_MELEE: To get back the last energy level after retreating
+
+	BYTE miscellanea_storage[sizeof(COUNT)*MISC_STORAGE_SIZE];
+			/* SUPER_MELEE: Is used to preserve miscellanea stuff of
+			 * some ships after retreat [like chmmr's sattelites]
+			 */
+
+	BYTE limpets;
+			/* SUPER_MELEE: This is used to preserve vux' limpets on ships' 
+			 * icons
+			 */
+
+	CHARACTERISTIC_STUFF characteristics;
+			/* SUPER_MELEE: Is used to preserve "characteristics" after
+			 * retreat. It's useful to save vux' limpets' effect.
+			 */
+
+	intptr_t last_RD_data;
+	INIT_WEAPON_FUNC *last_RD_init_weapon_func;
+			/* SUPER_MELEE: This two parameters are used to preserve 
+			 * pkunk's respawn ability after retreat/return.
+			 */
+
 	BYTE auxiliary_counter;
 	BYTE static_counter;
     

@@ -42,6 +42,7 @@
 #include "sounds.h"
 #include "libs/mathlib.h"
 #include "ships/ship.h"
+#include "libs/log.h"
 
 #include "uqm/colors.h"	// For Ilwrath INVIS_COLOR
 
@@ -288,10 +289,36 @@ void
 cleanup_dead_ship (ELEMENT *DeadShipPtr)
 {
 	STARSHIP *DeadStarShipPtr;
+	BYTE MiscElemCount;
+
+	MiscElemCount = 0;
 
 	ProcessSound ((SOUND)~0, NULL);
 
 	GetElementStarShip (DeadShipPtr, &DeadStarShipPtr);
+
+	if(IS_RETREAT(DeadStarShipPtr))
+	{
+		RACE_DESC * RDPtr;
+		RDPtr = DeadStarShipPtr->RaceDescPtr;
+
+		DeadStarShipPtr->last_energy_level=RDPtr->ship_info.energy_level;
+		
+		switch(DeadStarShipPtr->SpeciesID) {
+			case PKUNK_ID:
+				// To prevent memleak
+				if(DeadStarShipPtr->RaceDescPtr->data) {
+					RemoveElement ((HELEMENT)(DeadStarShipPtr->RaceDescPtr->data));
+					FreeElement ((HELEMENT)(DeadStarShipPtr->RaceDescPtr->data));
+					DeadStarShipPtr->RaceDescPtr->data = 0;
+				}
+				break;
+			default:
+				break;
+		}
+
+	}
+
 	{
 		// Ship explosion has finished, or ship has just warped out
 		// if DeadStarShipPtr->crew_level != 0
@@ -301,6 +328,13 @@ cleanup_dead_ship (ELEMENT *DeadShipPtr)
 		/* Record crew left after the battle */
 		DeadStarShipPtr->crew_level =
 				DeadStarShipPtr->RaceDescPtr->ship_info.crew_level;
+
+		// Record characteristics state. It may be changed due to vux' limpets.
+		memcpy(
+				&DeadStarShipPtr->characteristics, 
+				&DeadStarShipPtr->RaceDescPtr->characteristics,
+				sizeof(CHARACTERISTIC_STUFF)
+			);
 
 		MusicStarted = FALSE;
 
@@ -323,6 +357,24 @@ cleanup_dead_ship (ELEMENT *DeadShipPtr)
 				if (!(ElementPtr->state_flags & CREW_OBJECT)
 						|| ElementPtr->preprocess_func != crew_preprocess)
 				{
+					while(IS_RETREAT(DeadStarShipPtr)) // "while" instead of "if" to avoid "goto"-s
+					{
+						if(MiscElemCount>=MISC_STORAGE_SIZE) {
+							log_add(log_Error, "Error: MISC_STORAGE_SIZE is too small!\n");
+							break;
+						}
+						switch(StarShipPtr->SpeciesID) {
+							case CHMMR_ID:
+								if(ElementPtr->hit_points) {
+									((COUNT*)StarShipPtr->miscellanea_storage)[MiscElemCount] = ElementPtr->hit_points;
+									MiscElemCount++;
+								}
+								break;
+							default:
+								break;
+						}
+						break;
+					}
 					// Set the element up for deletion.
 					SetPrimType (&DisplayArray[ElementPtr->PrimIndex],
 							NO_PRIM);
@@ -504,8 +556,13 @@ new_ship (ELEMENT *DeadShipPtr)
 		if (!FleetIsInfinite (DeadStarShipPtr->playerNr))
 		{	// This may be a dead ship (crew_level == 0) or a warped out ship
 			UpdateShipFragCrew (DeadStarShipPtr);
-			// Deactivate the ship (cannot be selected)
-			DeadStarShipPtr->SpeciesID = NO_ID;
+
+			// Do not deactivate ships fleeing from Supermelee
+			if(!DeadStarShipPtr->state_flee || (opt_retreat==OPTVAL_DENY) ||
+			   (LOBYTE (GLOBAL (CurrentActivity)) != SUPER_MELEE))
+			{
+				DeadStarShipPtr->SpeciesID = NO_ID;
+			}
 		}
 
 		if (GetNextStarShip (DeadStarShipPtr, DeadStarShipPtr->playerNr))
@@ -621,6 +678,7 @@ explosion_preprocess (ELEMENT *ShipPtr)
 void
 ship_death (ELEMENT *ShipPtr)
 {
+
 	STARSHIP *StarShipPtr;
 	STARSHIP *VictoriousStarShipPtr;
 	HELEMENT hElement, hNextElement;
@@ -630,20 +688,23 @@ ship_death (ELEMENT *ShipPtr)
 	StopMusic ();
 
 	GetElementStarShip (ShipPtr, &StarShipPtr);
+
         
 	// Enable Ilwrath's cloak visibility for both sides
 	// if the ship was cloaked upon destruction
 	// Having the cloak on for one side and off for one causes
 	// a desynch in net play
-    if (StarShipPtr->SpeciesID = ILWRATH_ID && StarShipPtr->crew_level == 0)
-    {
+	if (StarShipPtr->SpeciesID == ILWRATH_ID && StarShipPtr->crew_level == 0)
+	{
 		if (GetPrimType (&DisplayArray[ShipPtr->PrimIndex]) == STAMPFILL_PRIM)
 		{
+#ifdef DEBUG
 			fprintf(stderr, "fixing Ilwarth %d\n", StarShipPtr->SpeciesID);
-	    	PRIMITIVE *lpPrim;
-	    	lpPrim = & (DisplayArray)[ShipPtr->PrimIndex];
-	    	SetPrimType(lpPrim, STAMP_PRIM);
-	    	SetPrimColor(lpPrim, BLACK_COLOR);
+#endif
+			PRIMITIVE *lpPrim;
+			lpPrim = & (DisplayArray)[ShipPtr->PrimIndex];
+			SetPrimType(lpPrim, STAMP_PRIM);
+			SetPrimColor(lpPrim, BLACK_COLOR);
 		}
 	}
 
@@ -709,6 +770,20 @@ ship_death (ELEMENT *ShipPtr)
 
 		PlaySound (SetAbsSoundIndex (GameSounds, SHIP_EXPLODES),
 				CalcSoundPosition (ShipPtr), ShipPtr, GAME_SOUND_PRIORITY + 1);
+	}
+
+	if(opt_retreat != OPTVAL_DENY) {
+		switch(StarShipPtr->SpeciesID) {
+			case PKUNK_ID:
+				if(StarShipPtr->RaceDescPtr->data) {
+					if(!StarShipPtr->state_flee)
+						return;
+				}
+				break;
+			default:
+				break;
+		}
+		StarShipPtr->state_flee = FALSE;
 	}
 
 	if (VictoriousStarShipPtr != NULL)
@@ -925,6 +1000,7 @@ ship_transition (ELEMENT *ElementPtr)
 				ShipImagePtr->current.location.y =
 						WRAP_Y (ShipImagePtr->current.location.y);
 			}
+
 			ShipImagePtr->preprocess_func = ship_transition;
 			ShipImagePtr->death_func = cycle_ion_trail;
 			SetElementStarShip (ShipImagePtr, StarShipPtr);

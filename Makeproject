@@ -3,10 +3,10 @@ TARGETS="uqm"
 # For the 'uqm' target:
 if [ "$DEBUG" = "1" ]; then
 	uqm_OBJS=obj/debug/    # Directory for object files
-	uqm_NAME=uqm-balance   # File name of executable
+	uqm_NAME=uqm-balance-retreat-debug   # File name of executable
 else
 	uqm_OBJS=obj/release/  # Directory for object files
-	uqm_NAME=uqm-balance   # File name of executable
+	uqm_NAME=uqm-balance-retreat   # File name of executable
 fi
 case "$HOST_SYSTEM" in
 	ARMV5|WINSCW|GCCE)
@@ -39,6 +39,7 @@ uqm_INSTALL_SHARED_content_MODE="go+rX"
 # config.
 uqm_INSTALL_BINS=wrapper
 uqm_INSTALL_BIN_wrapper_SRC="$BUILD_WORK/uqm-wrapper"
-uqm_INSTALL_BIN_wrapper_DEST="uqm-balance"
+uqm_INSTALL_BIN_wrapper_DEST="uqm-improved-netmelee"
+>>>>>>> allow-retreat
 uqm_INSTALL_BIN_wrapper_MODE="0755"
 

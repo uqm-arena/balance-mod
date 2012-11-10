@@ -317,6 +317,10 @@ mmrnmhrm_postprocess (ELEMENT *ElementPtr)
 				StarShipPtr->cur_status_flags |=
 						SHIP_AT_MAX_SPEED | SHIP_BEYOND_MAX_SPEED;
 		}
+
+		// To fix transition trail shape
+		if (ElementPtr->state_flags & APPEARING)
+			ElementPtr->current.image.farray = ElementPtr->next.image.farray;
 	}
 }
 
@@ -327,31 +331,42 @@ mmrnmhrm_preprocess (ELEMENT *ElementPtr)
 
 	GetElementStarShip (ElementPtr, &StarShipPtr);
 
-	if (!(ElementPtr->state_flags & APPEARING))
+	if (ElementPtr->state_flags & APPEARING)
 	{
-		if ((StarShipPtr->cur_status_flags & SPECIAL)
-				&& StarShipPtr->special_counter == 0)
-		{
-			/* Either we transform or text will flash */
-			if (DeltaEnergy (ElementPtr,
-					-StarShipPtr->RaceDescPtr->characteristics.special_energy_cost))
-			{
-				if (ElementPtr->next.image.farray == StarShipPtr->RaceDescPtr->ship_data.ship)
-					ElementPtr->next.image.farray =
-							StarShipPtr->RaceDescPtr->ship_data.special;
-				else
-					ElementPtr->next.image.farray =
-							StarShipPtr->RaceDescPtr->ship_data.ship;
-				ElementPtr->next.image.frame =
-						SetEquFrameIndex (ElementPtr->next.image.farray[0],
-						ElementPtr->next.image.frame);
-				ElementPtr->state_flags |= CHANGING;
-	
-				StarShipPtr->special_counter =
-						StarShipPtr->RaceDescPtr->characteristics.special_wait;
-			}
-		}
+		// Do not transform, if was not transformed before retreat
+		if(!(*(BYTE *)StarShipPtr->miscellanea_storage))
+			return;
+	} else {
+		if (!(StarShipPtr->cur_status_flags & SPECIAL)
+				|| StarShipPtr->special_counter != 0)
+			return;
+
+		/* Either we transform or text will flash */
+		if (!DeltaEnergy (ElementPtr,
+				-StarShipPtr->RaceDescPtr->characteristics.special_energy_cost))
+			return;
 	}
+
+	if (ElementPtr->next.image.farray == StarShipPtr->RaceDescPtr->ship_data.ship)
+		ElementPtr->next.image.farray =
+				StarShipPtr->RaceDescPtr->ship_data.special;
+	else
+		ElementPtr->next.image.farray =
+				StarShipPtr->RaceDescPtr->ship_data.ship;
+	ElementPtr->next.image.frame =
+			SetEquFrameIndex (ElementPtr->next.image.farray[0],
+			ElementPtr->next.image.frame);
+	ElementPtr->state_flags |= CHANGING;
+
+	StarShipPtr->special_counter =
+			StarShipPtr->RaceDescPtr->characteristics.special_wait;
+
+	// To remember the state on retreat/return
+	*(BYTE *)StarShipPtr->miscellanea_storage = (ElementPtr->next.image.farray == StarShipPtr->RaceDescPtr->ship_data.special);
+
+	// To fix transition trail shape
+	if (ElementPtr->state_flags & APPEARING)
+		mmrnmhrm_postprocess (ElementPtr);
 }
 
 static void

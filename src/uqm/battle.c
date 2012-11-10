@@ -54,18 +54,29 @@ size_t battleInputOrder[NUM_SIDES];
 		// Network sides are last so that the sides will never be waiting
 		// on eachother, and games with a 0 frame delay are theoretically
 		// possible.
-#ifdef NETPLAY
+//#ifdef NETPLAY
 BattleFrameCounter battleFrameCount;
 		// Used for synchronisation purposes during netplay.
-#endif
+
+		/* Retreat patch now uses this to determine when a
+		 * ship is permitted to warp out. All definitions
+		 * and declarations have thus been made unconditional,
+		 * along with line 369 in this file which is responsible
+		 * for incrementing it each frame.
+		 */
+//#endif
 
 static BOOLEAN
 RunAwayAllowed (void)
 {
-	return (LOBYTE (GLOBAL (CurrentActivity)) == IN_ENCOUNTER
-			|| LOBYTE (GLOBAL (CurrentActivity)) == IN_LAST_BATTLE)
-			&& GET_GAME_STATE (STARBASE_AVAILABLE)
-			&& !GET_GAME_STATE (BOMB_CARRIER);
+	if (!opt_retreat)
+	{
+		return (LOBYTE (GLOBAL (CurrentActivity)) == IN_ENCOUNTER
+				|| LOBYTE (GLOBAL (CurrentActivity)) == IN_LAST_BATTLE)
+				&& GET_GAME_STATE (STARBASE_AVAILABLE)
+				&& !GET_GAME_STATE (BOMB_CARRIER);
+	} else
+		return 1;
 }
 
 static void
@@ -74,19 +85,43 @@ DoRunAway (STARSHIP *StarShipPtr)
 	ELEMENT *ElementPtr;
 
 	LockElement (StarShipPtr->hShip, &ElementPtr);
-	if (GetPrimType (&DisplayArray[ElementPtr->PrimIndex]) == STAMP_PRIM
+	switch(StarShipPtr->SpeciesID) {
+		case ILWRATH_ID:
+			// TODO: move Ilwrath cloak check here
+			break;
+		case ANDROSYNTH_ID:
+			if((ElementPtr->next.image.farray) ==
+			   (StarShipPtr->RaceDescPtr->ship_data.special)
+			)
+				return;
+			break;
+		default:
+			break;
+	}
+
+	if ((GetPrimType (&DisplayArray[ElementPtr->PrimIndex]) == STAMP_PRIM ||
+	    /* or it's a cloaked Ilwrath */
+	    (StarShipPtr->SpeciesID == ILWRATH_ID &&
+	     GetPrimType (&DisplayArray[ElementPtr->PrimIndex]) == STAMPFILL_PRIM))
 			&& ElementPtr->life_span == NORMAL_LIFE
 			&& !(ElementPtr->state_flags & FINITE_LIFE)
-			&& ElementPtr->mass_points != MAX_SHIP_MASS * 10
+			&& ElementPtr->mass_points != RETREATER_MASS
 			&& !(ElementPtr->state_flags & APPEARING))
 	{
-		battle_counter[0]--;
+		StarShipPtr->state_flee = TRUE;
+		StarShipPtr->flee_counter++;
+		// To be able to run away only once per melee
+		if (opt_retreat == OPTVAL_ONEPERSHIP)
+			StarShipPtr->CanRunAway = FALSE;
+
+		if((LOBYTE (GLOBAL (CurrentActivity)) != SUPER_MELEE) || (opt_retreat == OPTVAL_DENY))
+			battle_counter[0]--;
 
 		ElementPtr->turn_wait = 3;
 		ElementPtr->thrust_wait = 4;
 		ElementPtr->colorCycleIndex = 0;
 		ElementPtr->preprocess_func = flee_preprocess;
-		ElementPtr->mass_points = MAX_SHIP_MASS * 10;
+		ElementPtr->mass_points = RETREATER_MASS;
 		ZeroVelocityComponents (&ElementPtr->velocity);
 		StarShipPtr->cur_status_flags &=
 				~(SHIP_AT_MAX_SPEED | SHIP_BEYOND_MAX_SPEED);
@@ -100,6 +135,20 @@ DoRunAway (STARSHIP *StarShipPtr)
 	
 		StarShipPtr->ship_input_state = 0;
 	}
+
+	/* [allow-retreat] Mark the retreated ship in the ship selection box */
+	if((LOBYTE (GLOBAL (CurrentActivity)) == SUPER_MELEE))
+	{
+		LockMutex (GraphicsLock);
+	
+		FRAME frame;
+
+		frame = SetAbsFrameIndex (PickMeleeFrame, StarShipPtr->playerNr);
+		mark_retreated_ship (frame, StarShipPtr->index);
+
+		UnlockMutex (GraphicsLock);
+	}
+	
 	UnlockElement (StarShipPtr->hShip);
 }
 
@@ -208,8 +257,9 @@ ProcessInput (void)
 					if (InputState & BATTLE_SPECIAL)
 						StarShipPtr->ship_input_state |= SPECIAL;
 
-					if (CanRunAway && cur_player == 0 &&
-							(InputState & BATTLE_ESCAPE))
+					if (CanRunAway && (InputState & BATTLE_ESCAPE) &&
+					    (StarShipPtr->CanRunAway ||
+					    (LOBYTE (GLOBAL (CurrentActivity)) != SUPER_MELEE)))
 						DoRunAway (StarShipPtr);
 				}
 			}
@@ -348,9 +398,9 @@ DoBattle (BATTLE_STATE *bs)
 	if ((GLOBAL (CurrentActivity) & IN_BATTLE) == 0)
 		return FALSE;
 
-#ifdef NETPLAY
+//#ifdef NETPLAY
 	battleFrameCount++;
-#endif
+//#endif
 	return TRUE;
 }
 

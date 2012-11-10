@@ -127,6 +127,11 @@ typedef struct {
 		uint8 patch;
 	} uqmVersion; /* Protocol version */
 	uint8 padding1;  /* Set to 0 */
+	struct { /* Used to verify retreat patch options are consistent */
+		uint8 retreat;
+		uint16 retreat_wait;
+	} retreat_options;
+	uint8 padding2; /* Set to 0 */
 } Packet_Init;
 
 typedef struct {

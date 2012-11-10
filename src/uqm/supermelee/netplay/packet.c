@@ -92,6 +92,9 @@ Packet_Init_create(void) {
 	packet->uqmVersion.minor = UQM_MINOR_VERSION;
 	packet->uqmVersion.patch = UQM_PATCH_VERSION;
 	packet->padding1 = 0;
+	packet->retreat_options.retreat = opt_retreat;
+	packet->retreat_options.retreat_wait = opt_retreat_wait;
+	packet->padding2 = 0;
 	return packet;
 }
 

@@ -129,7 +129,9 @@ struct options_struct
 	DECL_CONFIG_OPTION(bool, safeMode);
 
 	DECL_CONFIG_OPTION(int, reticles);
-	
+	DECL_CONFIG_OPTION(int, retreat);
+	DECL_CONFIG_OPTION(int, retreat_wait);
+
 #define INIT_CONFIG_OPTION(name, val) \
 	{ val, false }
 
@@ -196,6 +198,14 @@ static const struct option_list_value accelList[] =
 	{"3dnow",  PLATFORM_3DNOW},
 	{"none",   PLATFORM_C},
 	{"detect", PLATFORM_NULL},
+	{NULL, 0}
+};
+
+static const struct option_list_value retreatList[] =
+{
+	{"none",      OPTVAL_DENY},
+	{"once",      OPTVAL_ONEPERSHIP},
+	{"unlimited", OPTVAL_ALLOW},
 	{NULL, 0}
 };
 
@@ -277,6 +287,13 @@ main (int argc, char *argv[])
 		INIT_CONFIG_OPTION(  safeMode,          false ),
 
 		INIT_CONFIG_OPTION(  reticles,		true ),
+		
+		INIT_CONFIG_OPTION(  retreat,		OPTVAL_ONEPERSHIP ),
+		/*
+		 * This is in melee frames (1/24 second), converted to seconds
+		 * on the fly when needed for user configuration purposes.
+		 */
+		INIT_CONFIG_OPTION(  retreat_wait,      600 ),
 
 	};
 	struct options_struct defaults = options;
@@ -402,6 +419,9 @@ main (int argc, char *argv[])
 	optAddons = options.addons;
 
 	opt_reticles	 = options.reticles.value;
+
+	opt_retreat	 = options.retreat.value;
+	opt_retreat_wait = options.retreat_wait.value;
 
 	prepareContentDir (options.contentDir, options.addonDir, argv[0]);
 	prepareMeleeDir ();
@@ -651,6 +671,10 @@ getUserConfigOptions (struct options_struct *options)
 
 	getBoolConfigValue (&options->use3doMusic, "config.3domusic");
 	getBoolConfigValue (&options->useRemixMusic, "config.remixmusic");
+	
+	getIntConfigValue  (&options->reticles,     "config.reticles");
+	getIntConfigValue  (&options->retreat,      "config.retreat");
+	getIntConfigValue  (&options->retreat_wait, "config.retreat_wait");
 
 	getIntConfigValue  (&options->reticles,     "config.reticles");
 
@@ -713,6 +737,9 @@ enum
 	SAFEMODE_OPT,
 
 	RETICLES_OPT,
+	
+	SUPERMELEE_RETREAT_OPT,
+	RETREAT_WAIT_OPT,
 
 #ifdef NETPLAY
 	NETHOST1_OPT,
@@ -764,6 +791,9 @@ static struct option longOptions[] =
 
 	{"reticles",	 1, NULL, RETICLES_OPT},
 
+	{"retreat",	 1, NULL, SUPERMELEE_RETREAT_OPT},
+	{"retreat_wait", 1, NULL, RETREAT_WAIT_OPT},
+	
 #ifdef NETPLAY
 	{"nethost1", 1, NULL, NETHOST1_OPT},
 	{"netport1", 1, NULL, NETPORT1_OPT},
@@ -829,7 +859,7 @@ setVolumeOption (struct float_option *option, const char *strval,
 /* Copied from setFloatOption, with minor changes */
 static bool
 setIntOption (struct int_option *option, const char *strval,
-	      const char *optName)
+        const char *optName)
 {
 	if (parseIntOption (strval, &option->value, optName) != 0)
 		return false;
@@ -1076,6 +1106,30 @@ parseOptions (int argc, char *argv[], struct options_struct *options)
 						badArg = true;
 					}
 				break;
+			case SUPERMELEE_RETREAT_OPT:
+				if (!setListOption (&options->retreat, optarg, retreatList))
+					if (!setIntOption (&options->retreat, optarg,
+						      "--retreat"))
+					{
+						InvalidArgument (optarg, "--retreat");
+						badArg = true;
+					}
+				break;
+			case RETREAT_WAIT_OPT:
+				if (!setIntOption (&options->retreat_wait, optarg,
+					      "--retreat_wait"))
+				{
+					InvalidArgument (optarg, "--retreat_wait");
+					badArg = true;
+					break;
+				}
+				/* 
+				 * The human-visible commandline option is specified in seconds,
+				 * but the option is stored internally as melee frames, which are
+				 * 1/24 of a second. We perform this conversion here.
+				 */
+				options->retreat_wait.value = options->retreat_wait.value * 24;
+				break;
 #ifdef NETPLAY
 			case NETHOST1_OPT:
 				netplayOptions.peer[0].isServer = false;
@@ -1241,6 +1295,11 @@ usage (FILE *out, const struct options_struct *defaults)
 	log_add (log_User, "  --safe (start in safe mode)");
 
 	log_add (log_User, "  --reticles=VALUE (reticles in melee; disable, enable)");
+
+	log_add (log_User, "  --retreat=VALUE (enables retreating in Supermelee, "
+			"values are none, once, or unlimited)");
+	log_add (log_User, "  --retreat_wait=SECONDS (number of seconds to wait before "
+			"allowing a ship to flee in Supermelee, default is 25)");
 
 #ifdef NETPLAY
 	log_add (log_User, "  --nethostN=HOSTNAME (server to connect to for "

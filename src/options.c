@@ -50,6 +50,10 @@ int optWhichIntro;
 int optWhichShield;
 int optSmoothScroll;
 int optMeleeScale;
+
+int opt_retreat;
+DWORD opt_retreat_wait;
+
 const char **optAddons;
 
 BOOLEAN opt_reticles;

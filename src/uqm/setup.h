@@ -17,6 +17,13 @@
 #ifndef _SETUP_H
 #define _SETUP_H
 
+/* Obsolete since a new configure option was added.
+ * Re-activate if it's ever removed.
+
+#define RETREAT_SETUPMENU
+
+ */
+
 #include "displist.h"
 #include "globdata.h"
 #include "libs/reslib.h"
@@ -32,6 +39,8 @@ extern FRAME StatusFrame;
 extern FRAME FlagStatFrame;
 extern FRAME MiscDataFrame;
 extern FRAME FontGradFrame;
+
+extern FRAME retreat_status_frame;
 
 extern CONTEXT OffScreenContext;
 		// OffScreenContext can often refer to a deleted ForeGroundFrame

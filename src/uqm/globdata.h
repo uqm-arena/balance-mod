@@ -1009,5 +1009,11 @@ extern void InitGlobData (void);
 extern BOOLEAN InitGameStructures (void);
 extern void UninitGameStructures (void);
 
+typedef enum {
+	OPTVAL_DENY,
+	OPTVAL_ONEPERSHIP,
+	OPTVAL_ALLOW
+} OPT_RETREAT;
+
 #endif /* _GLOBDATA_H */
 

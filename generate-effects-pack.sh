@@ -1,8 +1,8 @@
 #! /bin/sh
 
 # Generates a zipped effects pack in content/addons by default.
-# If there is a parameter, it will be interpreted as a fully qualified
-# path for the new effects pack.
+# If there is a parameter, it will be interpreted as a fully
+# qualified path for the new effects pack.
 #
 # Copying and distribution of this file, with or without modification,
 # are permitted in any medium without royalty provided the copyright
@@ -13,8 +13,8 @@
 if [ $1 ]
 then
     cd content/addons
-    zip -r $1 balance
+    zip -r $1 balance balance-retreat
 else
-    cd content/addons/
-    zip -r balance-effects.zip balance
+    cd content/addons
+    zip -r balance-effects-unified.zip balance balance-retreat
 fi
