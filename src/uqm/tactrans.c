@@ -708,14 +708,6 @@ ship_death (ELEMENT *ShipPtr)
 		}
 	}
 
-	if (ShipPtr->mass_points <= MAX_SHIP_MASS)
-	{	// Not running away and not reincarnating (Pkunk)
-		// When a ship tries to run away, it is (dis)counted in DoRunAway(),
-		// so when it dies while running away, we will not count it again
-		assert (StarShipPtr->playerNr >= 0);
-		battle_counter[StarShipPtr->playerNr]--;
-	}
-
 	VictoriousStarShipPtr = NULL;
 	for (hElement = GetHeadElement (); hElement; hElement = hNextElement)
 	{
@@ -783,8 +775,10 @@ ship_death (ELEMENT *ShipPtr)
 			default:
 				break;
 		}
-		StarShipPtr->state_flee = FALSE;
 	}
+
+	assert (StarShipPtr->playerNr >= 0);
+	battle_counter[StarShipPtr->playerNr]--;
 
 	if (VictoriousStarShipPtr != NULL)
 		VictoriousStarShipPtr->cur_status_flags |= PLAY_VICTORY_DITTY;
