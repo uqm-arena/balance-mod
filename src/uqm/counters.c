@@ -15,7 +15,6 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-#include <math.h>
 #include "counters.h"
 
 // [Warping in ID0][Staying ID1], ID0 winning probability
