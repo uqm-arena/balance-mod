@@ -23,6 +23,7 @@
 #include "controls.h"
 #include "element.h"
 #include "races.h"
+#include "counters.h"
 
 #define MANEUVERABILITY(pi) ((pi)->ManeuverabilityIndex)
 #define WEAPON_RANGE(pi) ((pi)->WeaponRange)
