@@ -970,7 +970,7 @@ COUNT counter_getBest(SIZE my_playerNr) {
 			printf("-> %f %i\n", efficiency_best, my_ID);
 		}
 
-		if (efficiency == efficiency_best)
+		if (efficiency + 1e-10 >= efficiency_best)
 			my_index_best[bests++] = my_StarShipPtr->index;
 
 		printf("%f %i (%i)\n", efficiency, my_ID, bests);
