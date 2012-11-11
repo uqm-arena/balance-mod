@@ -5,3 +5,5 @@ In order to build this mod, make sure you have the UQM main content package in c
 This is a fork of Balance Mod and not an official source repository. The official releases are on Ultronomicon. The mod is written by Shiver.
 
 This branch contains support for warp escape in Supermelee, originally written for Balance Mod version 1.2.8 by xaionaro (xai on IRC).
+
+This branch contains AI improvements
