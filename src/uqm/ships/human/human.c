@@ -344,8 +344,13 @@ human_intelligence (ELEMENT *ShipPtr, EVALUATE_DESC *ObjectsOfConcern,
 	{
 		if (ObjectsOfConcern[ENEMY_SHIP_INDEX].ObjectPtr
 				&& (!(StarShipPtr->ship_input_state & (LEFT | RIGHT /* | THRUST */))
-				|| ObjectsOfConcern[ENEMY_SHIP_INDEX].which_turn <= 12))
+				|| ObjectsOfConcern[ENEMY_SHIP_INDEX].which_turn <= 12)
+				&& (StarShipPtr->RaceDescPtr->ship_info.energy_level > 12)
+			)
+		{
+			printf("%i\n", StarShipPtr->RaceDescPtr->ship_info.energy_level);
 			StarShipPtr->ship_input_state |= WEAPON;
+		}
 	}
 }
 
