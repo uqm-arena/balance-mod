@@ -15,6 +15,7 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
+#include <math.h>
 #include "counters.h"
 
 // [Warping in ID0][Staying ID1], ID0 winning probability
@@ -959,7 +960,9 @@ COUNT counter_getBest(SIZE my_playerNr) {
 	{
 		STARSHIP *my_StarShipPtr = LockStarShip (my_ship_q, my_hShip);
 		my_ID = my_StarShipPtr->SpeciesID;
-		efficiency = WINNING_PROBABILITY_TABLE[my_ID][enemy_ID] / my_StarShipPtr->ship_cost;
+		efficiency  = WINNING_PROBABILITY_TABLE[my_ID][enemy_ID];
+		efficiency *= efficiency;
+		efficiency /= my_StarShipPtr->ship_cost;
 
 		if(efficiency > efficiency_best)
 		{
