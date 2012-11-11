@@ -458,6 +458,7 @@ draw_reticle (ELEMENT* ElementPtr)
 		{
 			ELEMENT *ReticlePtr;
 			extern FRAME reticle[];
+			SIZE dx, dy;
 
 			LockElement (hReticleElement, &ReticlePtr);
 			ReticlePtr->playerNr = NEUTRAL_PLAYER_NUM;
@@ -465,6 +466,9 @@ draw_reticle (ELEMENT* ElementPtr)
 			SetPrimType (&DisplayArray[ReticlePtr->PrimIndex], STAMP_PRIM);
 			ReticlePtr->current.image.farray = reticle;
 			ReticlePtr->current.location = ElementPtr->current.location;
+
+			GetCurrentVelocityComponents (&ElementPtr->velocity, &dx, &dy);
+			SetVelocityComponents (&ReticlePtr->velocity, dx, dy);
 
 			if ((PlayerControl[ElementPtr->playerNr] & HUMAN_CONTROL) && (PlayerControl[EnemyPtr->playerNr] & HUMAN_CONTROL))
 				ReticlePtr->current.image.frame = SetAbsFrameIndex (reticle[0], ElementPtr->playerNr > EnemyPtr->playerNr);
