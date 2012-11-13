@@ -348,8 +348,6 @@ human_intelligence (ELEMENT *ShipPtr, EVALUATE_DESC *ObjectsOfConcern,
 	else
 		StarShipPtr->ship_input_state &= ~SPECIAL;
 
-	printf("%p %i\n", ObjectsOfConcern[ENEMY_WEAPON_INDEX].ObjectPtr, ObjectsOfConcern[ENEMY_WEAPON_INDEX].which_turn);
-
 	ObjectsOfConcern[ENEMY_WEAPON_INDEX].ObjectPtr = NULL;
 
 	ship_intelligence (ShipPtr,
