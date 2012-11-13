@@ -1036,9 +1036,8 @@ tactical_intelligence (ComputerInputContext *context, STARSHIP *StarShipPtr)
 		++StarShipPtr->special_counter;
 
 #ifdef DEBUG_CYBORG
-if (!(ShipPtr->state_flags & FINITE_LIFE)
-		&& ShipPtr->life_span == NORMAL_LIFE)
-	ShipPtr->life_span += 2; /* make ship invulnerable */
+	if (!(ShipPtr->state_flags & FINITE_LIFE) && ShipPtr->life_span == NORMAL_LIFE)
+		ShipPtr->life_span += 2; /* make ship invulnerable */
 #endif /* DEBUG_CYBORG */
 	Ship = *ShipPtr;
 	UnlockElement (StarShipPtr->hShip);

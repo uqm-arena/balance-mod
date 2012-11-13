@@ -328,13 +328,28 @@ human_intelligence (ELEMENT *ShipPtr, EVALUATE_DESC *ObjectsOfConcern,
 
 	GetElementStarShip (ShipPtr, &StarShipPtr);
 	if (StarShipPtr->special_counter == 0
-			&& ((ObjectsOfConcern[ENEMY_WEAPON_INDEX].ObjectPtr != NULL
-			&& ObjectsOfConcern[ENEMY_WEAPON_INDEX].which_turn <= 2)
-			|| (ObjectsOfConcern[ENEMY_SHIP_INDEX].ObjectPtr != NULL
-			&& ObjectsOfConcern[ENEMY_SHIP_INDEX].which_turn <= 4)))
+			&& (
+				(
+					ObjectsOfConcern[ENEMY_WEAPON_INDEX].ObjectPtr != NULL &&
+					(
+						ObjectsOfConcern[ENEMY_WEAPON_INDEX].which_turn <= 2 ||
+						(
+							ObjectsOfConcern[ENEMY_WEAPON_INDEX].which_turn <= 4 &&
+							opt_ai_improved
+						)
+					)
+				) || (
+					ObjectsOfConcern[ENEMY_SHIP_INDEX].ObjectPtr != NULL &&
+					ObjectsOfConcern[ENEMY_SHIP_INDEX].which_turn <= 4
+				)
+			)
+	)
 		StarShipPtr->ship_input_state |= SPECIAL;
 	else
 		StarShipPtr->ship_input_state &= ~SPECIAL;
+
+	printf("%p %i\n", ObjectsOfConcern[ENEMY_WEAPON_INDEX].ObjectPtr, ObjectsOfConcern[ENEMY_WEAPON_INDEX].which_turn);
+
 	ObjectsOfConcern[ENEMY_WEAPON_INDEX].ObjectPtr = NULL;
 
 	ship_intelligence (ShipPtr,
