@@ -129,6 +129,7 @@ struct options_struct
 	DECL_CONFIG_OPTION(bool, safeMode);
 
 	DECL_CONFIG_OPTION(int, reticles);
+	DECL_CONFIG_OPTION(int, ai_improved);
 	DECL_CONFIG_OPTION(int, retreat);
 	DECL_CONFIG_OPTION(int, retreat_wait);
 
@@ -222,6 +223,20 @@ static const struct option_list_value reticlesList[] =
 	{"enable",	true},
 	{NULL, 0}
 };
+
+static const struct option_list_value ai_improved_List[] =
+{
+	{"0",		false},
+	{"no",		false},
+	{"none",	false},
+	{"false",	false},
+	{"disable",	false},
+	{"1",		true},
+	{"yes",		true},
+	{"true",	true},
+	{"enable",	true},
+	{NULL, 0}
+};
 // Looks up the given string value in the given list and passes
 // the associated int value back. returns true if value was found.
 // The list is terminated by a NULL 'str' value.
@@ -287,6 +302,8 @@ main (int argc, char *argv[])
 		INIT_CONFIG_OPTION(  safeMode,          false ),
 
 		INIT_CONFIG_OPTION(  reticles,		true ),
+
+		INIT_CONFIG_OPTION(  ai_improved,	true ),
 		
 		INIT_CONFIG_OPTION(  retreat,		OPTVAL_DENY ),
 		/*
@@ -419,6 +436,8 @@ main (int argc, char *argv[])
 	optAddons = options.addons;
 
 	opt_reticles	 = options.reticles.value;
+
+	opt_ai_improved	 = options.ai_improved.value;
 
 	opt_retreat	 = options.retreat.value;
 	opt_retreat_wait = options.retreat_wait.value;
@@ -673,10 +692,12 @@ getUserConfigOptions (struct options_struct *options)
 	getBoolConfigValue (&options->useRemixMusic, "config.remixmusic");
 	
 	getIntConfigValue  (&options->reticles,     "config.reticles");
+
+	getIntConfigValue  (&options->ai_improved,  "config.ai_improved");
+
 	getIntConfigValue  (&options->retreat,      "config.retreat");
 	getIntConfigValue  (&options->retreat_wait, "config.retreat_wait");
 
-	getIntConfigValue  (&options->reticles,     "config.reticles");
 
 	getBoolConfigValueXlat (&options->meleeScale, "config.smoothmelee",
 			TFB_SCALE_TRILINEAR, TFB_SCALE_STEP);
@@ -737,6 +758,8 @@ enum
 	SAFEMODE_OPT,
 
 	RETICLES_OPT,
+
+	AI_IMPROVED_OPT,
 	
 	SUPERMELEE_RETREAT_OPT,
 	RETREAT_WAIT_OPT,
@@ -790,6 +813,8 @@ static struct option longOptions[] =
 	{"safe", 0, NULL, SAFEMODE_OPT},
 
 	{"reticles",	 1, NULL, RETICLES_OPT},
+
+	{"ai_improved",	 1, NULL, AI_IMPROVED_OPT},
 
 	{"retreat",	 1, NULL, SUPERMELEE_RETREAT_OPT},
 	{"retreat_wait", 1, NULL, RETREAT_WAIT_OPT},
@@ -1106,6 +1131,15 @@ parseOptions (int argc, char *argv[], struct options_struct *options)
 						badArg = true;
 					}
 				break;
+			case AI_IMPROVED_OPT:
+				if (!setListOption (&options->ai_improved, optarg, ai_improved_List))
+					if (!setIntOption (&options->ai_improved, optarg,
+						      "--ai-improved"))
+					{
+						InvalidArgument (optarg, "--ai-improved");
+						badArg = true;
+					}
+				break;
 			case SUPERMELEE_RETREAT_OPT:
 				if (!setListOption (&options->retreat, optarg, retreatList))
 					if (!setIntOption (&options->retreat, optarg,
@@ -1295,6 +1329,8 @@ usage (FILE *out, const struct options_struct *defaults)
 	log_add (log_User, "  --safe (start in safe mode)");
 
 	log_add (log_User, "  --reticles=VALUE (reticles in melee; disable, enable)");
+
+	log_add (log_User, "  --ai-improved=VALUE (improved AI in melee; disable, enable)");
 
 	log_add (log_User, "  --retreat=VALUE (enables retreating in Supermelee, "
 			"values are none, once, or unlimited)");

@@ -42,6 +42,7 @@ extern int opt_retreat;
 extern DWORD opt_retreat_wait;
 
 extern BOOLEAN opt_reticles;
+extern BOOLEAN opt_ai_improved;
 extern BOOLEAN opt3doMusic;
 extern BOOLEAN optRemixMusic;
 extern BOOLEAN optSubtitles;

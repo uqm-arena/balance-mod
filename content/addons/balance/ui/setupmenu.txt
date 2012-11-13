@@ -35,6 +35,7 @@ Player Two
 Control Set
 UQM Remixes
 Reticles
+AI Improved
 S-melee Retreat
 
 #(CAT_0_OPTS)
@@ -437,17 +438,28 @@ and enemy ships in case of ship-duplicate
 battle.
 
 #(CAT_23_OPTS)
+Disabled
+Enabled
+
+#(CAT_23_OPT_0_DESC)
+Enable AI improvements
+
+#(CAT_23_OPT_1_DESC)
+Disable AI improvements
+(as in original version)
+
+#(CAT_24_OPTS)
 Deny
 Once
 Allow
 
-#(CAT_23_OPT_0_DESC)
+#(CAT_24_OPT_0_DESC)
 Ships cannot retreat in Supermelee.
 
-#(CAT_23_OPT_1_DESC)
+#(CAT_24_OPT_1_DESC)
 Ships may retreat once per Supermelee.
 
-#(CAT_23_OPT_2_DESC)
+#(CAT_24_OPT_2_DESC)
 Ships may retreat in Supermelee.
 
 #(SLIDERS)

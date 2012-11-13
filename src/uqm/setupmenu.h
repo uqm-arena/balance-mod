@@ -76,7 +76,7 @@ typedef struct globalopts_struct {
 	OPT_DRIVERTYPE driver;
 	OPT_ADRIVERTYPE adriver;
 	OPT_AQUALITYTYPE aquality;
-	OPT_ENABLABLE fullscreen, subtitles, scanlines, fps, stereo, music3do, musicremix, reticles;
+	OPT_ENABLABLE fullscreen, subtitles, scanlines, fps, stereo, music3do, musicremix, reticles, ai_improved;
 #ifdef RETREAT_SETUPMENU
 	OPT_RETREAT retreat;
 #endif

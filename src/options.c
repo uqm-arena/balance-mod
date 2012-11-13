@@ -57,6 +57,7 @@ DWORD opt_retreat_wait;
 const char **optAddons;
 
 BOOLEAN opt_reticles;
+BOOLEAN opt_ai_improved;
 BOOLEAN opt3doMusic;
 BOOLEAN optRemixMusic;
 BOOLEAN optSubtitles;

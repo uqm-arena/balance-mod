@@ -282,13 +282,12 @@ selectShipComputer (ComputerInputContext *context, GETMELEE_STATE *gms)
 			COMPUTER_SELECTION_DELAY)
 		return TRUE;
 
-	COUNT slotNr = counter_getBest(context->playerNr);
-	(void) setShipSelected (gms, context->playerNr, slotNr, TRUE);
-	return TRUE;
-/*
-	return SelectShip_processInput (gms, context->playerNr, BATTLE_WEAPON);
-			// Simulate selection of the random choice button.
-*/
+	
+	return 
+		opt_ai_improved ? 
+		setShipSelected (gms, context->playerNr, counter_getBest(context->playerNr), TRUE) :
+		SelectShip_processInput (gms, context->playerNr, BATTLE_WEAPON);
+
 }
 
 #ifdef NETPLAY
