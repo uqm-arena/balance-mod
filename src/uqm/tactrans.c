@@ -46,6 +46,13 @@
 
 #include "uqm/colors.h"	// For Ilwrath INVIS_COLOR
 
+/*
+ * We need this for GraphicsLock, as we call
+ * mark_retreated_ship here
+ */
+#include "setup.h"
+
+
 static void cleanup_dead_ship (ELEMENT *ElementPtr);
 
 static BOOLEAN dittyIsPlaying;
@@ -369,8 +376,20 @@ cleanup_dead_ship (ELEMENT *DeadShipPtr)
 									((COUNT*)StarShipPtr->miscellanea_storage)[MiscElemCount] = ElementPtr->hit_points;
 									MiscElemCount++;
 								}
-								break;
+								//break;
 							default:
+								/* Mark the retreated ship in the ship selection box */
+								if((LOBYTE (GLOBAL (CurrentActivity)) == SUPER_MELEE))
+								{
+									LockMutex (GraphicsLock);
+									
+									FRAME frame;
+									
+									frame = SetAbsFrameIndex (PickMeleeFrame, StarShipPtr->playerNr);
+									mark_retreated_ship (frame, StarShipPtr);
+									
+									UnlockMutex (GraphicsLock);
+								}
 								break;
 						}
 						break;

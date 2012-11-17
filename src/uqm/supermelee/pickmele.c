@@ -434,19 +434,20 @@ CrossOutShip (FRAME frame, COUNT shipNr)
 
 /*
  * Visually mark a retreated ship in the ship selection box.
- * Copied from CrossOutShip with only minor changes.
+ * Based on CrossOutShip.
  *
  * 'frame' is the PickMeleeFrame for the player.
  * 'shipI' is the index in the ship list.
  * Pre: caller holds the graphics lock.
  */
 void
-mark_retreated_ship (FRAME frame, COUNT shipNr)
+mark_retreated_ship (FRAME frame, STARSHIP* StarShipPtr)
 {
 	CONTEXT OldContext;
 	STAMP s;
-	BYTE row = PickMelee_GetShipRow (shipNr);
-	BYTE col = PickMelee_GetShipColumn (shipNr);
+	BYTE row = PickMelee_GetShipRow (StarShipPtr->index);
+	BYTE col = PickMelee_GetShipColumn (StarShipPtr->index);
+	UWORD crew_percentage = calculate_crew_percentage (StarShipPtr);
 	
 	OldContext = SetContext (OffScreenContext);
 	
@@ -454,8 +455,36 @@ mark_retreated_ship (FRAME frame, COUNT shipNr)
 	
 	s.origin.x = 3 + ((ICON_WIDTH + 2) * col);
 	s.origin.y = 9 + ((ICON_HEIGHT + 2) * row);
-	s.frame = SetAbsFrameIndex (retreat_status_frame, 3);
-	// Cross for through the ship image.
+
+	if ((crew_percentage > 100))
+	{
+		s.frame = SetAbsFrameIndex (retreat_status_frame, 4);
+		                            /* Blue marker */
+	} else if ((crew_percentage <= 100) &&
+		   (crew_percentage >= 75))
+	{
+		s.frame = SetAbsFrameIndex (retreat_status_frame, 0);
+		                            /* Green marker */
+	} else if ((crew_percentage <= 74) &&
+		   (crew_percentage >= 50))
+	{
+		s.frame = SetAbsFrameIndex (retreat_status_frame, 1);
+		                            /* Yellow marker */
+	} else if ((crew_percentage <= 49) &&
+		   (crew_percentage >= 25))
+	{
+		s.frame = SetAbsFrameIndex (retreat_status_frame, 2);
+		                            /* Orange marker */
+	} else if ((crew_percentage <= 24) &&
+		   (crew_percentage >= 1))
+	{
+		s.frame = SetAbsFrameIndex (retreat_status_frame, 3);
+		                            /* Red marker */
+	} else /* This should never happen */
+	{
+		return;
+	}
+
 	DrawStamp (&s);
 	
 	SetContext (OldContext);
