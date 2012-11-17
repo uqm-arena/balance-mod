@@ -16,6 +16,7 @@
  */
 
 #include "counters.h"
+#include "libs/log.h"
 
 // [Warping in ID0][Staying ID1], ID0 winning probability
 static float WINNING_PROBABILITY_TABLE[NUM_SPECIES_ID][NUM_SPECIES_ID] = {
@@ -53,8 +54,12 @@ static float WINNING_PROBABILITY_TABLE[NUM_SPECIES_ID][NUM_SPECIES_ID] = {
 	{ // ARILOU_ID
 		1,	// NO_ID
 		0.50,	// ARILOU_ID
-		0.20,	// CHMMR_ID
-		0.70,	// EARTHLING_ID
+		0.05,	// CHMMR_ID
+		
+		/* Arilou is fairly likely to beat Earthling in PvP, but
+		 * the AI currently approaches the match rather stupidly.
+		 */
+		0.10,	// EARTHLING_ID
 		0.70,	// ORZ_ID
 		0.20,	// PKUNK_ID
 		0.50,	// SHOFIXTI_ID
@@ -96,7 +101,7 @@ static float WINNING_PROBABILITY_TABLE[NUM_SPECIES_ID][NUM_SPECIES_ID] = {
 		0.90,	// VUX_ID
 		0.70,	// YEHAT_ID
 		0.85,	// MELNORME_ID
-		0.85,	// DRUUGE_ID
+		0.40,	// DRUUGE_ID
 		0.95,	// ILWRATH_ID
 		0.90,	// MYCON_ID
 		0.80,	// SLYLANDRO_ID
@@ -167,7 +172,7 @@ static float WINNING_PROBABILITY_TABLE[NUM_SPECIES_ID][NUM_SPECIES_ID] = {
 		0.30,	// ZOQFOTPIK_ID
 		0.70,	// SYREEN_ID
 		0.50,	// KOHR_AH_ID
-		0.20,	// ANDROSYNTH_ID
+		0.05,	// ANDROSYNTH_ID
 		0.65,	// CHENJESU_ID
 		0.25,	// MMRNMHRM_ID
 		0.30,	// SIS_SHIP_ID
@@ -180,8 +185,8 @@ static float WINNING_PROBABILITY_TABLE[NUM_SPECIES_ID][NUM_SPECIES_ID] = {
 		0.20,	// CHMMR_ID
 		0.80,	// EARTHLING_ID
 		0.70,	// ORZ_ID
-		0.60,	// PKUNK_ID
-		0.70,	// SHOFIXTI_ID
+		0.50,	// PKUNK_ID
+		0.80,	// SHOFIXTI_ID
 		0.40,	// SPATHI_ID
 		0.40,	// SUPOX_ID
 		0.70,	// THRADDASH_ID
@@ -200,9 +205,9 @@ static float WINNING_PROBABILITY_TABLE[NUM_SPECIES_ID][NUM_SPECIES_ID] = {
 		0.50,	// KOHR_AH_ID
 		0.70,	// ANDROSYNTH_ID
 		0.35,	// CHENJESU_ID
-		0.65,	// MMRNMHRM_ID
+		0.50,	// MMRNMHRM_ID
 		0.30,	// SIS_SHIP_ID
-		0.50,	// SA_MATRA_ID
+		1.00,	// SA_MATRA_ID
 		0.50,	// UR_QUAN_PROBE_ID
 	},
 	{ // SHOFIXTI_ID
@@ -456,7 +461,7 @@ static float WINNING_PROBABILITY_TABLE[NUM_SPECIES_ID][NUM_SPECIES_ID] = {
 	{ // DRUUGE_ID
 		1,	// NO_ID
 		0.30,	// ARILOU_ID
-		0.80,	// CHMMR_ID
+		0.60,	// CHMMR_ID
 		0.40,	// EARTHLING_ID
 		0.40,	// ORZ_ID
 		0.30,	// PKUNK_ID
@@ -920,7 +925,9 @@ static float WINNING_PROBABILITY_TABLE[NUM_SPECIES_ID][NUM_SPECIES_ID] = {
 	},
 };
 
-COUNT counter_getBest(SIZE my_playerNr) {
+COUNT
+counter_getBest (SIZE my_playerNr)
+{
 	SIZE enemy_playerNr = !my_playerNr;
 	QUEUE *my_ship_q = &race_q[my_playerNr]/*, *enemy_ship_q = &race_q[enemy_playerNr]*/;
 	HSTARSHIP my_hShip, my_hNextShip/*, enemy_hShip, enemy_hNextShip*/;
@@ -952,7 +959,7 @@ COUNT counter_getBest(SIZE my_playerNr) {
 		UnlockElement (hObject);
 	}
 
-	printf("_____SELECTING A SHIP_____\n");
+	log_add (log_Debug, "_____SELECTING A SHIP_____\n");
 
 	// TODO: use recursive algorith to compute the best ship picking strategy for all the game (but only at the moment)
 	for (my_hShip = GetHeadLink (my_ship_q); my_hShip != 0; my_hShip = my_hNextShip)
@@ -963,17 +970,17 @@ COUNT counter_getBest(SIZE my_playerNr) {
 		efficiency *= efficiency;
 		efficiency /= my_StarShipPtr->ship_cost;
 
-		if(efficiency > efficiency_best)
+		if (efficiency > efficiency_best)
 		{
 			efficiency_best	= efficiency;
 			bests		= 0;
-			printf("-> %f %i\n", efficiency_best, my_ID);
+			log_add (log_Debug, "-> %f %i\n", efficiency_best, my_ID);
 		}
 
 		if (efficiency + 1e-10 >= efficiency_best)
 			my_index_best[bests++] = my_StarShipPtr->index;
 
-		printf("%f %i (%i)\n", efficiency, my_ID, bests);
+		log_add (log_Debug, "%f %i (%i)\n", efficiency, my_ID, bests);
 		my_hNextShip = _GetSuccLink (my_StarShipPtr);
 		UnlockStarShip (my_ship_q, my_hShip);
 	}

@@ -285,7 +285,7 @@ selectShipComputer (ComputerInputContext *context, GETMELEE_STATE *gms)
 	
 	return 
 		opt_ai_improved ? 
-		setShipSelected (gms, context->playerNr, counter_getBest(context->playerNr), TRUE) :
+		setShipSelected (gms, context->playerNr, counter_getBest (context->playerNr), TRUE) :
 		SelectShip_processInput (gms, context->playerNr, BATTLE_WEAPON);
 
 }
