@@ -425,8 +425,8 @@ CrossOutShip (FRAME frame, COUNT shipNr)
 
 	s.origin.x = 3 + ((ICON_WIDTH + 2) * col);
 	s.origin.y = 9 + ((ICON_HEIGHT + 2) * row);
-	s.frame = SetAbsFrameIndex (StatusFrame, 3);
-			// Cross for through the ship image.
+	s.frame = SetAbsFrameIndex (retreat_status_frame, 5);
+				   /* [balance] 16x16 version of the red X */
 	DrawStamp (&s);
 
 	SetContext (OldContext);
@@ -437,7 +437,7 @@ CrossOutShip (FRAME frame, COUNT shipNr)
  * Based on CrossOutShip.
  *
  * 'frame' is the PickMeleeFrame for the player.
- * 'shipI' is the index in the ship list.
+ * 'StarShipPtr' is a pointer to the ship's STARSHIP object.
  * Pre: caller holds the graphics lock.
  */
 void
@@ -480,9 +480,9 @@ mark_retreated_ship (FRAME frame, STARSHIP* StarShipPtr)
 	{
 		s.frame = SetAbsFrameIndex (retreat_status_frame, 3);
 		                            /* Red marker */
-	} else /* Empty marker for dead ships */
+	} else /* This should never happen */
 	{
-        s.frame = SetAbsFrameIndex (retreat_status_frame, 5);
+		return;
 	}
 
 	DrawStamp (&s);
