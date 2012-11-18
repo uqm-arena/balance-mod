@@ -476,13 +476,13 @@ mark_retreated_ship (FRAME frame, STARSHIP* StarShipPtr)
 		s.frame = SetAbsFrameIndex (retreat_status_frame, 2);
 		                            /* Orange marker */
 	} else if ((crew_percentage <= 24) &&
-		   (crew_percentage >= 1))
+		   (crew_percentage >= 2))
 	{
 		s.frame = SetAbsFrameIndex (retreat_status_frame, 3);
 		                            /* Red marker */
 	} else /* This should never happen */
 	{
-		return;
+        s.frame = SetAbsFrameIndex (retreat_status_frame, 5);
 	}
 
 	DrawStamp (&s);
