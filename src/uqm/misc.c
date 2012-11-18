@@ -504,7 +504,10 @@ calculate_crew_percentage (STARSHIP* StarShipPtr)
 		{
 											   /* Syreen starting crew */
 			return  (UWORD) (((double)(StarShipPtr->RaceDescPtr->ship_info.crew_level)) / (12.0) * (100));
-		} else
+		} else if (StarShipPtr->RaceDescPtr->ship_info.crew_level <= 0)
+        {
+            return (UWORD) 0.0;
+        } else
 		{
 			return (UWORD) (((double)(StarShipPtr->RaceDescPtr->ship_info.crew_level)) /
 			((double)(StarShipPtr->RaceDescPtr->ship_info.max_crew)) * (100));
