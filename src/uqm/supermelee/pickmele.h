@@ -24,7 +24,7 @@ typedef struct getmelee_struct GETMELEE_STATE;
 #include "meleesetup.h"
 #include "libs/compiler.h"
 
-void mark_retreated_ship (FRAME frame, COUNT shipNr);
+void mark_retreated_ship (FRAME frame, STARSHIP* shipNr);
 
 void MeleeShipDeath (STARSHIP *);
 void BuildPickMeleeFrame (void);

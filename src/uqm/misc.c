@@ -25,7 +25,7 @@
 #include "sounds.h"
 #include "weapon.h"
 #include "libs/mathlib.h"
-
+#include "libs/log.h"
 
 void
 spawn_planet (void)
@@ -485,4 +485,34 @@ draw_reticle (ELEMENT* ElementPtr)
 	}
 	
 	UnlockElement (StarShipPtr->hShip);
+}
+
+/*
+ * Returns the percentage of normal full crew a ship has remaining.
+ * Bloated Syreen gets a value < 100.
+ */
+UWORD
+calculate_crew_percentage (STARSHIP* StarShipPtr)
+{
+	/* 
+	 * We will divide by zero if we try to calculate crew percentage of a ship
+	 * with 0 max crew!
+	 */
+	if (StarShipPtr->RaceDescPtr->ship_info.max_crew != 0)
+	{
+		if (StarShipPtr->SpeciesID == SYREEN_ID)
+		{
+											   /* Syreen starting crew */
+			return (UWORD) (((double)(StarShipPtr->RaceDescPtr->ship_info.crew_level)) / (12.0) * (100));
+		} else if (StarShipPtr->RaceDescPtr->ship_info.crew_level <= 0)
+		{
+			return (UWORD) 0.0;
+		} else
+		{
+			return (UWORD) (((double)(StarShipPtr->RaceDescPtr->ship_info.crew_level)) /
+			((double)(StarShipPtr->RaceDescPtr->ship_info.max_crew)) * (100));
+		}
+	}
+
+	return 0;
 }
