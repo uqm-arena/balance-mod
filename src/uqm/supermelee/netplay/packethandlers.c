@@ -118,8 +118,15 @@ PacketHandler_Init(NetConnection *conn, const Packet_Init *packet) {
 		return -1;
 	}
 	
+	/* We want to trigger this mismatch only when one of two things happen:
+	 * 
+	 * 1) The two sides have a different opt_retreat
+	 * 2) The two sides both have opt_retreat > 0 AND
+	 *    the two sides have a different opt_retreat_wait.
+	 */
 	if ((opt_retreat != packet->retreat_options.retreat) ||
-	    (opt_retreat_wait != packet->retreat_options.retreat_wait))
+		(((opt_retreat > 0) && (packet->retreat_options.retreat > 0)) &&
+		 (opt_retreat_wait != packet->retreat_options.retreat_wait)))
 	{
 		sendAbort (conn, AbortReason_retreatMismatch);
 		abortFeedback (conn, AbortReason_retreatMismatch);
