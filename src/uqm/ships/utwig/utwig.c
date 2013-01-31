@@ -166,6 +166,10 @@ initialize_lance (ELEMENT *ShipPtr, HELEMENT WeaponArray[])
 				cos0 = LAUNCH_XOFFS2;
 				sin0 = LAUNCH_YOFFS2;
 				break;
+			default:
+				assert(0);
+				cos0 = 0;	// anti-warning for gcc
+				sin0 = 0;	// anti-warning for gcc
 		}
 		angle = FACING_TO_ANGLE (MissileBlock.face) + QUADRANT;
 		cos1cos0 = COSINE (angle, cos0);
@@ -178,7 +182,7 @@ initialize_lance (ELEMENT *ShipPtr, HELEMENT WeaponArray[])
 		MissileBlock.cx = ShipPtr->next.location.x + cos0;
 		MissileBlock.cy = ShipPtr->next.location.y + sin0;
 		
-        if (WeaponArray[(i << 1)] = initialize_missile (&MissileBlock))
+        if ((WeaponArray[(i << 1)] = initialize_missile (&MissileBlock)))
 		{
 			LockElement (WeaponArray[(i << 1)], &WeaponPtr);
 
@@ -200,7 +204,7 @@ initialize_lance (ELEMENT *ShipPtr, HELEMENT WeaponArray[])
 		MissileBlock.cx = ShipPtr->next.location.x + cos0;
 		MissileBlock.cy = ShipPtr->next.location.y + sin0;
 		
-        if (WeaponArray[(i << 1) + 1] = initialize_missile (&MissileBlock))
+        if ((WeaponArray[(i << 1) + 1] = initialize_missile (&MissileBlock)))
 		{
 			LockElement (WeaponArray[(i << 1) + 1], &WeaponPtr);
 

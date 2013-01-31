@@ -887,8 +887,10 @@ init_sis (void)
 		if (GET_GAME_STATE (CHMMR_BOMB_STATE) == 3)
 			SET_GAME_STATE (BOMB_CARRIER, 1);
 	}
-
-	new_sis_desc.data = (intptr_t) HCalloc (sizeof (SIS_DATA));
+	{
+		void *ptr = HCalloc (sizeof (SIS_DATA));	// temporary variable to prevent gcc warning message
+		new_sis_desc.data = (intptr_t)ptr;
+	}
 	InitModuleSlots (&new_sis_desc, GLOBAL_SIS (ModuleSlots));
 	InitWeaponSlots (&new_sis_desc, GLOBAL_SIS (ModuleSlots));
 	InitDriveSlots (&new_sis_desc, GLOBAL_SIS (DriveSlots));

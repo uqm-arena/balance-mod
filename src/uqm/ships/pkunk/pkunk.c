@@ -420,8 +420,7 @@ pkunk_preprocess (ELEMENT *ElementPtr)
 	{
 		HELEMENT hPhoenix = 0;
         // TODO: Verify this
-		assert (StarShipPtr->static_counter >= 0);
-		if (((TFB_Random () >> 10) % 100) < (INITIAL_RESPAWN_CHANCE - 1)
+		if ((signed)((TFB_Random () >> 10) % 100) < (INITIAL_RESPAWN_CHANCE - 1)
 				- (StarShipPtr->static_counter * RESPAWN_CHANCE_DECREMENT))
 			hPhoenix = AllocElement ();
 
