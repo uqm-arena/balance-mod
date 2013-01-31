@@ -267,7 +267,7 @@ laser_collision (ELEMENT *ElementPtr0, POINT *pPt0, ELEMENT *ElementPtr1, POINT 
 static void
 spawn_fighter_laser (ELEMENT *ElementPtr)
 {
-	UWORD best_dist;
+	//UWORD best_dist;
 	STARSHIP *StarShipPtr;
 	HELEMENT hObject, hNextObject, hBestObject;
 	ELEMENT *ShipPtr, *FighterPtr, *ObjectPtr;
@@ -276,7 +276,7 @@ spawn_fighter_laser (ELEMENT *ElementPtr)
 	LockElement (StarShipPtr->hShip, &ShipPtr);
 	LockElement (ElementPtr->hTarget, &FighterPtr);
 	hBestObject = 0;
-	best_dist = FIGHTER_LASER_RANGE + 1;
+	//best_dist = FIGHTER_LASER_RANGE + 1;
 
 	for (hObject = GetPredElement (ElementPtr);
 			hObject; hObject = hNextObject)
@@ -311,7 +311,7 @@ spawn_fighter_laser (ELEMENT *ElementPtr)
 				<= (long)FIGHTER_LASER_RANGE * FIGHTER_LASER_RANGE)
 			{
 				hBestObject = hObject;
-				best_dist = dist;
+				//best_dist = dist;
 			}
 		}
 		UnlockElement (hObject);
@@ -425,7 +425,7 @@ fighter_preprocess (ELEMENT *ElementPtr)
 	{
 		BOOLEAN Enroute;
 		COUNT fighter_facing;
-		SIZE delta_x, delta_y, delta_facing, fighter_speed;
+		SIZE delta_x, delta_y, delta_facing=0, fighter_speed;
 		ELEMENT *TargetPtr;
 		HELEMENT hTarget;
 		
@@ -448,14 +448,14 @@ fighter_preprocess (ELEMENT *ElementPtr)
 			UnlockElement (StarShipPtr->hShip);
 
 			delta_facing = NORMALIZE_FACING (ANGLE_TO_FACING (
-                           ARCTAN (delta_x, delta_y)) - fighter_facing
-                           );
+				ARCTAN (delta_x, delta_y)) - fighter_facing
+				);
 			
 			ElementPtr->state_flags &= ~IGNORE_SIMILAR;
 			Enroute = FALSE;
-        }
+		}
         
-        if (Enroute)
+		if (Enroute)
 		{
 			if (ElementPtr->hTarget == 0)
 				hTarget = StarShipPtr->hShip;
@@ -866,12 +866,12 @@ turret_missile_collision (ELEMENT *ElementPtr0, POINT *pPt0, ELEMENT *ElementPtr
 {
 	if (ElementPtr0->pParent != ElementPtr1->pParent)
 	{
-		HELEMENT hBlastElement;
+		//HELEMENT hBlastElement;
 
 		// Use the default weapon damage graphic.
 		ElementPtr0->next.image.farray = NULL;
 		ElementPtr0->next.image.frame = NULL;
-		hBlastElement = weapon_collision (ElementPtr0, pPt0, ElementPtr1, pPt1);
+		weapon_collision (ElementPtr0, pPt0, ElementPtr1, pPt1);
 		ElementPtr0->next.image.farray = ElementPtr0->current.image.farray;
 		ElementPtr0->next.image.frame = ElementPtr0->current.image.frame;
 

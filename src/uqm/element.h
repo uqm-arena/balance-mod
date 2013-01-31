@@ -199,10 +199,18 @@ extern PRIMITIVE DisplayArray[MAX_DISPLAY_PRIMS];
 #define GRAVITY_THRESHOLD (COUNT)255
 
 #define OBJECT_CLOAKED(eptr) \
-		(GetPrimType (&GLOBAL (DisplayArray[(eptr)->PrimIndex])) >= NUM_PRIMS \
-		|| (GetPrimType (&GLOBAL (DisplayArray[(eptr)->PrimIndex])) == STAMPFILL_PRIM \
-		&& sameColor (GetPrimColor (&GLOBAL (DisplayArray[(eptr)->PrimIndex])), BLACK_COLOR) \
-        || sameColor (GetPrimColor (&GLOBAL (DisplayArray[(eptr)->PrimIndex])), INVIS_COLOR)))
+		( \
+			GetPrimType (&GLOBAL (DisplayArray[(eptr)->PrimIndex])) >= NUM_PRIMS \
+			|| \
+			( \
+				GetPrimType (&GLOBAL (DisplayArray[(eptr)->PrimIndex])) == STAMPFILL_PRIM \
+				&& \
+				( \
+					sameColor (GetPrimColor (&GLOBAL (DisplayArray[(eptr)->PrimIndex])), BLACK_COLOR) || \
+					sameColor (GetPrimColor (&GLOBAL (DisplayArray[(eptr)->PrimIndex])), INVIS_COLOR) \
+				)\
+			) \
+		)
 #define UNDEFINED_LEVEL 0
 
 /*

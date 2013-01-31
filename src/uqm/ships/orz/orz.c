@@ -559,7 +559,7 @@ marine_preprocess (ELEMENT *ElementPtr)
 			else
 			{
 				COUNT num_frames;
-				VELOCITY_DESC ShipVelocity;
+				//VELOCITY_DESC ShipVelocity;
 
 				if (elementsOfSamePlayer (ObjectPtr, ElementPtr)
 						&& (ElementPtr->state_flags & IGNORE_SIMILAR))
@@ -578,7 +578,7 @@ marine_preprocess (ELEMENT *ElementPtr)
 				if (num_frames == 0)
 					num_frames = 1;
 
-				ShipVelocity = ObjectPtr->velocity;
+				//ShipVelocity = ObjectPtr->velocity;
 				GetNextVelocityComponents (&ObjectPtr->velocity, &delta_x, &delta_y, num_frames);
 
                 // Lead the target by its current trajectory.

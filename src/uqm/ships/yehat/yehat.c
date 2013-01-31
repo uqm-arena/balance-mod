@@ -158,7 +158,7 @@ initialize_standard_missiles (ELEMENT *ShipPtr, HELEMENT MissileArray[])
 			MissileBlock.cy = ShipPtr->next.location.y - offs_y;
 		}
 	
-		if (MissileArray[i] = initialize_missile (&MissileBlock))
+		if ((MissileArray[i] = initialize_missile (&MissileBlock)))
 		{		
 			SIZE dx, dy;
 			ELEMENT *MissilePtr;

@@ -289,10 +289,16 @@ ilwrath_preprocess (ELEMENT *ElementPtr)
 		weapon_discharge = ((status_flags & WEAPON)
 				&& StarShipPtr->RaceDescPtr->ship_info.energy_level >= WEAPON_ENERGY_COST);
 	
-		if (weapon_discharge
-            || (StarShipPtr->special_counter == 0
-				&& ( (!sameColor(color, BLACK_COLOR)) && (!sameColor(color, INVIS_COLOR))
-					|| status_flags & SPECIAL)))
+		if (
+			weapon_discharge
+			|| (
+				StarShipPtr->special_counter == 0
+				&& ( 
+					((!sameColor(color, BLACK_COLOR)) && (!sameColor(color, INVIS_COLOR)))
+					|| status_flags & SPECIAL
+				)
+			)
+		)
 		{
 			if (sameColor (color,
 					BUILD_COLOR (MAKE_RGB15 (0x1F, 0x1F, 0x1F), 0x0F)))
