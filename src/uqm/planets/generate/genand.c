@@ -29,11 +29,11 @@
 
 static bool GenerateAndrosynth_generatePlanets (SOLARSYS_STATE *solarSys);
 static bool GenerateAndrosynth_generateOrbital (SOLARSYS_STATE *solarSys,
-		PLANET_DESC *world);
+		const PLANET_DESC *world);
 static COUNT GenerateAndrosynth_generateEnergy (SOLARSYS_STATE *solarSys,
-		PLANET_DESC *world, COUNT whichNode);
+		const PLANET_DESC *world, COUNT whichNode);
 static bool GenerateAndrosynth_pickupEnergy (SOLARSYS_STATE *solarSys,
-		PLANET_DESC *world, COUNT whichNode);
+		const PLANET_DESC *world, COUNT whichNode);
 
 
 const GenerateFunctions generateAndrosynthFunctions = {
@@ -73,7 +73,7 @@ GenerateAndrosynth_generatePlanets (SOLARSYS_STATE *solarSys)
 }
 
 static bool
-GenerateAndrosynth_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
+GenerateAndrosynth_generateOrbital (SOLARSYS_STATE *solarSys, const PLANET_DESC *world)
 {
 	if (matchWorld (solarSys, world, 1, MATCH_PLANET))
 	{
@@ -126,7 +126,7 @@ GenerateAndrosynth_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world
 }
 
 static bool
-GenerateAndrosynth_pickupEnergy (SOLARSYS_STATE *solarSys, PLANET_DESC *world,
+GenerateAndrosynth_pickupEnergy (SOLARSYS_STATE *solarSys, const PLANET_DESC *world,
 		COUNT whichNode)
 {
 	if (matchWorld (solarSys, world, 1, MATCH_PLANET))
@@ -152,7 +152,7 @@ GenerateAndrosynth_pickupEnergy (SOLARSYS_STATE *solarSys, PLANET_DESC *world,
 }
 
 static COUNT
-GenerateAndrosynth_generateEnergy (SOLARSYS_STATE *solarSys, PLANET_DESC *world,
+GenerateAndrosynth_generateEnergy (SOLARSYS_STATE *solarSys, const PLANET_DESC *world,
 		COUNT whichNode)
 {
 	if (matchWorld (solarSys, world, 1, MATCH_PLANET))

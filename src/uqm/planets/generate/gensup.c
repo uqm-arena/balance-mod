@@ -30,11 +30,11 @@
 
 static bool GenerateSupox_generatePlanets (SOLARSYS_STATE *solarSys);
 static bool GenerateSupox_generateOrbital (SOLARSYS_STATE *solarSys,
-		PLANET_DESC *world);
+		const PLANET_DESC *world);
 static COUNT GenerateSupox_generateEnergy (SOLARSYS_STATE *solarSys,
-		PLANET_DESC *world, COUNT whichNode);
+		const PLANET_DESC *world, COUNT whichNode);
 static bool GenerateSupox_pickupEnergy (SOLARSYS_STATE *solarSys,
-		PLANET_DESC *world, COUNT whichNode);
+		const PLANET_DESC *world, COUNT whichNode);
 
 
 const GenerateFunctions generateSupoxFunctions = {
@@ -75,7 +75,7 @@ GenerateSupox_generatePlanets (SOLARSYS_STATE *solarSys)
 }
 
 static bool
-GenerateSupox_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
+GenerateSupox_generateOrbital (SOLARSYS_STATE *solarSys, const PLANET_DESC *world)
 {
 	if (matchWorld (solarSys, world, 0, MATCH_PLANET))
 	{
@@ -123,7 +123,7 @@ GenerateSupox_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
 }
 
 static bool
-GenerateSupox_pickupEnergy (SOLARSYS_STATE *solarSys, PLANET_DESC *world,
+GenerateSupox_pickupEnergy (SOLARSYS_STATE *solarSys, const PLANET_DESC *world,
 		COUNT whichNode)
 {
 	if (matchWorld (solarSys, world, 0, MATCH_PLANET))
@@ -146,7 +146,7 @@ GenerateSupox_pickupEnergy (SOLARSYS_STATE *solarSys, PLANET_DESC *world,
 }
 
 static COUNT
-GenerateSupox_generateEnergy (SOLARSYS_STATE *solarSys, PLANET_DESC *world,
+GenerateSupox_generateEnergy (SOLARSYS_STATE *solarSys, const PLANET_DESC *world,
 		COUNT whichNode)
 {
 	if (matchWorld (solarSys, world, 0, MATCH_PLANET))

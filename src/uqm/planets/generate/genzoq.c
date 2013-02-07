@@ -29,11 +29,11 @@
 static bool GenerateZoqFotPik_initNpcs (SOLARSYS_STATE *solarSys);
 static bool GenerateZoqFotPik_generatePlanets (SOLARSYS_STATE *solarSys);
 static bool GenerateZoqFotPik_generateOrbital (SOLARSYS_STATE *solarSys,
-		PLANET_DESC *world);
+		const PLANET_DESC *world);
 static COUNT GenerateZoqFotPik_generateEnergy (SOLARSYS_STATE *solarSys,
-		PLANET_DESC *world, COUNT whichNode);
+		const PLANET_DESC *world, COUNT whichNode);
 static bool GenerateZoqFotPik_pickupEnergy (SOLARSYS_STATE *solarSys,
-		PLANET_DESC *world, COUNT whichNode);
+		const PLANET_DESC *world, COUNT whichNode);
 
 
 const GenerateFunctions generateZoqFotPikFunctions = {
@@ -83,7 +83,7 @@ GenerateZoqFotPik_generatePlanets (SOLARSYS_STATE *solarSys)
 }
 
 static bool
-GenerateZoqFotPik_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
+GenerateZoqFotPik_generateOrbital (SOLARSYS_STATE *solarSys, const PLANET_DESC *world)
 {
 	if (matchWorld (solarSys, world, 0, MATCH_PLANET))
 	{
@@ -143,7 +143,7 @@ GenerateZoqFotPik_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
 }
 
 static COUNT
-GenerateZoqFotPik_generateEnergy (SOLARSYS_STATE *solarSys, PLANET_DESC *world,
+GenerateZoqFotPik_generateEnergy (SOLARSYS_STATE *solarSys, const PLANET_DESC *world,
 		COUNT whichNode)
 {
 	if (matchWorld (solarSys, world, 0, MATCH_PLANET))
@@ -155,7 +155,7 @@ GenerateZoqFotPik_generateEnergy (SOLARSYS_STATE *solarSys, PLANET_DESC *world,
 }
 
 static bool
-GenerateZoqFotPik_pickupEnergy (SOLARSYS_STATE *solarSys, PLANET_DESC *world,
+GenerateZoqFotPik_pickupEnergy (SOLARSYS_STATE *solarSys, const PLANET_DESC *world,
 		COUNT whichNode)
 {
 	if (matchWorld (solarSys, world, 0, MATCH_PLANET))

@@ -80,7 +80,9 @@ RepairSISBorder (void)
 void
 ClearSISRect (BYTE ClearFlags)
 {
+#ifdef NEVER
 	RECT r;
+#endif /* NEVER */
 	Color OldColor;
 	CONTEXT OldContext;
 
@@ -88,8 +90,10 @@ ClearSISRect (BYTE ClearFlags)
 	OldColor = SetContextForeGroundColor (
 			BUILD_COLOR (MAKE_RGB15 (0x0A, 0x0A, 0x0A), 0x08));
 
+#ifdef NEVER
 	r.corner.x = 2;
 	r.extent.width = STATUS_WIDTH - 4;
+#endif /* NEVER */
 
 	BatchGraphics ();
 	if (ClearFlags & DRAW_SIS_DISPLAY)
@@ -1345,7 +1349,7 @@ GetSBayCapacity (POINT *ppt)
 	COUNT cellNr;
 
 	COUNT rowNr;
-	COUNT colNr;
+	//COUNT colNr;
 				
 	static const Color colorBars[] = STORAGE_BAY_COLOR_TABLE;
 
@@ -1357,7 +1361,7 @@ GetSBayCapacity (POINT *ppt)
 	}
 
 	rowNr = cellNr / SBAY_MASS_PER_ROW;
-	colNr = cellNr % SBAY_MASS_PER_ROW;
+	//colNr = cellNr % SBAY_MASS_PER_ROW;
 
 	if (rowNr == 0)
 		SetContextForeGroundColor (BLACK_COLOR);

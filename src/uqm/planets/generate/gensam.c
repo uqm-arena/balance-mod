@@ -31,9 +31,9 @@ static bool GenerateSaMatra_initNpcs (SOLARSYS_STATE *solarSys);
 static bool GenerateSaMatra_reinitNpcs (SOLARSYS_STATE *solarSys);
 static bool GenerateSaMatra_generatePlanets (SOLARSYS_STATE *solarSys);
 static bool GenerateSaMatra_generateMoons (SOLARSYS_STATE *solarSys,
-		PLANET_DESC *planet);
+		const PLANET_DESC *planet);
 static bool GenerateSaMatra_generateOrbital (SOLARSYS_STATE *solarSys,
-		PLANET_DESC *world);
+		const PLANET_DESC *world);
 
 static void BuildUrquanGuard (SOLARSYS_STATE *solarSys);
 
@@ -139,7 +139,7 @@ GenerateSaMatra_generatePlanets (SOLARSYS_STATE *solarSys)
 }
 
 static bool
-GenerateSaMatra_generateMoons (SOLARSYS_STATE *solarSys, PLANET_DESC *planet)
+GenerateSaMatra_generateMoons (SOLARSYS_STATE *solarSys, const PLANET_DESC *planet)
 {
 	GenerateDefault_generateMoons (solarSys, planet);
 
@@ -162,7 +162,7 @@ GenerateSaMatra_generateMoons (SOLARSYS_STATE *solarSys, PLANET_DESC *planet)
 }
 
 static bool
-GenerateSaMatra_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
+GenerateSaMatra_generateOrbital (SOLARSYS_STATE *solarSys, const PLANET_DESC *world)
 {
 	/* Samatra */
 	if (matchWorld (solarSys, world, 4, 0))

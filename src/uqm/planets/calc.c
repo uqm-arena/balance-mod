@@ -231,7 +231,7 @@ CalcTilt (void)
 
 // NB. Returns the RNG to the state it found it in.
 DWORD
-DoPlanetaryAnalysis (SYSTEM_INFO *SysInfoPtr, PLANET_DESC *pPlanetDesc)
+DoPlanetaryAnalysis (SYSTEM_INFO *SysInfoPtr, const PLANET_DESC *pPlanetDesc)
 {
 	DWORD old_seed;
 

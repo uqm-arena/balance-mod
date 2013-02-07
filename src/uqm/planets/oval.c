@@ -16,6 +16,7 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
+#include "planets.h" // anti-warning
 #include "../units.h"
 #include "libs/gfxlib.h"
 #include "libs/graphics/context.h"

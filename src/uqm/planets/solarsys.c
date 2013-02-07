@@ -214,7 +214,7 @@ static void
 GenerateMoons (SOLARSYS_STATE *system, PLANET_DESC *planet)
 {
 	COUNT i;
-	COUNT facing;
+	//COUNT facing;
 	PLANET_DESC *pMoonDesc;
 	DWORD old_seed;
 
@@ -223,8 +223,8 @@ GenerateMoons (SOLARSYS_STATE *system, PLANET_DESC *planet)
 	(*system->genFuncs->generateName) (system, planet);
 	(*system->genFuncs->generateMoons) (system, planet);
 
-	facing = NORMALIZE_FACING (ANGLE_TO_FACING (
-			ARCTAN (planet->location.x, planet->location.y)));
+//	facing = NORMALIZE_FACING (ANGLE_TO_FACING (
+//			ARCTAN (planet->location.x, planet->location.y)));
 	for (i = 0, pMoonDesc = &system->MoonDesc[0];
 			i < MAX_MOONS; ++i, ++pMoonDesc)
 	{

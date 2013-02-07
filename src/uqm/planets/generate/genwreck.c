@@ -26,11 +26,11 @@
 
 
 static bool GenerateWreck_generateOrbital (SOLARSYS_STATE *solarSys,
-		PLANET_DESC *world);
+		const PLANET_DESC *world);
 static COUNT GenerateWreck_generateEnergy (SOLARSYS_STATE *solarSys,
-		PLANET_DESC *world, COUNT whichNode);
+		const PLANET_DESC *world, COUNT whichNode);
 static bool GenerateWreck_pickupEnergy (SOLARSYS_STATE *solarSys,
-		PLANET_DESC *world, COUNT whichNode);
+		const PLANET_DESC *world, COUNT whichNode);
 
 
 const GenerateFunctions generateWreckFunctions = {
@@ -51,7 +51,7 @@ const GenerateFunctions generateWreckFunctions = {
 
 
 static bool
-GenerateWreck_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
+GenerateWreck_generateOrbital (SOLARSYS_STATE *solarSys, const PLANET_DESC *world)
 {
 	if (matchWorld (solarSys, world, 6, MATCH_PLANET))
 	{
@@ -73,7 +73,7 @@ GenerateWreck_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
 }
 
 static COUNT
-GenerateWreck_generateEnergy (SOLARSYS_STATE *solarSys, PLANET_DESC *world,
+GenerateWreck_generateEnergy (SOLARSYS_STATE *solarSys, const PLANET_DESC *world,
 		COUNT whichNode)
 {
 	if (matchWorld (solarSys, world, 6, MATCH_PLANET))
@@ -85,7 +85,7 @@ GenerateWreck_generateEnergy (SOLARSYS_STATE *solarSys, PLANET_DESC *world,
 }
 
 static bool
-GenerateWreck_pickupEnergy (SOLARSYS_STATE *solarSys, PLANET_DESC *world,
+GenerateWreck_pickupEnergy (SOLARSYS_STATE *solarSys, const PLANET_DESC *world,
 		COUNT whichNode)
 {
 	if (matchWorld (solarSys, world, 6, MATCH_PLANET))

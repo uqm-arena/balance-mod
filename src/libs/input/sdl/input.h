@@ -20,5 +20,7 @@
 #define INPUT_H
 
 extern void ProcessInputEvent (const SDL_Event *Event);
+extern void ProcessMouseEvent (const SDL_Event *e);
+extern void ProcessInputEvent (const SDL_Event *Event);
 
 #endif

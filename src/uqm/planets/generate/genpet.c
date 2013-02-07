@@ -31,11 +31,11 @@
 
 static bool GenerateTalkingPet_generatePlanets (SOLARSYS_STATE *solarSys);
 static bool GenerateTalkingPet_generateOrbital (SOLARSYS_STATE *solarSys,
-		PLANET_DESC *world);
+		const PLANET_DESC *world);
 static COUNT GenerateTalkingPet_generateEnergy (SOLARSYS_STATE *solarSys,
-		PLANET_DESC *world, COUNT whichNode);
+		const PLANET_DESC *world, COUNT whichNode);
 static bool GenerateTalkingPet_pickupEnergy (SOLARSYS_STATE *solarSys,
-		PLANET_DESC *world, COUNT whichNode);
+		const PLANET_DESC *world, COUNT whichNode);
 
 static void ZapToUrquanEncounter (void);
 
@@ -77,7 +77,7 @@ GenerateTalkingPet_generatePlanets (SOLARSYS_STATE *solarSys)
 }
 
 static bool
-GenerateTalkingPet_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
+GenerateTalkingPet_generateOrbital (SOLARSYS_STATE *solarSys, const PLANET_DESC *world)
 {
 	if (matchWorld (solarSys, world, 0, MATCH_PLANET)
 			&& (GET_GAME_STATE (UMGAH_ZOMBIE_BLOBBIES)
@@ -160,7 +160,7 @@ GenerateTalkingPet_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world
 }
 
 static COUNT
-GenerateTalkingPet_generateEnergy (SOLARSYS_STATE *solarSys, PLANET_DESC *world,
+GenerateTalkingPet_generateEnergy (SOLARSYS_STATE *solarSys, const PLANET_DESC *world,
 		COUNT whichNode)
 {
 	if (matchWorld (solarSys, world, 0, MATCH_PLANET))
@@ -172,7 +172,7 @@ GenerateTalkingPet_generateEnergy (SOLARSYS_STATE *solarSys, PLANET_DESC *world,
 }
 
 static bool
-GenerateTalkingPet_pickupEnergy (SOLARSYS_STATE *solarSys, PLANET_DESC *world,
+GenerateTalkingPet_pickupEnergy (SOLARSYS_STATE *solarSys, const PLANET_DESC *world,
 		COUNT whichNode)
 {
 	if (matchWorld (solarSys, world, 0, MATCH_PLANET))

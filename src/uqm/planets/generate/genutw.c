@@ -33,11 +33,11 @@
 static bool GenerateUtwig_initNpcs (SOLARSYS_STATE *solarSys);
 static bool GenerateUtwig_generatePlanets (SOLARSYS_STATE *solarSys);
 static bool GenerateUtwig_generateOrbital (SOLARSYS_STATE *solarSys,
-		PLANET_DESC *world);
+		const PLANET_DESC *world);
 static COUNT GenerateUtwig_generateEnergy (SOLARSYS_STATE *solarSys,
-		PLANET_DESC *world, COUNT whichNode);
+		const PLANET_DESC *world, COUNT whichNode);
 static bool GenerateUtwig_pickupEnergy (SOLARSYS_STATE *solarSys,
-		PLANET_DESC *world, COUNT whichNode);
+		const PLANET_DESC *world, COUNT whichNode);
 
 
 const GenerateFunctions generateUtwigFunctions = {
@@ -98,7 +98,7 @@ GenerateUtwig_generatePlanets (SOLARSYS_STATE *solarSys)
 }
 
 static bool
-GenerateUtwig_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
+GenerateUtwig_generateOrbital (SOLARSYS_STATE *solarSys, const PLANET_DESC *world)
 {
 	if ((CurStarDescPtr->Index == UTWIG_DEFINED
 			&& matchWorld (solarSys, world, 0, MATCH_PLANET))
@@ -211,7 +211,7 @@ GenerateUtwig_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
 }
 
 static COUNT
-GenerateUtwig_generateEnergy (SOLARSYS_STATE *solarSys, PLANET_DESC *world,
+GenerateUtwig_generateEnergy (SOLARSYS_STATE *solarSys, const PLANET_DESC *world,
 		COUNT whichNode)
 {
 	if (CurStarDescPtr->Index == UTWIG_DEFINED
@@ -237,7 +237,7 @@ GenerateUtwig_generateEnergy (SOLARSYS_STATE *solarSys, PLANET_DESC *world,
 }
 
 static bool
-GenerateUtwig_pickupEnergy (SOLARSYS_STATE *solarSys, PLANET_DESC *world,
+GenerateUtwig_pickupEnergy (SOLARSYS_STATE *solarSys, const PLANET_DESC *world,
 		COUNT whichNode)
 {
 	if (CurStarDescPtr->Index == UTWIG_DEFINED

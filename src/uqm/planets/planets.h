@@ -286,5 +286,12 @@ extern void GetPlanetOrMoonName (UNICODE *buf, COUNT bufsize);
 extern void PlanetOrbitMenu (void);
 extern void SaveSolarSysLocation (void);
 
+extern void FreeIPData(void);
+extern void LoadIPData(void);
+extern void DrawOval(RECT *pRect, BYTE num_off_pixels);
+extern void DrawFilledOval(RECT *pRect);
+
+
+
 #endif /* _PLANETS_H */
 

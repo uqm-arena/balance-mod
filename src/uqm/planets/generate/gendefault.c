@@ -32,11 +32,11 @@ bool GenerateDefault_reinitNpcs (SOLARSYS_STATE *solarSys);
 bool GenerateDefault_uninitNpcs (SOLARSYS_STATE *solarSys);
 bool GenerateDefault_generatePlanets (SOLARSYS_STATE *solarSys);
 bool GenerateDefault_generateMoons (SOLARSYS_STATE *solarSys,
-		PLANET_DESC *planet);
+		const PLANET_DESC *planet);
 bool GenerateDefault_generateName (SOLARSYS_STATE *solarSys,
-		PLANET_DESC *world);
+		const PLANET_DESC *world);
 bool GenerateDefault_generateOrbital (SOLARSYS_STATE *solarSys,
-		PLANET_DESC *world);
+		const PLANET_DESC *world);
 
 static void GeneratePlanets (SOLARSYS_STATE *system);
 static void check_yehat_rebellion (void);
@@ -106,14 +106,14 @@ GenerateDefault_generatePlanets (SOLARSYS_STATE *solarSys)
 }
 
 bool
-GenerateDefault_generateMoons (SOLARSYS_STATE *solarSys, PLANET_DESC *planet)
+GenerateDefault_generateMoons (SOLARSYS_STATE *solarSys, const PLANET_DESC *planet)
 {
 	FillOrbits (solarSys, planet->NumPlanets, solarSys->MoonDesc, FALSE);
 	return true;
 }
 
 bool
-GenerateDefault_generateName (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
+GenerateDefault_generateName (SOLARSYS_STATE *solarSys, const PLANET_DESC *world)
 {
 	COUNT i = planetIndex (solarSys, world);
 	utf8StringCopy (GLOBAL_SIS (PlanetName), sizeof (GLOBAL_SIS (PlanetName)),
@@ -124,7 +124,7 @@ GenerateDefault_generateName (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
 }
 
 bool
-GenerateDefault_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
+GenerateDefault_generateOrbital (SOLARSYS_STATE *solarSys, const PLANET_DESC *world)
 {
 	COUNT i;
 	DWORD rand_val;
@@ -164,7 +164,7 @@ GenerateDefault_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
 
 COUNT
 GenerateDefault_generateMinerals (SOLARSYS_STATE *solarSys,
-		PLANET_DESC *world, COUNT whichNode)
+		const PLANET_DESC *world, COUNT whichNode)
 {
 	GenerateMineralDeposits (&solarSys->SysInfo, &whichNode);
 	(void) world;
@@ -172,7 +172,7 @@ GenerateDefault_generateMinerals (SOLARSYS_STATE *solarSys,
 }
 
 bool
-GenerateDefault_pickupMinerals (SOLARSYS_STATE *solarSys, PLANET_DESC *world,
+GenerateDefault_pickupMinerals (SOLARSYS_STATE *solarSys, const PLANET_DESC *world,
 		COUNT whichNode)
 {
 	// Minerals do not need any extra handling as of now
@@ -183,7 +183,7 @@ GenerateDefault_pickupMinerals (SOLARSYS_STATE *solarSys, PLANET_DESC *world,
 }
 
 COUNT
-GenerateDefault_generateEnergy (SOLARSYS_STATE *solarSys, PLANET_DESC *world,
+GenerateDefault_generateEnergy (SOLARSYS_STATE *solarSys, const PLANET_DESC *world,
 		COUNT whichNode)
 {
 	(void) whichNode;
@@ -193,7 +193,7 @@ GenerateDefault_generateEnergy (SOLARSYS_STATE *solarSys, PLANET_DESC *world,
 }
 
 bool
-GenerateDefault_pickupEnergy (SOLARSYS_STATE *solarSys, PLANET_DESC *world,
+GenerateDefault_pickupEnergy (SOLARSYS_STATE *solarSys, const PLANET_DESC *world,
 		COUNT whichNode)
 {
 	// This should never be called since every energy node needs
@@ -206,7 +206,7 @@ GenerateDefault_pickupEnergy (SOLARSYS_STATE *solarSys, PLANET_DESC *world,
 }
 
 COUNT
-GenerateDefault_generateLife (SOLARSYS_STATE *solarSys, PLANET_DESC *world,
+GenerateDefault_generateLife (SOLARSYS_STATE *solarSys, const PLANET_DESC *world,
 		COUNT whichNode)
 {
 	GenerateLifeForms (&solarSys->SysInfo, &whichNode);
@@ -215,7 +215,7 @@ GenerateDefault_generateLife (SOLARSYS_STATE *solarSys, PLANET_DESC *world,
 }
 
 bool
-GenerateDefault_pickupLife (SOLARSYS_STATE *solarSys, PLANET_DESC *world,
+GenerateDefault_pickupLife (SOLARSYS_STATE *solarSys, const PLANET_DESC *world,
 		COUNT whichNode)
 {
 	// Bio does not need any extra handling as of now

@@ -34,17 +34,17 @@ static bool GenerateSol_initNpcs (SOLARSYS_STATE *solarSys);
 static bool GenerateSol_reinitNpcs (SOLARSYS_STATE *solarSys);
 static bool GenerateSol_generatePlanets (SOLARSYS_STATE *solarSys);
 static bool GenerateSol_generateMoons (SOLARSYS_STATE *solarSys,
-		PLANET_DESC *planet);
+		const PLANET_DESC *planet);
 static bool GenerateSol_generateName (SOLARSYS_STATE *solarSys,
-		PLANET_DESC *world);
+		const PLANET_DESC *world);
 static bool GenerateSol_generateOrbital (SOLARSYS_STATE *solarSys,
-		PLANET_DESC *world);
+		const PLANET_DESC *world);
 static COUNT GenerateSol_generateEnergy (SOLARSYS_STATE *solarSys,
-		PLANET_DESC *world, COUNT whichNode);
+		const PLANET_DESC *world, COUNT whichNode);
 static COUNT GenerateSol_generateLife (SOLARSYS_STATE *solarSys,
-		PLANET_DESC *world, COUNT whichNode);
+		const PLANET_DESC *world, COUNT whichNode);
 static bool GenerateSol_pickupEnergy (SOLARSYS_STATE *solarSys,
-		PLANET_DESC *world, COUNT whichNode);
+		const PLANET_DESC *world, COUNT whichNode);
 
 static int init_probe (void);
 static void check_probe (void);
@@ -181,7 +181,7 @@ GenerateSol_generatePlanets (SOLARSYS_STATE *solarSys)
 }
 
 static bool
-GenerateSol_generateMoons (SOLARSYS_STATE *solarSys, PLANET_DESC *planet)
+GenerateSol_generateMoons (SOLARSYS_STATE *solarSys, const PLANET_DESC *planet)
 {
 	COUNT planetNr;
 	DWORD rand_val;
@@ -240,7 +240,7 @@ GenerateSol_generateMoons (SOLARSYS_STATE *solarSys, PLANET_DESC *planet)
 }
 
 static bool
-GenerateSol_generateName (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
+GenerateSol_generateName (SOLARSYS_STATE *solarSys, const PLANET_DESC *world)
 {
 	COUNT planetNr = planetIndex (solarSys, world);
 	utf8StringCopy (GLOBAL_SIS (PlanetName), sizeof (GLOBAL_SIS (PlanetName)),
@@ -251,7 +251,7 @@ GenerateSol_generateName (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
 }
 
 static bool
-GenerateSol_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
+GenerateSol_generateOrbital (SOLARSYS_STATE *solarSys, const PLANET_DESC *world)
 {
 	DWORD rand_val;
 	COUNT planetNr;
@@ -514,7 +514,7 @@ GenerateSol_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
 }
 
 static COUNT
-GenerateSol_generateEnergy (SOLARSYS_STATE *solarSys, PLANET_DESC *world,
+GenerateSol_generateEnergy (SOLARSYS_STATE *solarSys, const PLANET_DESC *world,
 		COUNT whichNode)
 {
 	if (matchWorld (solarSys, world, 8, MATCH_PLANET))
@@ -554,7 +554,7 @@ GenerateSol_generateEnergy (SOLARSYS_STATE *solarSys, PLANET_DESC *world,
 }
 
 static bool
-GenerateSol_pickupEnergy (SOLARSYS_STATE *solarSys, PLANET_DESC *world,
+GenerateSol_pickupEnergy (SOLARSYS_STATE *solarSys, const PLANET_DESC *world,
 		COUNT whichNode)
 {
 	if (matchWorld (solarSys, world, 8, MATCH_PLANET))
@@ -595,7 +595,7 @@ GenerateSol_pickupEnergy (SOLARSYS_STATE *solarSys, PLANET_DESC *world,
 }
 
 static COUNT
-GenerateSol_generateLife (SOLARSYS_STATE *solarSys, PLANET_DESC *world,
+GenerateSol_generateLife (SOLARSYS_STATE *solarSys, const PLANET_DESC *world,
 		COUNT whichNode)
 {
 	if (matchWorld (solarSys, world, 2, 1))

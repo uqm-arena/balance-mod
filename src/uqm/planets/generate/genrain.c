@@ -25,7 +25,7 @@
 
 static bool GenerateRainbowWorld_generatePlanets (SOLARSYS_STATE *solarSys);
 static bool GenerateRainbowWorld_generateOrbital (SOLARSYS_STATE *solarSys,
-		PLANET_DESC *world);
+		const PLANET_DESC *world);
 
 
 const GenerateFunctions generateRainbowWorldFunctions = {
@@ -70,7 +70,7 @@ GenerateRainbowWorld_generatePlanets (SOLARSYS_STATE *solarSys)
 }
 
 static bool
-GenerateRainbowWorld_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
+GenerateRainbowWorld_generateOrbital (SOLARSYS_STATE *solarSys, const PLANET_DESC *world)
 {
 	if (matchWorld (solarSys, world, 0, MATCH_PLANET))
 	{

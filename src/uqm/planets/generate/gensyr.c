@@ -22,9 +22,9 @@
 
 static bool GenerateSyreen_generatePlanets (SOLARSYS_STATE *solarSys);
 static bool GenerateSyreen_generateMoons (SOLARSYS_STATE *solarSys,
-		PLANET_DESC *planet);
+		const PLANET_DESC *planet);
 static bool GenerateSyreen_generateOrbital (SOLARSYS_STATE *solarSys,
-		PLANET_DESC *world);
+		const PLANET_DESC *world);
 
 
 const GenerateFunctions generateSyreenFunctions = {
@@ -56,7 +56,7 @@ GenerateSyreen_generatePlanets (SOLARSYS_STATE *solarSys)
 }
 
 static bool
-GenerateSyreen_generateMoons (SOLARSYS_STATE *solarSys, PLANET_DESC *planet)
+GenerateSyreen_generateMoons (SOLARSYS_STATE *solarSys, const PLANET_DESC *planet)
 {
 	GenerateDefault_generateMoons (solarSys, planet);
 
@@ -74,7 +74,7 @@ GenerateSyreen_generateMoons (SOLARSYS_STATE *solarSys, PLANET_DESC *planet)
 }
 
 static bool
-GenerateSyreen_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
+GenerateSyreen_generateOrbital (SOLARSYS_STATE *solarSys, const PLANET_DESC *world)
 {
 	if (matchWorld (solarSys, world, 0, MATCH_PLANET))
 	{

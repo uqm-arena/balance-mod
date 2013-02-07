@@ -32,17 +32,17 @@
 
 static bool GenerateSpathi_generatePlanets (SOLARSYS_STATE *solarSys);
 static bool GenerateSpathi_generateMoons (SOLARSYS_STATE *solarSys,
-		PLANET_DESC *planet);
+		const PLANET_DESC *planet);
 static bool GenerateSpathi_generateOrbital (SOLARSYS_STATE *solarSys,
-		PLANET_DESC *world);
+		const PLANET_DESC *world);
 static COUNT GenerateSpathi_generateEnergy (SOLARSYS_STATE *solarSys,
-		PLANET_DESC *world, COUNT whichNode);
+		const PLANET_DESC *world, COUNT whichNode);
 static COUNT GenerateSpathi_generateLife (SOLARSYS_STATE *solarSys,
-		PLANET_DESC *world, COUNT whichNode);
+		const PLANET_DESC *world, COUNT whichNode);
 static bool GenerateSpathi_pickupEnergy (SOLARSYS_STATE *solarSys,
-		PLANET_DESC *world, COUNT whichNode);
+		const PLANET_DESC *world, COUNT whichNode);
 static bool GenerateSpathi_pickupLife (SOLARSYS_STATE *solarSys,
-		PLANET_DESC *world, COUNT whichNode);
+		const PLANET_DESC *world, COUNT whichNode);
 
 
 const GenerateFunctions generateSpathiFunctions = {
@@ -86,7 +86,7 @@ GenerateSpathi_generatePlanets (SOLARSYS_STATE *solarSys)
 }
 
 static bool
-GenerateSpathi_generateMoons (SOLARSYS_STATE *solarSys, PLANET_DESC *planet)
+GenerateSpathi_generateMoons (SOLARSYS_STATE *solarSys, const PLANET_DESC *planet)
 {
 	COUNT angle;
 
@@ -113,7 +113,7 @@ GenerateSpathi_generateMoons (SOLARSYS_STATE *solarSys, PLANET_DESC *planet)
 }
 
 static bool
-GenerateSpathi_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
+GenerateSpathi_generateOrbital (SOLARSYS_STATE *solarSys, const PLANET_DESC *world)
 {
 	DWORD rand_val;
 	COUNT i;
@@ -207,7 +207,7 @@ GenerateSpathi_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
 }
 
 static COUNT
-GenerateSpathi_generateEnergy (SOLARSYS_STATE *solarSys, PLANET_DESC *world,
+GenerateSpathi_generateEnergy (SOLARSYS_STATE *solarSys, const PLANET_DESC *world,
 		COUNT whichNode)
 {
 	if (matchWorld (solarSys, world, 0, 0))
@@ -226,7 +226,7 @@ GenerateSpathi_generateEnergy (SOLARSYS_STATE *solarSys, PLANET_DESC *world,
 }
 
 static bool
-GenerateSpathi_pickupEnergy (SOLARSYS_STATE *solarSys, PLANET_DESC *world,
+GenerateSpathi_pickupEnergy (SOLARSYS_STATE *solarSys, const PLANET_DESC *world,
 		COUNT whichNode)
 {
 	if (matchWorld (solarSys, world, 0, 0))
@@ -247,7 +247,7 @@ GenerateSpathi_pickupEnergy (SOLARSYS_STATE *solarSys, PLANET_DESC *world,
 }
 
 static COUNT
-GenerateSpathi_generateLife (SOLARSYS_STATE *solarSys, PLANET_DESC *world,
+GenerateSpathi_generateLife (SOLARSYS_STATE *solarSys, const PLANET_DESC *world,
 		COUNT whichNode)
 {
 	if (matchWorld (solarSys, world, 0, MATCH_PLANET))
@@ -262,7 +262,7 @@ GenerateSpathi_generateLife (SOLARSYS_STATE *solarSys, PLANET_DESC *world,
 }
 
 static bool
-GenerateSpathi_pickupLife (SOLARSYS_STATE *solarSys, PLANET_DESC *world,
+GenerateSpathi_pickupLife (SOLARSYS_STATE *solarSys, const PLANET_DESC *world,
 		COUNT whichNode)
 {
 	if (matchWorld (solarSys, world, 0, MATCH_PLANET))

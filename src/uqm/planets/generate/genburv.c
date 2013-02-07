@@ -27,13 +27,13 @@
 
 static bool GenerateBurvixese_generatePlanets (SOLARSYS_STATE *solarSys);
 static bool GenerateBurvixese_generateMoons (SOLARSYS_STATE *solarSys,
-		PLANET_DESC *planet);
+		const PLANET_DESC *planet);
 static bool GenerateBurvixese_generateOrbital (SOLARSYS_STATE *solarSys,
-		PLANET_DESC *world);
+		const PLANET_DESC *world);
 static COUNT GenerateBurvixese_generateEnergy (SOLARSYS_STATE *solarSys,
-		PLANET_DESC *world, COUNT whichNode);
+		const PLANET_DESC *world, COUNT whichNode);
 static bool GenerateBurvixese_pickupEnergy (SOLARSYS_STATE *solarSys,
-		PLANET_DESC *world, COUNT whichNode);
+		const PLANET_DESC *world, COUNT whichNode);
 
 
 const GenerateFunctions generateBurvixeseFunctions = {
@@ -73,7 +73,7 @@ GenerateBurvixese_generatePlanets (SOLARSYS_STATE *solarSys)
 }
 
 static bool
-GenerateBurvixese_generateMoons (SOLARSYS_STATE *solarSys, PLANET_DESC *planet)
+GenerateBurvixese_generateMoons (SOLARSYS_STATE *solarSys, const PLANET_DESC *planet)
 {
 	GenerateDefault_generateMoons (solarSys, planet);
 
@@ -96,7 +96,7 @@ GenerateBurvixese_generateMoons (SOLARSYS_STATE *solarSys, PLANET_DESC *planet)
 }
 
 static bool
-GenerateBurvixese_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
+GenerateBurvixese_generateOrbital (SOLARSYS_STATE *solarSys, const PLANET_DESC *world)
 {
 	COUNT i;
 	DWORD rand_val;
@@ -141,7 +141,7 @@ GenerateBurvixese_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
 }
 
 static COUNT
-GenerateBurvixese_generateEnergy (SOLARSYS_STATE *solarSys, PLANET_DESC *world,
+GenerateBurvixese_generateEnergy (SOLARSYS_STATE *solarSys, const PLANET_DESC *world,
 		COUNT whichNode)
 {
 	if (matchWorld (solarSys, world, 0, MATCH_PLANET))
@@ -165,7 +165,7 @@ GenerateBurvixese_generateEnergy (SOLARSYS_STATE *solarSys, PLANET_DESC *world,
 }
 
 static bool
-GenerateBurvixese_pickupEnergy (SOLARSYS_STATE *solarSys, PLANET_DESC *world,
+GenerateBurvixese_pickupEnergy (SOLARSYS_STATE *solarSys, const PLANET_DESC *world,
 		COUNT whichNode)
 {
 	if (matchWorld (solarSys, world, 0, MATCH_PLANET))

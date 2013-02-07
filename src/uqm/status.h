@@ -66,5 +66,6 @@ extern BOOLEAN DeltaCrew (ELEMENT *ElementPtr, SIZE crew_delta);
 
 extern void PreProcessStatus (ELEMENT *ShipPtr);
 extern void PostProcessStatus (ELEMENT *ShipPtr);
+extern void draw_retreat_clock (STARSHIP *StarShipPtr);
 
 #endif /* UQM_STATUS_H_INCL_ */

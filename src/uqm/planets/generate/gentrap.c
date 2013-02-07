@@ -22,7 +22,7 @@
 
 static bool GenerateTrap_generatePlanets (SOLARSYS_STATE *solarSys);
 static bool GenerateTrap_generateOrbital (SOLARSYS_STATE *solarSys,
-		PLANET_DESC *world);
+		const PLANET_DESC *world);
 
 
 const GenerateFunctions generateTrapFunctions = {
@@ -63,7 +63,7 @@ GenerateTrap_generatePlanets (SOLARSYS_STATE *solarSys)
 }
 
 static bool
-GenerateTrap_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
+GenerateTrap_generateOrbital (SOLARSYS_STATE *solarSys, const PLANET_DESC *world)
 {
 	GenerateDefault_generateOrbital (solarSys, world);
 

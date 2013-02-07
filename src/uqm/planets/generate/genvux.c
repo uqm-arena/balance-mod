@@ -34,14 +34,14 @@
 
 static bool GenerateVux_generatePlanets (SOLARSYS_STATE *solarSys);
 static bool GenerateVux_generateOrbital (SOLARSYS_STATE *solarSys,
-		PLANET_DESC *world);
+		const PLANET_DESC *world);
 static COUNT GenerateVux_generateEnergy (SOLARSYS_STATE *solarSys,
-		PLANET_DESC *world, COUNT whichNode);
+		const PLANET_DESC *world, COUNT whichNode);
 static COUNT GenerateVux_generateLife (SOLARSYS_STATE *solarSys,
-		PLANET_DESC *world, COUNT whichNode);
-static bool GenerateVux_pickupEnergy (SOLARSYS_STATE *, PLANET_DESC *world,
+		const PLANET_DESC *world, COUNT whichNode);
+static bool GenerateVux_pickupEnergy (SOLARSYS_STATE *, const PLANET_DESC *world,
 		COUNT whichNode);
-static bool GenerateVux_pickupLife (SOLARSYS_STATE *, PLANET_DESC *world,
+static bool GenerateVux_pickupLife (SOLARSYS_STATE *, const PLANET_DESC *world,
 		COUNT whichNode);
 
 
@@ -118,7 +118,7 @@ GenerateVux_generatePlanets (SOLARSYS_STATE *solarSys)
 }
 
 static bool
-GenerateVux_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
+GenerateVux_generateOrbital (SOLARSYS_STATE *solarSys, const PLANET_DESC *world)
 {
 	if ((matchWorld (solarSys, world, 0, MATCH_PLANET)
 			&& (CurStarDescPtr->Index == VUX_DEFINED
@@ -210,7 +210,7 @@ GenerateVux_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
 }
 
 static COUNT
-GenerateVux_generateEnergy (SOLARSYS_STATE *solarSys, PLANET_DESC *world,
+GenerateVux_generateEnergy (SOLARSYS_STATE *solarSys, const PLANET_DESC *world,
 		COUNT whichNode)
 {
 	if (CurStarDescPtr->Index == MAIDENS_DEFINED
@@ -239,7 +239,7 @@ GenerateVux_generateEnergy (SOLARSYS_STATE *solarSys, PLANET_DESC *world,
 }
 
 static bool
-GenerateVux_pickupEnergy (SOLARSYS_STATE *solarSys, PLANET_DESC *world,
+GenerateVux_pickupEnergy (SOLARSYS_STATE *solarSys, const PLANET_DESC *world,
 		COUNT whichNode)
 {
 	if (CurStarDescPtr->Index == MAIDENS_DEFINED
@@ -269,7 +269,7 @@ GenerateVux_pickupEnergy (SOLARSYS_STATE *solarSys, PLANET_DESC *world,
 }
 
 static COUNT
-GenerateVux_generateLife (SOLARSYS_STATE *solarSys, PLANET_DESC *world,
+GenerateVux_generateLife (SOLARSYS_STATE *solarSys, const PLANET_DESC *world,
 		COUNT whichNode)
 {
 	if (CurStarDescPtr->Index == MAIDENS_DEFINED
@@ -328,7 +328,7 @@ GenerateVux_generateLife (SOLARSYS_STATE *solarSys, PLANET_DESC *world,
 }
 
 static bool
-GenerateVux_pickupLife (SOLARSYS_STATE *solarSys, PLANET_DESC *world,
+GenerateVux_pickupLife (SOLARSYS_STATE *solarSys, const PLANET_DESC *world,
 		COUNT whichNode)
 {
 	if (CurStarDescPtr->Index == VUX_BEAST_DEFINED

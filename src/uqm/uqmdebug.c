@@ -978,7 +978,7 @@ void
 dumpPlanet (FILE *out, const PLANET_DESC *planet)
 {
 	(*pSolarSysState->genFuncs->generateName) (
-			pSolarSysState, (PLANET_DESC *) planet);
+			pSolarSysState, planet);
 	fprintf (out, "- %-37s  %s\n", GLOBAL_SIS (PlanetName),
 			planetTypeString (planet->data_index & ~PLANET_SHIELDED));
 	dumpWorld (out, planet);
@@ -1009,7 +1009,7 @@ dumpMoon (FILE *out, const PLANET_DESC *moon)
 		typeStr = planetTypeString (moon->data_index & ~PLANET_SHIELDED);
 	}
 	fprintf (out, "  - Moon %-30c  %s\n",
-			'a' + (moon - &pSolarSysState->MoonDesc[0]), typeStr);
+			(char)('a' + (moon - &pSolarSysState->MoonDesc[0])), typeStr);
 
 	dumpWorld (out, moon);
 }
@@ -1059,14 +1059,14 @@ calculateBioValue (const SOLARSYS_STATE *system, const PLANET_DESC *world)
 
 	assert (system->pOrbitalDesc == world);
 	
-	numBio = callGenerateForScanType ((SOLARSYS_STATE *) system,
-			(PLANET_DESC *) world, ~0, BIOLOGICAL_SCAN);
+	numBio = callGenerateForScanType ((SOLARSYS_STATE *)system,
+			world, ~0, BIOLOGICAL_SCAN);
 
 	result = 0;
 	for (i = 0; i < numBio; i++)
 	{
-		callGenerateForScanType ((SOLARSYS_STATE *) system,
-				(PLANET_DESC *) world, i, BIOLOGICAL_SCAN);
+		callGenerateForScanType ((SOLARSYS_STATE *)system,
+				world, i, BIOLOGICAL_SCAN);
 		result += BIO_CREDIT_VALUE * LONIBBLE (CreatureData[
 				system->SysInfo.PlanetInfo.CurType].ValueAndHitPoints);
 	}
@@ -1083,7 +1083,7 @@ generateBioIndex(const SOLARSYS_STATE *system, const PLANET_DESC *world,
 	assert (system->pOrbitalDesc == world);
 	
 	numBio = callGenerateForScanType ((SOLARSYS_STATE *) system,
-			(PLANET_DESC *) world, ~0, BIOLOGICAL_SCAN);
+			world, ~0, BIOLOGICAL_SCAN);
 
 	for (i = 0; i < NUM_CREATURE_TYPES + NUM_SPECIAL_CREATURE_TYPES; i++)
 		bio[i] = 0;
@@ -1091,7 +1091,7 @@ generateBioIndex(const SOLARSYS_STATE *system, const PLANET_DESC *world,
 	for (i = 0; i < numBio; i++)
 	{
 		callGenerateForScanType ((SOLARSYS_STATE *) system,
-				(PLANET_DESC *) world, i, BIOLOGICAL_SCAN);
+				world, i, BIOLOGICAL_SCAN);
 		bio[system->SysInfo.PlanetInfo.CurType]++;
 	}
 }
@@ -1106,13 +1106,13 @@ calculateMineralValue (const SOLARSYS_STATE *system, const PLANET_DESC *world)
 	assert (system->pOrbitalDesc == world);
 	
 	numDeposits = callGenerateForScanType ((SOLARSYS_STATE *) system,
-			(PLANET_DESC *) world, ~0, MINERAL_SCAN);
+			world, ~0, MINERAL_SCAN);
 
 	result = 0;
 	for (i = 0; i < numDeposits; i++)
 	{
 		callGenerateForScanType ((SOLARSYS_STATE *) system,
-				(PLANET_DESC *) world, i, MINERAL_SCAN);
+				world, i, MINERAL_SCAN);
 		result += HIBYTE (system->SysInfo.PlanetInfo.CurDensity) *
 				GLOBAL (ElementWorth[ElementCategory (
 				system->SysInfo.PlanetInfo.CurType)]);
@@ -1130,7 +1130,7 @@ generateMineralIndex(const SOLARSYS_STATE *system, const PLANET_DESC *world,
 	assert (system->pOrbitalDesc == world);
 	
 	numDeposits = callGenerateForScanType ((SOLARSYS_STATE *) system,
-			(PLANET_DESC *) world, ~0, MINERAL_SCAN);
+			world, ~0, MINERAL_SCAN);
 
 	for (i = 0; i < NUM_ELEMENT_CATEGORIES; i++)
 		minerals[i] = 0;
@@ -1138,7 +1138,7 @@ generateMineralIndex(const SOLARSYS_STATE *system, const PLANET_DESC *world,
 	for (i = 0; i < numDeposits; i++)
 	{
 		callGenerateForScanType ((SOLARSYS_STATE *) system,
-				(PLANET_DESC *) world, i, MINERAL_SCAN);
+				world, i, MINERAL_SCAN);
 		minerals[ElementCategory(system->SysInfo.PlanetInfo.CurType)] +=
 				HIBYTE (system->SysInfo.PlanetInfo.CurDensity);
 	}
@@ -1604,7 +1604,7 @@ dumpStrings (FILE *out)
 	
 	if (GAMESTR_COUNT != numStrings) {
 		fprintf(stderr, "Warning: GAMESTR_COUNT is %d, but GameStrings "
-				"contains %d strings.\n", GAMESTR_COUNT, numStrings);
+				"contains %ld strings.\n", GAMESTR_COUNT, numStrings);
 	}
 
 	categoryI = 0;
@@ -1612,7 +1612,7 @@ dumpStrings (FILE *out)
 		while (categoryI < numCategories &&
 				stringI >= categories[categoryI + 1].base)
 			categoryI++;
-		fprintf(out, "[ %s + %d ]  %s\n", categories[categoryI].name,
+		fprintf(out, "[ %s + %ld ]  %s\n", categories[categoryI].name,
 				stringI - categories[categoryI].base, GAME_STRING(stringI));
 	}
 }
@@ -1695,7 +1695,7 @@ countVisibleContexts (void)
 static void
 drawContext (CONTEXT context, double hue /* no pun intended */)
 {
-	FRAME drawFrame;
+	//FRAME drawFrame;
 	CONTEXT oldContext;
 	FONT oldFont;
 	DrawMode oldMode;
@@ -1703,13 +1703,13 @@ drawContext (CONTEXT context, double hue /* no pun intended */)
 	Color rectCol;
 	Color lineCol;
 	Color textCol;
-	bool haveClippingRect;
+	//bool haveClippingRect;
 	RECT rect;
 	LINE line;
 	TEXT text;
 	POINT p1, p2, p3, p4;
 
-	drawFrame = GetContextFGFrame ();
+	//drawFrame = GetContextFGFrame ();
 	rectCol = hsvaToRgba (hue, 1.0, 0.5, 100);
 	lineCol = hsvaToRgba (hue, 1.0, 1.0, 90);
 	textCol = lineCol;
@@ -1718,7 +1718,7 @@ drawContext (CONTEXT context, double hue /* no pun intended */)
 	oldContext = SetContext (context);
 	
 	// Get the clipping rectangle of the specified context.
-	haveClippingRect = GetContextClipRect (&rect);
+	//haveClippingRect = GetContextClipRect (&rect);
 
 	// Switch back the old context; we're going to draw in it.
 	(void) SetContext (oldContext);

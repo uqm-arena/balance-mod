@@ -33,7 +33,7 @@
  * tragedy. */
 
 typedef struct vcontrol_keyname {
-	/* const */ char *name;
+	const char *name;
 	int code;
 } keyname;
 
@@ -182,7 +182,7 @@ static keyname keynames[] = {
 	{"Unknown", 0}};
 /* Last element must have code zero */
 
-char *
+const char *
 VControl_code2name (int code)
 {
 	int i = 0;

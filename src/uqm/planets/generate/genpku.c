@@ -30,11 +30,11 @@
 
 static bool GeneratePkunk_generatePlanets (SOLARSYS_STATE *solarSys);
 static bool GeneratePkunk_generateOrbital (SOLARSYS_STATE *solarSys,
-		PLANET_DESC *world);
+		const PLANET_DESC *world);
 static COUNT GeneratePkunk_generateEnergy (SOLARSYS_STATE *solarSys,
-		PLANET_DESC *world, COUNT whichNode);
+		const PLANET_DESC *world, COUNT whichNode);
 static bool GeneratePkunk_pickupEnergy (SOLARSYS_STATE *solarSys,
-		PLANET_DESC *world, COUNT whichNode);
+		const PLANET_DESC *world, COUNT whichNode);
 
 
 const GenerateFunctions generatePkunkFunctions = {
@@ -75,7 +75,7 @@ GeneratePkunk_generatePlanets (SOLARSYS_STATE *solarSys)
 }
 
 static bool
-GeneratePkunk_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
+GeneratePkunk_generateOrbital (SOLARSYS_STATE *solarSys, const PLANET_DESC *world)
 {
 	if (matchWorld (solarSys, world, 0, MATCH_PLANET))
 	{
@@ -122,7 +122,7 @@ GeneratePkunk_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
 }
 
 static bool
-GeneratePkunk_pickupEnergy (SOLARSYS_STATE *solarSys, PLANET_DESC *world,
+GeneratePkunk_pickupEnergy (SOLARSYS_STATE *solarSys, const PLANET_DESC *world,
 		COUNT whichNode)
 {
 	if (matchWorld (solarSys, world, 0, MATCH_PLANET))
@@ -146,7 +146,7 @@ GeneratePkunk_pickupEnergy (SOLARSYS_STATE *solarSys, PLANET_DESC *world,
 }
 
 static COUNT
-GeneratePkunk_generateEnergy (SOLARSYS_STATE *solarSys, PLANET_DESC *world,
+GeneratePkunk_generateEnergy (SOLARSYS_STATE *solarSys, const PLANET_DESC *world,
 		COUNT whichNode)
 {
 	if (matchWorld (solarSys, world, 0, MATCH_PLANET))

@@ -935,7 +935,7 @@ DrawScannedStuff (COUNT y, COUNT scan)
 }
 
 COUNT
-callGenerateForScanType (SOLARSYS_STATE *solarSys, PLANET_DESC *world,
+callGenerateForScanType (SOLARSYS_STATE *solarSys, const PLANET_DESC *world,
 		COUNT node, BYTE scanType)
 {
 	switch (scanType)
@@ -956,7 +956,7 @@ callGenerateForScanType (SOLARSYS_STATE *solarSys, PLANET_DESC *world,
 }
 
 bool
-callPickupForScanType (SOLARSYS_STATE *solarSys, PLANET_DESC *world,
+callPickupForScanType (SOLARSYS_STATE *solarSys, const PLANET_DESC *world,
 		COUNT node, BYTE scanType)
 {
 	switch (scanType)

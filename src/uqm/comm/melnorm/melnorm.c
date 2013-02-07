@@ -1178,7 +1178,7 @@ DoSell (RESPONSE_REF R)
 	{
 		if (PLAYER_SAID (R, sell_life_data))
 		{
-			DWORD TimeIn;
+			//DWORD TimeIn;
 
 			added_credit = GLOBAL_SIS (TotalBioMass) * BIO_CREDIT_VALUE;
 
@@ -1197,14 +1197,14 @@ DoSell (RESPONSE_REF R)
 
 			DrawCargoStrings ((BYTE)~0, (BYTE)~0);
 			SleepThread (ONE_SECOND / 2);
-			TimeIn = GetTimeCounter ();
+			//TimeIn = GetTimeCounter ();
 			DrawCargoStrings (
 					(BYTE)NUM_ELEMENT_CATEGORIES,
 					(BYTE)NUM_ELEMENT_CATEGORIES
 					);
 			do
 			{
-				TimeIn = GetTimeCounter ();
+				//TimeIn = GetTimeCounter ();
 				if (AnyButtonPress (TRUE))
 				{
 					DeltaCredit (GLOBAL_SIS (TotalBioMass) * BIO_CREDIT_VALUE);

@@ -37,6 +37,8 @@
 // #include "ires_ind.h" <- not used, see rev 2958
 #include <libs/log.h>
 
+#include "ships/vux/vux.h"	// TODO: remove this from here [allow-retreat]
+
 
 void
 animation_preprocess (ELEMENT *ElementPtr)

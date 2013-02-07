@@ -28,7 +28,7 @@
 static bool GenerateColony_initNpcs (SOLARSYS_STATE *solarSys);
 static bool GenerateColony_generatePlanets (SOLARSYS_STATE *solarSys);
 static bool GenerateColony_generateOrbital (SOLARSYS_STATE *solarSys,
-		PLANET_DESC *world);
+		const PLANET_DESC *world);
 
 
 const GenerateFunctions generateColonyFunctions = {
@@ -102,7 +102,7 @@ GenerateColony_generatePlanets (SOLARSYS_STATE *solarSys)
 }
 
 static bool
-GenerateColony_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
+GenerateColony_generateOrbital (SOLARSYS_STATE *solarSys, const PLANET_DESC *world)
 {
 	if (matchWorld (solarSys, world, 0, MATCH_PLANET))
 	{

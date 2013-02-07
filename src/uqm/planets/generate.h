@@ -49,27 +49,27 @@ typedef bool (*ReinitNpcsFunction)(SOLARSYS_STATE *solarSys);
 typedef bool (*UninitNpcsFunction)(SOLARSYS_STATE *solarSys);
 typedef bool (*GeneratePlanetsFunction)(SOLARSYS_STATE *solarSys);
 typedef bool (*GenerateMoonsFunction)(SOLARSYS_STATE *solarSys,
-		PLANET_DESC *planet);
+		const PLANET_DESC *planet);
 typedef bool (*GenerateOrbitalFunction)(SOLARSYS_STATE *solarSys,
-		PLANET_DESC *world);
+		const PLANET_DESC *world);
 typedef bool (*GenerateNameFunction)(SOLARSYS_STATE *solarSys,
-		PLANET_DESC *world);
+		const PLANET_DESC *world);
 // The following functions return the number of objects being generated
 // (or the index of the current object in some cases)
 typedef COUNT (*GenerateMineralsFunction)(SOLARSYS_STATE *solarSys,
-		PLANET_DESC *world, COUNT whichNode);
+		const PLANET_DESC *world, COUNT whichNode);
 typedef COUNT (*GenerateEnergyFunction)(SOLARSYS_STATE *solarSys,
-		PLANET_DESC *world, COUNT whichNode);
+		const PLANET_DESC *world, COUNT whichNode);
 typedef COUNT (*GenerateLifeFunction)(SOLARSYS_STATE *solarSys,
-		PLANET_DESC *world, COUNT whichNode);
+		const PLANET_DESC *world, COUNT whichNode);
 // The following functions return true if the node should be removed
 // from the surface, i.e. picked up.
 typedef bool (*PickupMineralsFunction)(SOLARSYS_STATE *solarSys,
-		PLANET_DESC *world, COUNT whichNode);
+		const PLANET_DESC *world, COUNT whichNode);
 typedef bool (*PickupEnergyFunction)(SOLARSYS_STATE *solarSys,
-		PLANET_DESC *world, COUNT whichNode);
+		const PLANET_DESC *world, COUNT whichNode);
 typedef bool (*PickupLifeFunction)(SOLARSYS_STATE *solarSys,
-		PLANET_DESC *world, COUNT whichNode);
+		const PLANET_DESC *world, COUNT whichNode);
 
 
 struct GenerateFunctions {

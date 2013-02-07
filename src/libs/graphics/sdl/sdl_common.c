@@ -129,7 +129,7 @@ TFB_ReInitGraphics (int driver, int flags, int width, int height)
 int
 TFB_InitGraphics (int driver, int flags, int width, int height)
 {
-	int result, i;
+	int i;
 	char caption[200];
 
 	/* Null out screen pointers the first time */
@@ -143,17 +143,17 @@ TFB_InitGraphics (int driver, int flags, int width, int height)
 	if (driver == TFB_GFXDRIVER_SDL_OPENGL)
 	{
 #ifdef HAVE_OPENGL
-		result = TFB_GL_InitGraphics (driver, flags, width, height);
+		TFB_GL_InitGraphics (driver, flags, width, height);
 #else
 		driver = TFB_GFXDRIVER_SDL_PURE;
 		log_add (log_Warning, "OpenGL support not compiled in,"
 				" so using pure SDL driver");
-		result = TFB_Pure_InitGraphics (driver, flags, width, height);
+		TFB_Pure_InitGraphics (driver, flags, width, height);
 #endif
 	}
 	else
 	{
-		result = TFB_Pure_InitGraphics (driver, flags, width, height);
+		TFB_Pure_InitGraphics (driver, flags, width, height);
 	}
 
 	sprintf (caption, "The Ur-Quan Masters v%d.%d.%d%s", 

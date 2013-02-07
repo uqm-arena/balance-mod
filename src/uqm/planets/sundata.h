@@ -54,7 +54,7 @@ extern DWORD GenerateRandomNodes (SYSTEM_INFO *, COUNT scan, COUNT numNodes,
 #define MAX_ELEMENT_DENSITY ((MAX_ELEMENT_UNITS * SUPERGIANT_ELEMENT_DENSITY) << 1)
 
 extern DWORD DoPlanetaryAnalysis (SYSTEM_INFO *SysInfoPtr,
-		PLANET_DESC *pPlanetDesc);
+		const PLANET_DESC *pPlanetDesc);
 
 extern SYSTEM_INFO CurSysInfo;
 

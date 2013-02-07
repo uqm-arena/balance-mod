@@ -30,9 +30,9 @@
 
 static bool GenerateChmmr_generatePlanets (SOLARSYS_STATE *solarSys);
 static bool GenerateChmmr_generateMoons (SOLARSYS_STATE *solarSys,
-		PLANET_DESC *planet);
+		const PLANET_DESC *planet);
 static bool GenerateChmmr_generateOrbital (SOLARSYS_STATE *solarSys,
-		PLANET_DESC *world);
+		const PLANET_DESC *world);
 
 
 const GenerateFunctions generateChmmrFunctions = {
@@ -66,7 +66,7 @@ GenerateChmmr_generatePlanets (SOLARSYS_STATE *solarSys)
 }
 
 static bool
-GenerateChmmr_generateMoons (SOLARSYS_STATE *solarSys, PLANET_DESC *planet)
+GenerateChmmr_generateMoons (SOLARSYS_STATE *solarSys, const PLANET_DESC *planet)
 {
 	GenerateDefault_generateMoons (solarSys, planet);
 
@@ -89,7 +89,7 @@ GenerateChmmr_generateMoons (SOLARSYS_STATE *solarSys, PLANET_DESC *planet)
 }
 
 static bool
-GenerateChmmr_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
+GenerateChmmr_generateOrbital (SOLARSYS_STATE *solarSys, const PLANET_DESC *world)
 {
 	if (matchWorld (solarSys, world, 1, MATCH_PLANET))
 	{

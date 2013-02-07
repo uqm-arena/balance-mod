@@ -32,11 +32,11 @@
 
 static bool GenerateThraddash_generatePlanets (SOLARSYS_STATE *solarSys);
 static bool GenerateThraddash_generateOrbital (SOLARSYS_STATE *solarSys,
-		PLANET_DESC *world);
+		const PLANET_DESC *world);
 static COUNT GenerateThraddash_generateEnergy (SOLARSYS_STATE *solarSys,
-		PLANET_DESC *world, COUNT whichNode);
+		const PLANET_DESC *world, COUNT whichNode);
 static bool GenerateThraddash_pickupEnergy (SOLARSYS_STATE *solarSys,
-		PLANET_DESC *world, COUNT whichNode);
+		const PLANET_DESC *world, COUNT whichNode);
 
 
 const GenerateFunctions generateThraddashFunctions = {
@@ -91,7 +91,7 @@ GenerateThraddash_generatePlanets (SOLARSYS_STATE *solarSys)
 
 static bool
 GenerateThraddash_generateOrbital (SOLARSYS_STATE *solarSys,
-		PLANET_DESC *world)
+		const PLANET_DESC *world)
 {
 	if (matchWorld (solarSys, world, 0, MATCH_PLANET))
 	{
@@ -161,7 +161,7 @@ GenerateThraddash_generateOrbital (SOLARSYS_STATE *solarSys,
 
 static COUNT
 GenerateThraddash_generateEnergy (SOLARSYS_STATE *solarSys,
-		PLANET_DESC *world, COUNT whichNode)
+		const PLANET_DESC *world, COUNT whichNode)
 {
 	if (CurStarDescPtr->Index == THRADD_DEFINED
 			&& matchWorld (solarSys, world, 0, MATCH_PLANET))
@@ -186,7 +186,7 @@ GenerateThraddash_generateEnergy (SOLARSYS_STATE *solarSys,
 }
 
 static bool
-GenerateThraddash_pickupEnergy (SOLARSYS_STATE *solarSys, PLANET_DESC *world,
+GenerateThraddash_pickupEnergy (SOLARSYS_STATE *solarSys, const PLANET_DESC *world,
 		COUNT whichNode)
 {
 	if (CurStarDescPtr->Index == THRADD_DEFINED

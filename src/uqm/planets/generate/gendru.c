@@ -32,11 +32,11 @@
 
 static bool GenerateDruuge_generatePlanets (SOLARSYS_STATE *solarSys);
 static bool GenerateDruuge_generateOrbital (SOLARSYS_STATE *solarSys,
-		PLANET_DESC *world);
+		const PLANET_DESC *world);
 static COUNT GenerateDruuge_generateEnergy (SOLARSYS_STATE *solarSys,
-		PLANET_DESC *world, COUNT whichNode);
+		const PLANET_DESC *world, COUNT whichNode);
 static bool GenerateDruuge_pickupEnergy (SOLARSYS_STATE *solarSys,
-		PLANET_DESC *world, COUNT whichNode);
+		const PLANET_DESC *world, COUNT whichNode);
 
 
 const GenerateFunctions generateDruugeFunctions = {
@@ -84,7 +84,7 @@ GenerateDruuge_generatePlanets (SOLARSYS_STATE *solarSys)
 }
 
 static bool
-GenerateDruuge_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
+GenerateDruuge_generateOrbital (SOLARSYS_STATE *solarSys, const PLANET_DESC *world)
 {
 	if (matchWorld (solarSys, world, 0, MATCH_PLANET))
 	{
@@ -132,7 +132,7 @@ GenerateDruuge_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
 }
 
 static bool
-GenerateDruuge_pickupEnergy (SOLARSYS_STATE *solarSys, PLANET_DESC *world,
+GenerateDruuge_pickupEnergy (SOLARSYS_STATE *solarSys, const PLANET_DESC *world,
 		COUNT whichNode)
 {
 	if (matchWorld (solarSys, world, 0, MATCH_PLANET))
@@ -156,7 +156,7 @@ GenerateDruuge_pickupEnergy (SOLARSYS_STATE *solarSys, PLANET_DESC *world,
 }
 
 static COUNT
-GenerateDruuge_generateEnergy (SOLARSYS_STATE *solarSys, PLANET_DESC *world,
+GenerateDruuge_generateEnergy (SOLARSYS_STATE *solarSys, const PLANET_DESC *world,
 		COUNT whichNode)
 {
 	if (matchWorld (solarSys, world, 0, MATCH_PLANET))

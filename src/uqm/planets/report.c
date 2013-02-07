@@ -83,7 +83,7 @@ ClearReportArea (void)
 static void
 MakeReport (SOUND ReadOutSounds, UNICODE *pStr, COUNT StrLen)
 {
-	BYTE ButtonState;
+	//BYTE ButtonState;
 	int end_page_len;
 	UNICODE end_page_buf[200];
 	UniChar last_c = 0;
@@ -211,7 +211,7 @@ MakeReport (SOUND ReadOutSounds, UNICODE *pStr, COUNT StrLen)
 				break;
 
 InitPageCell:
-			ButtonState = 1;
+			//ButtonState = 1;
 			t.baseline.y = r.extent.height + 1;
 			row_cells = 0;
 			if (StrLen)

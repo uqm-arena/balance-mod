@@ -33,13 +33,13 @@
 
 static bool GenerateMycon_generatePlanets (SOLARSYS_STATE *solarSys);
 static bool GenerateMycon_generateOrbital (SOLARSYS_STATE *solarSys,
-		PLANET_DESC *world);
+		const PLANET_DESC *world);
 static COUNT GenerateMycon_generateEnergy (SOLARSYS_STATE *solarSys,
-		PLANET_DESC *world, COUNT whichNode);
+		const PLANET_DESC *world, COUNT whichNode);
 static COUNT GenerateMycon_generateLife (SOLARSYS_STATE *solarSys,
-		PLANET_DESC *world, COUNT whichNode);
+		const PLANET_DESC *world, COUNT whichNode);
 static bool GenerateMycon_pickupEnergy (SOLARSYS_STATE *solarSys,
-		PLANET_DESC *world, COUNT whichNode);
+		const PLANET_DESC *world, COUNT whichNode);
 
 
 const GenerateFunctions generateMyconFunctions = {
@@ -82,7 +82,7 @@ GenerateMycon_generatePlanets (SOLARSYS_STATE *solarSys)
 }
 
 static bool
-GenerateMycon_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
+GenerateMycon_generateOrbital (SOLARSYS_STATE *solarSys, const PLANET_DESC *world)
 {
 	if (matchWorld (solarSys, world, 0, MATCH_PLANET))
 	{
@@ -188,7 +188,7 @@ GenerateMycon_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
 }
 
 static COUNT
-GenerateMycon_generateEnergy (SOLARSYS_STATE *solarSys, PLANET_DESC *world,
+GenerateMycon_generateEnergy (SOLARSYS_STATE *solarSys, const PLANET_DESC *world,
 		COUNT whichNode)
 {
 	if (CurStarDescPtr->Index == SUN_DEVICE_DEFINED
@@ -225,7 +225,7 @@ GenerateMycon_generateEnergy (SOLARSYS_STATE *solarSys, PLANET_DESC *world,
 }
 
 static bool
-GenerateMycon_pickupEnergy (SOLARSYS_STATE *solarSys, PLANET_DESC *world,
+GenerateMycon_pickupEnergy (SOLARSYS_STATE *solarSys, const PLANET_DESC *world,
 		COUNT whichNode)
 {
 	if (CurStarDescPtr->Index == SUN_DEVICE_DEFINED
@@ -274,7 +274,7 @@ GenerateMycon_pickupEnergy (SOLARSYS_STATE *solarSys, PLANET_DESC *world,
 }
 
 static COUNT
-GenerateMycon_generateLife (SOLARSYS_STATE *solarSys, PLANET_DESC *world,
+GenerateMycon_generateLife (SOLARSYS_STATE *solarSys, const PLANET_DESC *world,
 		COUNT whichNode)
 {
 	(void) whichNode;

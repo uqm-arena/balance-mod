@@ -23,7 +23,7 @@
 
 static bool GenerateSlylandro_generatePlanets (SOLARSYS_STATE *solarSys);
 static bool GenerateSlylandro_generateOrbital (SOLARSYS_STATE *solarSys,
-		PLANET_DESC *world);
+		const PLANET_DESC *world);
 
 
 const GenerateFunctions generateSlylandroFunctions = {
@@ -56,7 +56,7 @@ GenerateSlylandro_generatePlanets (SOLARSYS_STATE *solarSys)
 
 static bool
 GenerateSlylandro_generateOrbital (SOLARSYS_STATE *solarSys,
-		PLANET_DESC *world)
+		const PLANET_DESC *world)
 {
 	if (matchWorld (solarSys, world, 3, MATCH_PLANET))
 	{
