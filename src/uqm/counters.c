@@ -1022,9 +1022,18 @@ _counter_getBest_getMetric_recursive(SIZE my_playerNr, HSTARSHIP my_hShip, HSTAR
 			metric_continue	 = _counter_getBest_getMetric_recursive(my_playerNr, 	my_hShip,	enemy_hShip,	my_skips, 	enemy_skips,	enemy_playerNr, p_metric_enemy,	MAX_SHIPS_PER_SIDE, 0);
 			metric_enemy 	 = _counter_getBest_getMetric_recursive(enemy_playerNr,	enemy_hShip,	enemy_hShip,	enemy_skips, 	my_skips,	enemy_playerNr, &metric_my,	MAX_SHIPS_PER_SIDE, 0);
 
-			metric_continue	*= (((METRIC_MIDDLE*2) - metric_continue)/(METRIC_MIDDLE*2));
-			metric_continue  = metric_continue>0 ? metric_continue : 0;
-			metric   = _counter_getBest_calcLocalMetric(my_ID, enemy_ID, my_StarShipPtr->ship_cost) + metric_continue + metric_my*(metric_continue/(METRIC_MIDDLE*2));
+			metric   	= _counter_getBest_calcLocalMetric(my_ID, enemy_ID, my_StarShipPtr->ship_cost); // metric for current battle
+			metric		=	metric_my*(
+							metric_continue > (METRIC_MIDDLE*2) 	? 
+							1 					: 
+							metric_continue/(METRIC_MIDDLE*2)
+						);	
+				// metric if picking new ship * probability of picking new ship
+
+			metric_continue	*= (((METRIC_MIDDLE*2) - metric_continue)/(METRIC_MIDDLE*2)); // * probability that old ship will survive
+			metric_continue	 = metric_continue>0 ? metric_continue : 0;			// probablity cannot be less than zero
+
+			metric		+= metric_continue;	// + metric if continue using of old ship * probability that old ship will survive
 
 			if (metric < metric_best || metric_best < -METRIC_ZERO)
 			{
