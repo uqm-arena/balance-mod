@@ -22,7 +22,7 @@
 #define METRIC_INITIAL (-1)
 #define METRIC_ZERO (1E-10)
 #define METRIC_LOSS (1E+6)
-#define METRIC_MIDDLE(ship_cost) (WINNING_PROBABILITY_TABLE[NO_ID][NO_ID]*ship_cost)
+#define METRIC_MIDDLE(ship_cost) (_counter_getBest_calcLocalMetric(NO_ID, NO_ID, ship_cost))
 
 #define MAX_SKIPS	3
 
