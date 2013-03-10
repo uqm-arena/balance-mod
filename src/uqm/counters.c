@@ -15,13 +15,21 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
+#include "init.h"
 #include "counters.h"
 #include "libs/log.h"
+
+#define METRIC_INITIAL (-1)
+#define METRIC_ZERO (1E-10)
+#define METRIC_LOSS (1000)
+#define METRIC_MIDDLE (WINNING_PROBABILITY_TABLE[NO_ID][NO_ID])
+
+#define MAX_SKIPS	3
 
 // [Warping in ID0][Staying ID1], ID0 winning probability
 static float WINNING_PROBABILITY_TABLE[NUM_SPECIES_ID][NUM_SPECIES_ID] = {
 	{ // NO_ID
-		0,	// NO_ID
+		0.50,	// NO_ID
 		0,	// ARILOU_ID
 		0,	// CHMMR_ID
 		0,	// EARTHLING_ID
@@ -50,7 +58,7 @@ static float WINNING_PROBABILITY_TABLE[NUM_SPECIES_ID][NUM_SPECIES_ID] = {
 		0,	// SIS_SHIP_ID
 		0,	// SA_MATRA_ID
 		0,	// UR_QUAN_PROBE_ID
-	},
+ 	},
 	{ // ARILOU_ID
 		1,	// NO_ID
 		0.50,	// ARILOU_ID
@@ -58,7 +66,7 @@ static float WINNING_PROBABILITY_TABLE[NUM_SPECIES_ID][NUM_SPECIES_ID] = {
 		
 		/* Arilou is fairly likely to beat Earthling in PvP, but
 		 * the AI currently approaches the match rather stupidly.
-		 */
+		  */
 		0.10,	// EARTHLING_ID
 		0.70,	// ORZ_ID
 		0.20,	// PKUNK_ID
@@ -85,8 +93,8 @@ static float WINNING_PROBABILITY_TABLE[NUM_SPECIES_ID][NUM_SPECIES_ID] = {
 		0.20,	// SIS_SHIP_ID
 		0.20,	// SA_MATRA_ID
 		0.50,	// UR_QUAN_PROBE_ID
-	},
-	{ // CHMMR_ID
+ 	},
+ 	{ // CHMMR_ID
 		1,	// NO_ID
 		0.90,	// ARILOU_ID
 		0.50,	// CHMMR_ID
@@ -923,24 +931,133 @@ static float WINNING_PROBABILITY_TABLE[NUM_SPECIES_ID][NUM_SPECIES_ID] = {
 		0.50,	// SA_MATRA_ID
 		0.50,	// UR_QUAN_PROBE_ID
 	},
-};
+}; 
+
+inline float 
+_counter_getBest_calcLocalMetric(SPECIES_ID my_ID, SPECIES_ID enemy_ID, BYTE my_ship_cost)
+{
+	float metric;
+	metric  = 1/(WINNING_PROBABILITY_TABLE[my_ID][enemy_ID]+METRIC_ZERO);
+	metric *= metric;
+	metric *= my_ship_cost;
+	return metric;
+}
+
+float
+_counter_getBest_getMetric_recursive(SIZE my_playerNr, HSTARSHIP my_hShip, HSTARSHIP hShip, /*SPECIES_ID my_ID, COUNT idx, */int my_skips, int enemy_skips, SIZE pick_playerNr, float *p_metric_enemy, /*STARSHIP *EnemyShipPtr,*/ COUNT enemy_idx_already, SPECIES_ID enemy_ID_already)
+{
+	int ships_left;
+	static COUNT skip[NUM_PLAYERS][MAX_SHIPS_PER_SIDE];
+	SIZE enemy_playerNr = !my_playerNr;
+	QUEUE *enemy_ship_q = &race_q[enemy_playerNr]/*, *enemy_ship_q = &race_q[enemy_playerNr]*/;
+	SPECIES_ID enemy_ID;
+	HSTARSHIP enemy_hShip, enemy_hNextShip/*, enemy_hShip, enemy_hNextShip*/;
+	float metric_best, metric, metric_continue, metric_enemy, metric_enemy_best, metric_my;
+
+	QUEUE *my_ship_q = &race_q[my_playerNr];
+	STARSHIP *my_StarShipPtr = LockStarShip (my_ship_q, my_hShip);
+	//COUNT my_idx = my_StarShipPtr->index;
+	SPECIES_ID my_ID  = my_StarShipPtr->SpeciesID;
+	UnlockStarShip (my_ship_q, my_hShip);
+
+	QUEUE *ship_q = &race_q[my_playerNr == pick_playerNr ? my_playerNr : enemy_playerNr];
+	STARSHIP *StarShipPtr = LockStarShip (ship_q, hShip);
+	COUNT idx = StarShipPtr->index;
+	UnlockStarShip (ship_q, hShip);
+
+	if(my_playerNr == pick_playerNr)
+		skip[my_playerNr	][my_skips++	] = idx;
+	else
+		skip[enemy_playerNr	][enemy_skips++	] = idx;
+
+	if(my_skips >= MAX_SKIPS || enemy_skips >= MAX_SKIPS)
+		return METRIC_MIDDLE;
+
+	ships_left		= 0;
+	metric_best		= METRIC_INITIAL;
+	metric_enemy_best	= METRIC_INITIAL;
+
+//	log_add (log_Debug, "recursive: %i %i\n", my_skips, enemy_skips);
+
+	// TODO: consider with reserve variants if primary way was broken off [analog of: 1/R = 1/R1 + 1/R2]
+	for (enemy_hShip = GetHeadLink (enemy_ship_q); enemy_hShip != 0; enemy_hShip = enemy_hNextShip)
+	{
+		COUNT enemy_idx;
+		char skipthisship, lastship;
+		STARSHIP *enemy_StarShipPtr;
+
+		lastship=0;
+		skipthisship=0;
+		if(enemy_idx_already != MAX_SHIPS_PER_SIDE) {
+			// TODO: find-out what is with lock-up mechanisms
+			enemy_idx = enemy_idx_already;
+			enemy_ID  = enemy_ID_already;
+/*
+			enemy_StarShipPtr = EnemyShipPtr;
+			enemy_idx = enemy_StarShipPtr->index;
+			enemy_ID  = enemy_StarShipPtr->SpeciesID;
+*/
+//			log_add (log_Debug, "enemy ID: %i\n", enemy_ID);
+			lastship=1;
+		} else {
+			int i;
+			enemy_StarShipPtr = LockStarShip (enemy_ship_q, enemy_hShip);
+			enemy_idx = enemy_StarShipPtr->index;
+			enemy_ID  = enemy_StarShipPtr->SpeciesID;
+			enemy_hNextShip = _GetSuccLink (enemy_StarShipPtr);
+			UnlockStarShip (enemy_ship_q, enemy_hShip);
+			i=0;
+			while(i<enemy_skips) {
+				if(skip[enemy_playerNr][i] == enemy_idx) {
+					skipthisship=1;
+					break;
+				}
+				i++;
+			}
+		}
+//		log_add (log_Debug, "SKIP TEST: %i %i\n", enemy_idx, skipthisship);
+
+		if(!skipthisship) {
+			ships_left++;
+			metric_continue	 = _counter_getBest_getMetric_recursive(my_playerNr, 	my_hShip,	enemy_hShip,	my_skips, 	enemy_skips,	enemy_playerNr, p_metric_enemy,	MAX_SHIPS_PER_SIDE, 0);
+			metric_enemy 	 = _counter_getBest_getMetric_recursive(enemy_playerNr,	enemy_hShip,	enemy_hShip,	enemy_skips, 	my_skips,	enemy_playerNr, &metric_my,	MAX_SHIPS_PER_SIDE, 0);
+
+			metric_continue	*= (((METRIC_MIDDLE*2) - metric_continue)/(METRIC_MIDDLE*2));
+			metric_continue  = metric_continue>0 ? metric_continue : 0;
+			metric   = _counter_getBest_calcLocalMetric(my_ID, enemy_ID, my_StarShipPtr->ship_cost) + metric_continue + metric_my*(metric_continue/(METRIC_MIDDLE*2));
+
+			if (metric < metric_best || metric_best < -METRIC_ZERO)
+			{
+				metric_best		= metric;
+				metric_enemy_best	= metric_enemy;
+//				log_add (log_Debug, "SET: %f %i\n", metric_best, enemy_ID);
+			}
+//			log_add (log_Debug, "CALC: %f %i %i %i\n", metric, enemy_ID, my_skips, enemy_skips);
+		}
+
+		if(lastship)
+			break;
+	}
+
+//	log_add (log_Debug, "RET: %f %i %i\n", metric_best > -METRIC_ZERO ? metric_best : 0, my_skips, enemy_skips);
+	*p_metric_enemy = metric_enemy_best > -METRIC_ZERO ? metric_enemy_best : METRIC_LOSS;
+	return metric_best > -METRIC_ZERO ? metric_best : 0;
+}
 
 COUNT
 counter_getBest (SIZE my_playerNr)
 {
 	SIZE enemy_playerNr = !my_playerNr;
-	QUEUE *my_ship_q = &race_q[my_playerNr]/*, *enemy_ship_q = &race_q[enemy_playerNr]*/;
-	HSTARSHIP my_hShip, my_hNextShip/*, enemy_hShip, enemy_hNextShip*/;
-	float efficiency_best, efficiency;
-	SPECIES_ID my_ID, enemy_ID;
+	SPECIES_ID enemy_ID;
 	HELEMENT hObject, hNextObject;
 	ELEMENT *ObjectPtr;
-	COUNT my_index_best[MAX_SHIPS_PER_SIDE];
-	int bests;
+	COUNT idx_best, idx_enemy;
+	float metric, metric_best, metric_enemy;
+	HSTARSHIP my_hShip, my_hNextShip;
+	QUEUE *my_ship_q = &race_q[my_playerNr];
+	STARSHIP *EnemyShipPtr;
 
-	enemy_ID	=  NO_ID;
-	efficiency	= -1;
-	bests		=  0;
+	idx_enemy	=  NO_ID;
 
 	for (hObject = GetHeadElement (); hObject; hObject = hNextObject)
 	{
@@ -949,43 +1066,38 @@ counter_getBest (SIZE my_playerNr)
 
 		if ((ObjectPtr->state_flags & PLAYER_SHIP) && (ObjectPtr->playerNr == enemy_playerNr))
 		{
-			STARSHIP *EnemyShipPtr;
 			GetElementStarShip (ObjectPtr, &EnemyShipPtr);
 			
-			enemy_ID = EnemyShipPtr->SpeciesID;
+			idx_enemy = EnemyShipPtr->index;
+			enemy_ID  = EnemyShipPtr->SpeciesID;
 			break;
 		}
 		
 		UnlockElement (hObject);
 	}
 
-	log_add (log_Debug, "_____SELECTING A SHIP_____\n");
-
-	// TODO: use recursive algorith to compute the best ship picking strategy for all the game (but only at the moment)
+	metric_best = METRIC_INITIAL;
 	for (my_hShip = GetHeadLink (my_ship_q); my_hShip != 0; my_hShip = my_hNextShip)
 	{
 		STARSHIP *my_StarShipPtr = LockStarShip (my_ship_q, my_hShip);
-		my_ID = my_StarShipPtr->SpeciesID;
-		efficiency  = WINNING_PROBABILITY_TABLE[my_ID][enemy_ID];
-		efficiency *= efficiency;
-		efficiency /= my_StarShipPtr->ship_cost;
-
-		if (efficiency > efficiency_best)
-		{
-			efficiency_best	= efficiency;
-			bests		= 0;
-			log_add (log_Debug, "-> %f %i\n", efficiency_best, my_ID);
-		}
-
-		if (efficiency + 1e-10 >= efficiency_best)
-			my_index_best[bests++] = my_StarShipPtr->index;
-
-		log_add (log_Debug, "%f %i (%i)\n", efficiency, my_ID, bests);
+//		my_ID = my_StarShipPtr->SpeciesID;
 		my_hNextShip = _GetSuccLink (my_StarShipPtr);
 		UnlockStarShip (my_ship_q, my_hShip);
+		metric = _counter_getBest_getMetric_recursive(my_playerNr, my_hShip, my_hShip/*my_ID, my_StarShipPtr->index*/, 0, 0, my_playerNr, &metric_enemy, idx_enemy, enemy_ID/*, EnemyShipPtr*/);
+
+		if (metric < metric_best || metric_best < -METRIC_ZERO)
+		{
+			metric_best	= metric;
+			idx_best	= my_StarShipPtr->index;
+			log_add (log_Debug, "-> %f\n", metric_best);
+		}
+
+		log_add (log_Debug, "%f\n", metric);
 	}
 
-	return bests ? my_index_best[TFB_Random () % bests] : NO_ID;
+	log_add (log_Debug, "_____SELECTING A SHIP: %i_____\n", idx_best);
+
+	return idx_best;
 }
 
 
