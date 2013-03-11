@@ -1230,6 +1230,7 @@ counter_getBest (SIZE my_playerNr)
 		UnlockElement (hObject);
 	}
 
+	usefulness = counter_getShipsUsefulness(my_playerNr);
 
 	metric_best = METRIC_INITIAL;
 	for (my_hShip = GetHeadLink (my_ship_q); my_hShip != 0; my_hShip = my_hNextShip)
@@ -1244,8 +1245,6 @@ counter_getBest (SIZE my_playerNr)
 		if(my_ID == NO_ID)
 			continue;
 
-		usefulness = counter_getShipsUsefulness(my_playerNr);
-
 		end_reached=1;
 		metric = _counter_getBest_getMetric_recursive(my_playerNr, my_hShip, my_hShip/*my_ID, my_StarShipPtr->index*/, 0, 0, my_playerNr, &metric_enemy, idx_enemy, enemy_ID/*, EnemyShipPtr*/, &metric_local, &end_reached);
 
@@ -1258,7 +1257,9 @@ counter_getBest (SIZE my_playerNr)
 
 			rnd 	 = sqrt((float)((unsigned int)TFB_Random()%101))*10;
 			percents = 100-rnd;
+		//	log_add (log_Debug, "%f %f %i", metric, metric_k, percents);
 			metric   = (metric*(100-percents))/100 + (metric_k*percents)/100;
+		//	log_add (log_Debug, "R: %f", metric);
 		}
 
 		if (metric < metric_best || metric_best < -METRIC_ZERO)
