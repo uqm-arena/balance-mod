@@ -15,6 +15,8 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
+#include <math.h>
+#include "libs/mathlib.h"
 #include "init.h"
 #include "counters.h"
 #include "libs/log.h"
@@ -945,7 +947,7 @@ _counter_getBest_calcLocalMetric(SPECIES_ID my_ID, SPECIES_ID enemy_ID, BYTE my_
 }
 
 float
-_counter_getBest_getMetric_recursive(SIZE my_playerNr, HSTARSHIP my_hShip, HSTARSHIP hShip, int my_skips, int enemy_skips, SIZE pick_playerNr, float *p_metric_enemy, COUNT enemy_idx_already, SPECIES_ID enemy_ID_already, float *p_metric_local)
+_counter_getBest_getMetric_recursive(SIZE my_playerNr, HSTARSHIP my_hShip, HSTARSHIP hShip, int my_skips, int enemy_skips, SIZE pick_playerNr, float *p_metric_enemy, COUNT enemy_idx_already, SPECIES_ID enemy_ID_already, float *p_metric_local, char *p_end_reached)
 {
 	int ships_left;
 	static COUNT skip[NUM_PLAYERS][MAX_SHIPS_PER_SIDE];
@@ -977,6 +979,7 @@ _counter_getBest_getMetric_recursive(SIZE my_playerNr, HSTARSHIP my_hShip, HSTAR
 		if(p_metric_local != NULL)
 			*p_metric_local = METRIC_MIDDLE(ship_cost);
 		*p_metric_enemy = METRIC_MIDDLE(ship_cost);
+		*p_end_reached  = 0;
 		return METRIC_MIDDLE(ship_cost);
 	}
 
@@ -1026,8 +1029,8 @@ _counter_getBest_getMetric_recursive(SIZE my_playerNr, HSTARSHIP my_hShip, HSTAR
 
 		if(!skipthisship) {
 			ships_left++;
-			metric_continue	 = _counter_getBest_getMetric_recursive(my_playerNr, 	my_hShip,	enemy_hShip,	my_skips, 	enemy_skips,	enemy_playerNr, &metric_enemy_r,MAX_SHIPS_PER_SIDE, 0, &metric_local);
-			metric_enemy 	 = _counter_getBest_getMetric_recursive(enemy_playerNr,	enemy_hShip,	enemy_hShip,	enemy_skips, 	my_skips,	enemy_playerNr, &metric_my,	MAX_SHIPS_PER_SIDE, 0, &metric_local_enemy);
+			metric_continue	 = _counter_getBest_getMetric_recursive(my_playerNr, 	my_hShip,	enemy_hShip,	my_skips, 	enemy_skips,	enemy_playerNr, &metric_enemy_r,MAX_SHIPS_PER_SIDE, 0, &metric_local,		p_end_reached);
+			metric_enemy 	 = _counter_getBest_getMetric_recursive(enemy_playerNr,	enemy_hShip,	enemy_hShip,	enemy_skips, 	my_skips,	enemy_playerNr, &metric_my,	MAX_SHIPS_PER_SIDE, 0, &metric_local_enemy,	p_end_reached);
 
 			//log_add (log_Debug, "METRICS: %f %f %f %f %f %f\n", metric_continue, metric_enemy_r, metric_enemy, metric_my, metric_local, METRIC_MIDDLE(ship_cost)*2);
 
@@ -1102,6 +1105,96 @@ _counter_getBest_getMetric_recursive(SIZE my_playerNr, HSTARSHIP my_hShip, HSTAR
 	return metric_best;
 }
 
+inline void
+_counter_getShipsUsefulness_getShipIDs(SIZE playerNr, SPECIES_ID *ships_ids, BYTE *ships_costs) {
+	QUEUE *ship_q = &race_q[playerNr];
+	HSTARSHIP hShip, hNextShip;
+
+	int i=0;
+	while(i<MAX_SHIPS_PER_SIDE) 
+		ships_ids[i++]	  = NO_ID;
+
+	for (hShip = GetHeadLink (ship_q); hShip != 0; hShip = hNextShip)
+	{
+		SPECIES_ID SpeciesID;
+		COUNT idx;
+		BYTE ship_cost;
+
+		STARSHIP *StarShipPtr = LockStarShip (ship_q, hShip);
+		SpeciesID 		 = StarShipPtr->SpeciesID;
+		idx			 = StarShipPtr->index;
+		ship_cost		 = StarShipPtr->ship_cost;
+		hNextShip 		 = _GetSuccLink (StarShipPtr);
+		UnlockStarShip (ship_q, hShip);
+
+		ships_ids[idx]	 = SpeciesID;
+		ships_costs[idx] = ship_cost;
+	}
+
+	return;
+}
+
+float *
+counter_getShipsUsefulness(SIZE my_playerNr)
+{
+	static float shipsusefulness[MAX_SHIPS_PER_SIDE];
+	SPECIES_ID my_ships_ids[MAX_SHIPS_PER_SIDE], enemy_ships_ids[MAX_SHIPS_PER_SIDE];
+	BYTE my_ships_costs[MAX_SHIPS_PER_SIDE], enemy_ships_costs[MAX_SHIPS_PER_SIDE];
+
+	SIZE enemy_playerNr 	= !my_playerNr;
+
+	_counter_getShipsUsefulness_getShipIDs(my_playerNr, 	my_ships_ids,		my_ships_costs);
+	_counter_getShipsUsefulness_getShipIDs(enemy_playerNr, 	enemy_ships_ids,	enemy_ships_costs);
+
+	int my_idx=0;
+	while(my_idx < MAX_SHIPS_PER_SIDE) {
+		SPECIES_ID my_ID;
+		float shipusefulness;
+		BYTE my_ship_cost;
+		my_ID 		= my_ships_ids[my_idx];
+		my_ship_cost	= my_ships_costs[my_idx];
+
+		if(my_ID == NO_ID) {
+			my_idx++;
+			continue;
+		}
+
+		shipusefulness = 0;
+
+		int enemy_idx;
+		enemy_idx=0;
+
+		while(enemy_idx < MAX_SHIPS_PER_SIDE) {
+			float shipusefulness_part;
+			BYTE enemy_ship_cost;
+			SPECIES_ID enemy_ID;
+			enemy_ID	= enemy_ships_ids[enemy_idx];
+			enemy_ship_cost	= enemy_ships_costs[enemy_idx];
+
+			if(enemy_ID == NO_ID) {
+				enemy_idx++;
+				continue;
+			}
+			shipusefulness_part  = enemy_ship_cost/my_ship_cost * _counter_getBest_calcLocalMetric(enemy_ID, my_ID, enemy_ship_cost);
+/*
+			shipusefulness_part *= shipusefulness_part;
+
+			shipusefulness	    += shipusefulness_part;
+*/
+			if(shipusefulness_part > shipusefulness*(1+1E-10))
+				shipusefulness = shipusefulness_part;
+
+			enemy_idx++;
+		}
+
+//		shipusefulness = sqrt(shipusefulness);	// total: r = sqrt(a*a + b*b + c*c + ...)
+
+		shipsusefulness[my_idx] = shipusefulness;
+		my_idx++;
+	}
+
+	return shipsusefulness;
+}
 
 COUNT
 counter_getBest (SIZE my_playerNr)
@@ -1111,12 +1204,14 @@ counter_getBest (SIZE my_playerNr)
 	HELEMENT hObject, hNextObject;
 	ELEMENT *ObjectPtr;
 	COUNT idx_best, idx_enemy;
-	float metric, metric_best, metric_enemy;
+	float *usefulness;
+	float metric, metric_best, metric_enemy, metric_local;
 	HSTARSHIP my_hShip, my_hNextShip;
 	QUEUE *my_ship_q = &race_q[my_playerNr];
 	STARSHIP *EnemyShipPtr;
 
-	idx_enemy	=  NO_ID;
+	idx_enemy	= MAX_SHIPS_PER_SIDE;
+	enemy_ID	= NO_ID;
 
 	for (hObject = GetHeadElement (); hObject; hObject = hNextObject)
 	{
@@ -1135,9 +1230,12 @@ counter_getBest (SIZE my_playerNr)
 		UnlockElement (hObject);
 	}
 
+
 	metric_best = METRIC_INITIAL;
 	for (my_hShip = GetHeadLink (my_ship_q); my_hShip != 0; my_hShip = my_hNextShip)
 	{
+		char end_reached;
+
 		STARSHIP *my_StarShipPtr = LockStarShip (my_ship_q, my_hShip);
 		my_ID = my_StarShipPtr->SpeciesID;
 		my_hNextShip = _GetSuccLink (my_StarShipPtr);
@@ -1146,7 +1244,22 @@ counter_getBest (SIZE my_playerNr)
 		if(my_ID == NO_ID)
 			continue;
 
-		metric = _counter_getBest_getMetric_recursive(my_playerNr, my_hShip, my_hShip/*my_ID, my_StarShipPtr->index*/, 0, 0, my_playerNr, &metric_enemy, idx_enemy, enemy_ID/*, EnemyShipPtr*/, NULL);
+		usefulness = counter_getShipsUsefulness(my_playerNr);
+
+		end_reached=1;
+		metric = _counter_getBest_getMetric_recursive(my_playerNr, my_hShip, my_hShip/*my_ID, my_StarShipPtr->index*/, 0, 0, my_playerNr, &metric_enemy, idx_enemy, enemy_ID/*, EnemyShipPtr*/, &metric_local, &end_reached);
+
+		if(!end_reached) { // selecting from few good variants if end of ships is not reached while calculating the metric
+			float k, metric_k, rnd;
+			int percents;
+			k = sqrt(sqrt(usefulness[my_StarShipPtr->index]/metric_local));
+
+			metric_k = metric*k;
+
+			rnd 	 = sqrt((float)((unsigned int)TFB_Random()%101))*10;
+			percents = 100-rnd;
+			metric   = (metric*(100-percents))/100 + (metric_k*percents)/100;
+		}
 
 		if (metric < metric_best || metric_best < -METRIC_ZERO)
 		{
