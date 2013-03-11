@@ -22,6 +22,7 @@
 #define METRIC_INITIAL (-1)
 #define METRIC_ZERO (1E-10)
 #define METRIC_LOSS (1E+6)
+#define METRIC_WIN 0
 #define METRIC_MIDDLE(ship_cost) (_counter_getBest_calcLocalMetric(NO_ID, NO_ID, ship_cost))
 
 #define MAX_SKIPS	3
@@ -944,15 +945,15 @@ _counter_getBest_calcLocalMetric(SPECIES_ID my_ID, SPECIES_ID enemy_ID, BYTE my_
 }
 
 float
-_counter_getBest_getMetric_recursive(SIZE my_playerNr, HSTARSHIP my_hShip, HSTARSHIP hShip, /*SPECIES_ID my_ID, COUNT idx, */int my_skips, int enemy_skips, SIZE pick_playerNr, float *p_metric_enemy, /*STARSHIP *EnemyShipPtr,*/ COUNT enemy_idx_already, SPECIES_ID enemy_ID_already)
+_counter_getBest_getMetric_recursive(SIZE my_playerNr, HSTARSHIP my_hShip, HSTARSHIP hShip, int my_skips, int enemy_skips, SIZE pick_playerNr, float *p_metric_enemy, COUNT enemy_idx_already, SPECIES_ID enemy_ID_already, float *p_metric_local)
 {
 	int ships_left;
 	static COUNT skip[NUM_PLAYERS][MAX_SHIPS_PER_SIDE];
 	SIZE enemy_playerNr = !my_playerNr;
-	QUEUE *enemy_ship_q = &race_q[enemy_playerNr]/*, *enemy_ship_q = &race_q[enemy_playerNr]*/;
+	QUEUE *enemy_ship_q = &race_q[enemy_playerNr];
 	SPECIES_ID enemy_ID;
-	HSTARSHIP enemy_hShip, enemy_hNextShip/*, enemy_hShip, enemy_hNextShip*/;
-	float metric_best, metric, metric_continue, metric_enemy, metric_enemy_best, metric_my;
+	HSTARSHIP enemy_hShip, enemy_hNextShip;
+	float metric_best, metric, metric_continue, metric_enemy, metric_enemy_r, metric_enemy_best, metric_my, metric_local, metric_local_enemy;
 
 	QUEUE *my_ship_q 	= &race_q[my_playerNr];
 	STARSHIP *my_StarShipPtr = LockStarShip (my_ship_q, my_hShip);
@@ -972,8 +973,12 @@ _counter_getBest_getMetric_recursive(SIZE my_playerNr, HSTARSHIP my_hShip, HSTAR
 		skip[enemy_playerNr	][enemy_skips++	] = idx;
 
 	
-	if(my_skips >= MAX_SKIPS || enemy_skips >= MAX_SKIPS)
+	if(my_skips >= MAX_SKIPS || enemy_skips >= MAX_SKIPS) {
+		if(p_metric_local != NULL)
+			*p_metric_local = METRIC_MIDDLE(ship_cost);
+		*p_metric_enemy = METRIC_MIDDLE(ship_cost);
 		return METRIC_MIDDLE(ship_cost);
+	}
 
 	ships_left		= 0;
 	metric_best		= METRIC_INITIAL;
@@ -994,11 +999,6 @@ _counter_getBest_getMetric_recursive(SIZE my_playerNr, HSTARSHIP my_hShip, HSTAR
 			// TODO: find-out what is with lock-up mechanisms
 			enemy_idx = enemy_idx_already;
 			enemy_ID  = enemy_ID_already;
-/*
-			enemy_StarShipPtr = EnemyShipPtr;
-			enemy_idx = enemy_StarShipPtr->index;
-			enemy_ID  = enemy_StarShipPtr->SpeciesID;
-*/
 //			log_add (log_Debug, "enemy ID: %i\n", enemy_ID);
 			lastship=1;
 		} else {
@@ -1026,29 +1026,63 @@ _counter_getBest_getMetric_recursive(SIZE my_playerNr, HSTARSHIP my_hShip, HSTAR
 
 		if(!skipthisship) {
 			ships_left++;
-			metric_continue	 = _counter_getBest_getMetric_recursive(my_playerNr, 	my_hShip,	enemy_hShip,	my_skips, 	enemy_skips,	enemy_playerNr, p_metric_enemy,	MAX_SHIPS_PER_SIDE, 0);
-			metric_enemy 	 = _counter_getBest_getMetric_recursive(enemy_playerNr,	enemy_hShip,	enemy_hShip,	enemy_skips, 	my_skips,	enemy_playerNr, &metric_my,	MAX_SHIPS_PER_SIDE, 0);
+			metric_continue	 = _counter_getBest_getMetric_recursive(my_playerNr, 	my_hShip,	enemy_hShip,	my_skips, 	enemy_skips,	enemy_playerNr, &metric_enemy_r,MAX_SHIPS_PER_SIDE, 0, &metric_local);
+			metric_enemy 	 = _counter_getBest_getMetric_recursive(enemy_playerNr,	enemy_hShip,	enemy_hShip,	enemy_skips, 	my_skips,	enemy_playerNr, &metric_my,	MAX_SHIPS_PER_SIDE, 0, &metric_local_enemy);
 
-//			log_add (log_Debug, "METRICS: %f %f %f %f\n", metric_continue, *p_metric_enemy, metric_enemy, metric_my);
+			//log_add (log_Debug, "METRICS: %f %f %f %f %f %f\n", metric_continue, metric_enemy_r, metric_enemy, metric_my, metric_local, METRIC_MIDDLE(ship_cost)*2);
 
 			metric   	 = _counter_getBest_calcLocalMetric(my_ID, enemy_ID, ship_cost); // metric for current battle
+
+//			log_add (log_Debug, "METRICS-S: %f\n", metric);
+			skipthisship += metric_my;
+			skipthisship += metric_local;
+			skipthisship += metric_continue;
+			skipthisship += METRIC_MIDDLE(ship_cost);
+
 			metric		+=	metric_my*(
-							metric_continue > (METRIC_MIDDLE(ship_cost)*2) 	? 
-							1 					: 
-							metric_continue / (METRIC_MIDDLE(ship_cost)*2)
+							metric_local > (METRIC_MIDDLE(ship_cost)*2) 	? 
+							1 						: 
+							metric_local / (METRIC_MIDDLE(ship_cost)*2)
 						);	
 				// metric if picking new ship * probability of picking new ship
 
-			metric_continue	*= (((METRIC_MIDDLE(ship_cost)*2) - metric_continue)/(METRIC_MIDDLE(ship_cost)*2)); // * probability that old ship will survive
+//			log_add (log_Debug, "METRICS-S: %f\n", metric);
+
+			metric_continue	*= (((METRIC_MIDDLE(ship_cost)*2) - metric_local)/(METRIC_MIDDLE(ship_cost)*2)); // * probability that old ship will survive
 			metric_continue	 = metric_continue>0 ? metric_continue : 0;			// probablity cannot be less than zero
 
 			metric		+= metric_continue;	// + metric if continue using of old ship * probability that old ship will survive
 
+//			log_add (log_Debug, "METRICS-S: %f\n", metric);
+
 			if (metric < metric_best || metric_best < -METRIC_ZERO)
 			{
-				metric_best		= metric;
-				metric_enemy_best	= metric_enemy;
-//				log_add (log_Debug, "SET: %f %i\n", metric_best, enemy_ID);
+
+				if(p_metric_local != NULL)
+					*p_metric_local	 = metric;
+
+				skipthisship += metric_enemy;
+				skipthisship += metric_local;
+				skipthisship += METRIC_MIDDLE(ship_cost);
+
+				metric_enemy_best =	metric_enemy*(
+
+								metric_local > (METRIC_MIDDLE(ship_cost)*2) 	? 
+								1 					: 
+								metric_local / (METRIC_MIDDLE(ship_cost)*2)
+							);	
+					// metric if picking new ship * probability of picking new ship
+
+//				log_add (log_Debug, "METRICS-E: %f\n", metric);
+
+				metric_enemy_r	 *= (((METRIC_MIDDLE(ship_cost)*2) - metric_local)/(METRIC_MIDDLE(ship_cost)*2)); // * probability that old ship will survive
+				metric_enemy_r	  = metric_enemy_r>0 ? metric_enemy_r : 0;			// probablity cannot be less than zero
+
+				metric_enemy_best+= metric_enemy_r;	// + metric if continue using of old ship * probability that old ship will survive
+//				log_add (log_Debug, "METRICS-E: %f\n", metric);
+
+				metric_best	  = metric;
+//				log_add (log_Debug, "SET: %f %f %i\n", metric_best, metric_enemy_best, enemy_ID);
 			}
 //			log_add (log_Debug, "CALC: %f %i %i %i\n", metric, enemy_ID, my_skips, enemy_skips);
 		}
@@ -1057,10 +1091,17 @@ _counter_getBest_getMetric_recursive(SIZE my_playerNr, HSTARSHIP my_hShip, HSTAR
 			break;
 	}
 
-//	log_add (log_Debug, "RET: %f %i %i %i\n", metric_best > -METRIC_ZERO ? metric_best : 0, my_skips, enemy_skips, my_ID);
-	*p_metric_enemy = metric_enemy_best > -METRIC_ZERO ? metric_enemy_best : METRIC_LOSS;
-	return metric_best > -METRIC_ZERO ? metric_best : 0;
+	if(metric_best <= -METRIC_ZERO) {
+		metric_enemy_best	= METRIC_LOSS;
+		metric_best		= METRIC_WIN;
+		if(p_metric_local != NULL)
+			*p_metric_local = METRIC_WIN;
+	}
+//	log_add (log_Debug, "RET: %f %i %i %i %f\n", metric_best > -METRIC_ZERO ? metric_best : METRIC_ZERO, my_skips, enemy_skips, my_ID, metric_enemy_best);
+	*p_metric_enemy = metric_enemy_best;
+	return metric_best;
 }
+
 
 COUNT
 counter_getBest (SIZE my_playerNr)
@@ -1105,7 +1146,7 @@ counter_getBest (SIZE my_playerNr)
 		if(my_ID == NO_ID)
 			continue;
 
-		metric = _counter_getBest_getMetric_recursive(my_playerNr, my_hShip, my_hShip/*my_ID, my_StarShipPtr->index*/, 0, 0, my_playerNr, &metric_enemy, idx_enemy, enemy_ID/*, EnemyShipPtr*/);
+		metric = _counter_getBest_getMetric_recursive(my_playerNr, my_hShip, my_hShip/*my_ID, my_StarShipPtr->index*/, 0, 0, my_playerNr, &metric_enemy, idx_enemy, enemy_ID/*, EnemyShipPtr*/, NULL);
 
 		if (metric < metric_best || metric_best < -METRIC_ZERO)
 		{
