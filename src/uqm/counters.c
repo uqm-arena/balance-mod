@@ -27,6 +27,8 @@
 #define METRIC_WIN 0
 #define METRIC_MIDDLE(ship_cost) (_counter_getBest_calcLocalMetric(NO_ID, NO_ID, ship_cost))
 
+#define RATING_KOEFFICIENT_OF_USELESS 0.75
+
 #define MAX_SKIPS	3
 
 // [Warping in ID0][Staying ID1], ID0 winning probability
@@ -1183,7 +1185,9 @@ counter_getShipsUsefulness(SIZE my_playerNr)
 					enemy_idx++;
 					continue;
 				}
+
 				shipusefulness_part  = enemy_ship_cost/my_ship_cost * _counter_getBest_calcLocalMetric(enemy_ID, my_ID, enemy_ship_cost);
+
 				if(shipusefulness_part > shipusefulness*(1+1E-10)) {
 					int i;
 					i=0;
@@ -1194,30 +1198,31 @@ counter_getShipsUsefulness(SIZE my_playerNr)
 						}
 
 						if(countering[i] == enemy_idx) {
-							if(shipusefulness_part*(1+1E-10) >= shipsusefulness[i])
-								break;
-							else {
-								countering[i] = MAX_SHIPS_PER_SIDE;
+							if(shipusefulness_part >= shipsusefulness[i]*(1+1E-10)) {
+								shipsusefulness[i] = shipsusefulness[i] * RATING_KOEFFICIENT_OF_USELESS;
+								countering[i]      = MAX_SHIPS_PER_SIDE;
 								oneloopmore |= 1;
-							}
+							} else
+								break;
 						}
 						i++;
 					}
 					if(i == MAX_SHIPS_PER_SIDE) {
 						countering[my_idx] = enemy_idx;
-						shipusefulness = shipusefulness_part;
 						oneloopmore |= 2;
-					}
+					} 
+					shipusefulness = shipusefulness_part;
 				}
 
 				enemy_idx++;
 			}
 
-			shipsusefulness[my_idx] = shipusefulness;
+			shipsusefulness[my_idx] = (countering[my_idx] == MAX_SHIPS_PER_SIDE  ?  RATING_KOEFFICIENT_OF_USELESS  :  1)
+							* shipusefulness;
+			log_add (log_Debug, "%i\t%f\t%i\t%f", my_idx, shipsusefulness[my_idx], countering[my_idx], (countering[my_idx] == MAX_SHIPS_PER_SIDE  ?  RATING_KOEFFICIENT_OF_USELESS  :  1));
 			my_idx++;
 		}
 	} while(oneloopmore == (1|2));
-
 
 	i=0;
 	while(i<MAX_SHIPS_PER_SIDE) 
