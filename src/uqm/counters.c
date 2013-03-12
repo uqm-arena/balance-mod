@@ -1151,66 +1151,78 @@ counter_getShipsUsefulness(SIZE my_playerNr)
 	while(i<MAX_SHIPS_PER_SIDE) 
 		countering[i++]	  = MAX_SHIPS_PER_SIDE;
 
-	int my_idx=0;
-	while(my_idx < MAX_SHIPS_PER_SIDE) {
-		SPECIES_ID my_ID;
-		float shipusefulness;
-		BYTE my_ship_cost;
-		my_ID 		= my_ships_ids[my_idx];
-		my_ship_cost	= my_ships_costs[my_idx];
+	char oneloopmore;
+	do {
+		oneloopmore=0;
+		int my_idx=0;
+		while(my_idx < MAX_SHIPS_PER_SIDE) {
+			SPECIES_ID my_ID;
+			float shipusefulness;
+			BYTE my_ship_cost;
+			my_ID 		= my_ships_ids[my_idx];
+			my_ship_cost	= my_ships_costs[my_idx];
 
-		if((my_ID == NO_ID) || (countering[my_idx] != MAX_SHIPS_PER_SIDE)) {
-			my_idx++;
-			continue;
-		}
-
-		shipusefulness = 0;
-
-		int enemy_idx;
-		enemy_idx=0;
-
-		while(enemy_idx < MAX_SHIPS_PER_SIDE) {
-			float shipusefulness_part;
-			BYTE enemy_ship_cost;
-			SPECIES_ID enemy_ID;
-			enemy_ID	= enemy_ships_ids[enemy_idx];
-			enemy_ship_cost	= enemy_ships_costs[enemy_idx];
-
-			if(enemy_ID == NO_ID) {
-				enemy_idx++;
+			if((my_ID == NO_ID) || (countering[my_idx] != MAX_SHIPS_PER_SIDE)) {
+				my_idx++;
 				continue;
 			}
-			shipusefulness_part  = enemy_ship_cost/my_ship_cost * _counter_getBest_calcLocalMetric(enemy_ID, my_ID, enemy_ship_cost);
-			if(shipusefulness_part > shipusefulness*(1+1E-10)) {
-				int i;
-				i=0;
-				while(i<MAX_SHIPS_PER_SIDE) {
-					if((my_ships_ids[i] == NO_ID) || (i == my_idx)) {
-						i++;
-						continue;
-					}
 
-					if(countering[i] == enemy_idx) {
-						if(shipusefulness_part*(1-1E-10) >= shipsusefulness[i])
-							break;
-						else
-							countering[i] = MAX_SHIPS_PER_SIDE;
+			shipusefulness = 0;
+
+			int enemy_idx;
+			enemy_idx=0;
+
+			while(enemy_idx < MAX_SHIPS_PER_SIDE) {
+				float shipusefulness_part;
+				BYTE enemy_ship_cost;
+				SPECIES_ID enemy_ID;
+				enemy_ID	= enemy_ships_ids[enemy_idx];
+				enemy_ship_cost	= enemy_ships_costs[enemy_idx];
+
+				if(enemy_ID == NO_ID) {
+					enemy_idx++;
+					continue;
+				}
+				shipusefulness_part  = enemy_ship_cost/my_ship_cost * _counter_getBest_calcLocalMetric(enemy_ID, my_ID, enemy_ship_cost);
+				if(shipusefulness_part > shipusefulness*(1+1E-10)) {
+					int i;
+					i=0;
+					while(i<MAX_SHIPS_PER_SIDE) {
+						if((my_ships_ids[i] == NO_ID) || (i == my_idx)) {
+							i++;
+							continue;
+						}
+
+						if(countering[i] == enemy_idx) {
+							if(shipusefulness_part*(1-1E-10) >= shipsusefulness[i])
+								break;
+							else {
+								countering[i] = MAX_SHIPS_PER_SIDE;
+								oneloopmore=1;
+							}
+						}
+						i++;
 					}
-					i++;
+					if(i == MAX_SHIPS_PER_SIDE) {
+						countering[my_idx] = enemy_idx;
+						shipusefulness = shipusefulness_part;
+					}
 				}
-				if(i == MAX_SHIPS_PER_SIDE) {
-					countering[my_idx] = enemy_idx;
-					shipusefulness = shipusefulness_part;
-				}
+
+				enemy_idx++;
 			}
 
-			enemy_idx++;
+			shipsusefulness[my_idx] = shipusefulness;
+			my_idx++;
 		}
+	} while(oneloopmore);
 
-		shipsusefulness[my_idx] = shipusefulness;
-		my_idx++;
-	}
-
+/*
+	i=0;
+	while(i<MAX_SHIPS_PER_SIDE) 
+		printf("%i ", countering[i++]);
+	printf("\n");
+*/
 	return shipsusefulness;
 }
 
