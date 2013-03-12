@@ -226,31 +226,31 @@ static float WINNING_PROBABILITY_TABLE[NUM_SPECIES_ID][NUM_SPECIES_ID] = {
 	{ // SHOFIXTI_ID
 		1,	// NO_ID
 		0.50,	// ARILOU_ID
-		0.50,	// CHMMR_ID
-		0.40,	// EARTHLING_ID
-		0.50,	// ORZ_ID
-		0.25,	// PKUNK_ID
+		0.05,	// CHMMR_ID
+		0.20,	// EARTHLING_ID
+		0.25,	// ORZ_ID
+		0.10,	// PKUNK_ID
 		0.50,	// SHOFIXTI_ID
 		0.10,	// SPATHI_ID
-		0.30,	// SUPOX_ID
-		0.25,	// THRADDASH_ID
-		0.25,	// UTWIG_ID
-		0.45,	// VUX_ID
-		0.25,	// YEHAT_ID
-		0.40,	// MELNORME_ID
-		0.50,	// DRUUGE_ID
-		0.30,	// ILWRATH_ID
+		0.25,	// SUPOX_ID
+		0.20,	// THRADDASH_ID
+		0.05,	// UTWIG_ID
+		0.15,	// VUX_ID
+		0.05,	// YEHAT_ID
+		0.15,	// MELNORME_ID
+		0.30,	// DRUUGE_ID
+		0.20,	// ILWRATH_ID
 		0.65,	// MYCON_ID
-		0.20,	// SLYLANDRO_ID
+		0.05,	// SLYLANDRO_ID
 		0.35,	// UMGAH_ID
-		0.20,	// UR_QUAN_ID
-		0.35,	// ZOQFOTPIK_ID
-		0.45,	// SYREEN_ID
-		0.15,	// KOHR_AH_ID
-		0.25,	// ANDROSYNTH_ID
-		0.25,	// CHENJESU_ID
-		0.35,	// MMRNMHRM_ID
-		0.20,	// SIS_SHIP_ID
+		0.05,	// UR_QUAN_ID
+		0.25,	// ZOQFOTPIK_ID
+		0.20,	// SYREEN_ID
+		0.05,	// KOHR_AH_ID
+		0.20,	// ANDROSYNTH_ID
+		0.05,	// CHENJESU_ID
+		0.05,	// MMRNMHRM_ID
+		0.05,	// SIS_SHIP_ID
 		0.05,	// SA_MATRA_ID
 		0.50,	// UR_QUAN_PROBE_ID
 	},
@@ -1286,7 +1286,7 @@ counter_getBest (SIZE my_playerNr)
 
 		if(counter_getBest_count == 1 /* the first pick */) {
 			end_reached=1;
-			metric = usefulness[my_StarShipPtr->index] * my_StarShipPtr->ship_cost;
+			metric = usefulness[my_StarShipPtr->index] * my_StarShipPtr->ship_cost * my_StarShipPtr->ship_cost;
 		} else { // Not the first pick
 			end_reached=1;
 			metric = _counter_getBest_getMetric_recursive(my_playerNr, my_hShip, my_hShip/*my_ID, my_StarShipPtr->index*/, 0, 0, my_playerNr, &metric_enemy, idx_enemy, enemy_ID/*, EnemyShipPtr*/, &metric_local, &end_reached);
