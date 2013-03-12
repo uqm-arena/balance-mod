@@ -1198,7 +1198,7 @@ counter_getShipsUsefulness(SIZE my_playerNr)
 								break;
 							else {
 								countering[i] = MAX_SHIPS_PER_SIDE;
-								oneloopmore=1;
+								oneloopmore |= 1;
 							}
 						}
 						i++;
@@ -1206,6 +1206,7 @@ counter_getShipsUsefulness(SIZE my_playerNr)
 					if(i == MAX_SHIPS_PER_SIDE) {
 						countering[my_idx] = enemy_idx;
 						shipusefulness = shipusefulness_part;
+						oneloopmore |= 2;
 					}
 				}
 
@@ -1215,14 +1216,14 @@ counter_getShipsUsefulness(SIZE my_playerNr)
 			shipsusefulness[my_idx] = shipusefulness;
 			my_idx++;
 		}
-	} while(oneloopmore);
+	} while(oneloopmore == (1|2));
 
-/*
+
 	i=0;
 	while(i<MAX_SHIPS_PER_SIDE) 
 		printf("%i ", countering[i++]);
 	printf("\n");
-*/
+
 	return shipsusefulness;
 }
 
@@ -1297,17 +1298,17 @@ counter_getBest (SIZE my_playerNr)
 			rnd	/= 1000*1000*1000;			// -1             .. 1		    [2x centered]
 			rnd	 = (rnd+1)*50;				//  0		  .. 100	    [2x centered to "50"]
 			percents = rnd;
-//			log_add (log_Debug, "%f %f %i (%f)", metric, metric_k, percents, rnd);
+			log_add (log_Debug, "%i %f %f %i (%f)", my_ID, metric, metric_k, percents, rnd);
 
 			metric   = (metric*(100-percents))/100 + (metric_k*percents)/100;
-//			log_add (log_Debug, "R: %f", metric);
+			log_add (log_Debug, "R: %f", metric);
 		}
 
 		if (metric < metric_best || metric_best < -METRIC_ZERO)
 		{
 			metric_best	= metric;
 			idx_best	= my_StarShipPtr->index;
-//			log_add (log_Debug, "-> %f\n", metric_best);
+			log_add (log_Debug, "-> %f\n", metric_best);
 		}
 
 //		log_add (log_Debug, "%f\n", metric);
