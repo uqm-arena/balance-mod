@@ -1140,11 +1140,16 @@ counter_getShipsUsefulness(SIZE my_playerNr)
 	static float shipsusefulness[MAX_SHIPS_PER_SIDE];
 	SPECIES_ID my_ships_ids[MAX_SHIPS_PER_SIDE], enemy_ships_ids[MAX_SHIPS_PER_SIDE];
 	BYTE my_ships_costs[MAX_SHIPS_PER_SIDE], enemy_ships_costs[MAX_SHIPS_PER_SIDE];
+	COUNT countering[MAX_SHIPS_PER_SIDE];
 
 	SIZE enemy_playerNr 	= !my_playerNr;
 
 	_counter_getShipsUsefulness_getShipIDs(my_playerNr, 	my_ships_ids,		my_ships_costs);
 	_counter_getShipsUsefulness_getShipIDs(enemy_playerNr, 	enemy_ships_ids,	enemy_ships_costs);
+
+	int i=0;
+	while(i<MAX_SHIPS_PER_SIDE) 
+		countering[i++]	  = MAX_SHIPS_PER_SIDE;
 
 	int my_idx=0;
 	while(my_idx < MAX_SHIPS_PER_SIDE) {
@@ -1154,7 +1159,7 @@ counter_getShipsUsefulness(SIZE my_playerNr)
 		my_ID 		= my_ships_ids[my_idx];
 		my_ship_cost	= my_ships_costs[my_idx];
 
-		if(my_ID == NO_ID) {
+		if((my_ID == NO_ID) || (countering[my_idx] != MAX_SHIPS_PER_SIDE)) {
 			my_idx++;
 			continue;
 		}
@@ -1176,18 +1181,31 @@ counter_getShipsUsefulness(SIZE my_playerNr)
 				continue;
 			}
 			shipusefulness_part  = enemy_ship_cost/my_ship_cost * _counter_getBest_calcLocalMetric(enemy_ID, my_ID, enemy_ship_cost);
-/*
-			shipusefulness_part *= shipusefulness_part;
+			if(shipusefulness_part > shipusefulness*(1+1E-10)) {
+				int i;
+				i=0;
+				while(i<MAX_SHIPS_PER_SIDE) {
+					if((my_ships_ids[i] == NO_ID) || (i == my_idx)) {
+						i++;
+						continue;
+					}
 
-			shipusefulness	    += shipusefulness_part;
-*/
-			if(shipusefulness_part > shipusefulness*(1+1E-10))
-				shipusefulness = shipusefulness_part;
+					if(countering[i] == enemy_idx) {
+						if(shipusefulness_part*(1-1E-10) >= shipsusefulness[i])
+							break;
+						else
+							countering[i] = MAX_SHIPS_PER_SIDE;
+					}
+					i++;
+				}
+				if(i == MAX_SHIPS_PER_SIDE) {
+					countering[my_idx] = enemy_idx;
+					shipusefulness = shipusefulness_part;
+				}
+			}
 
 			enemy_idx++;
 		}
-
-//		shipusefulness = sqrt(shipusefulness);	// total: r = sqrt(a*a + b*b + c*c + ...)
 
 		shipsusefulness[my_idx] = shipusefulness;
 		my_idx++;
@@ -1255,11 +1273,22 @@ counter_getBest (SIZE my_playerNr)
 
 			metric_k = metric*k;
 
-			rnd 	 = sqrt((float)((unsigned int)TFB_Random()%101))*10;
-			percents = 100-rnd;
-		//	log_add (log_Debug, "%f %f %i", metric, metric_k, percents);
+			// Random is for humanlikely behaviour
+
+			rnd 	 = (float)(TFB_Random()%2001);		// 0		  .. 2 000	    [evenly]
+//			log_add (log_Debug, "%f\n", rnd);
+			rnd	-= 1000;				// -1 000         .. 1 000	    [evenly]
+//			log_add (log_Debug, "%f\n", rnd);
+			rnd	 = rnd*rnd*rnd;				// -1 000 000 000 .. 1 000 000 000  [centered]
+			rnd	/= 1000*1000;				// -1 000         .. 1 000	    [centered]
+			rnd	 = rnd*rnd*rnd;				// -1 000 000 000 .. 1 000 000 000  [2x centered]
+			rnd	/= 1000*1000*1000;			// -1             .. 1		    [2x centered]
+			rnd	 = (rnd+1)*50;				//  0		  .. 100	    [2x centered to "50"]
+			percents = rnd;
+//			log_add (log_Debug, "%f %f %i (%f)", metric, metric_k, percents, rnd);
+
 			metric   = (metric*(100-percents))/100 + (metric_k*percents)/100;
-		//	log_add (log_Debug, "R: %f", metric);
+//			log_add (log_Debug, "R: %f", metric);
 		}
 
 		if (metric < metric_best || metric_best < -METRIC_ZERO)
