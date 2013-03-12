@@ -1235,6 +1235,7 @@ counter_getShipsUsefulness(SIZE my_playerNr)
 COUNT
 counter_getBest (SIZE my_playerNr)
 {
+	static int counter_getBest_count=0;
 	SIZE enemy_playerNr = !my_playerNr;
 	SPECIES_ID enemy_ID, my_ID;
 	HELEMENT hObject, hNextObject;
@@ -1245,6 +1246,8 @@ counter_getBest (SIZE my_playerNr)
 	HSTARSHIP my_hShip, my_hNextShip;
 	QUEUE *my_ship_q = &race_q[my_playerNr];
 	STARSHIP *EnemyShipPtr;
+
+	counter_getBest_count++;
 
 	idx_enemy	= MAX_SHIPS_PER_SIDE;
 	enemy_ID	= NO_ID;
@@ -1281,8 +1284,13 @@ counter_getBest (SIZE my_playerNr)
 		if(my_ID == NO_ID)
 			continue;
 
-		end_reached=1;
-		metric = _counter_getBest_getMetric_recursive(my_playerNr, my_hShip, my_hShip/*my_ID, my_StarShipPtr->index*/, 0, 0, my_playerNr, &metric_enemy, idx_enemy, enemy_ID/*, EnemyShipPtr*/, &metric_local, &end_reached);
+		if(counter_getBest_count == 1 /* the first pick */) {
+			end_reached=1;
+			metric = usefulness[my_StarShipPtr->index] * my_StarShipPtr->ship_cost;
+		} else { // Not the first pick
+			end_reached=1;
+			metric = _counter_getBest_getMetric_recursive(my_playerNr, my_hShip, my_hShip/*my_ID, my_StarShipPtr->index*/, 0, 0, my_playerNr, &metric_enemy, idx_enemy, enemy_ID/*, EnemyShipPtr*/, &metric_local, &end_reached);
+		}
 
 		if(!end_reached) { // selecting from few good variants if end of ships is not reached while calculating the metric
 			float k, metric_k, rnd;
@@ -1316,7 +1324,7 @@ counter_getBest (SIZE my_playerNr)
 			log_add (log_Debug, "-> %f\n", metric_best);
 		}
 
-//		log_add (log_Debug, "%f\n", metric);
+		log_add (log_Debug, "M: %f\n", metric);
 	}
 
 	log_add (log_Debug, "_____SELECTING A SHIP: %i_____\n", idx_best);
