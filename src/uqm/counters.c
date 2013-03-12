@@ -1194,7 +1194,7 @@ counter_getShipsUsefulness(SIZE my_playerNr)
 						}
 
 						if(countering[i] == enemy_idx) {
-							if(shipusefulness_part*(1-1E-10) >= shipsusefulness[i])
+							if(shipusefulness_part*(1+1E-10) >= shipsusefulness[i])
 								break;
 							else {
 								countering[i] = MAX_SHIPS_PER_SIDE;
@@ -1318,4 +1318,8 @@ counter_getBest (SIZE my_playerNr)
 	return idx_best;
 }
 
+char
+counter_shouldRunAway(STARSHIP *StarShipPtr) {
+	return 1;
+}
 

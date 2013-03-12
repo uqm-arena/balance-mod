@@ -1013,7 +1013,7 @@ tactical_intelligence (ComputerInputContext *context, STARSHIP *StarShipPtr)
 	COUNT ConcernCounter;
 	EVALUATE_DESC ObjectsOfConcern[10];
 	BOOLEAN ShipMoved, UltraManeuverable;
-	STARSHIP *EnemyStarShipPtr;
+	STARSHIP *EnemyStarShipPtr = NULL;
 	RACE_DESC *RDPtr;
 	RACE_DESC *EnemyRDPtr;
 
@@ -1314,6 +1314,10 @@ tactical_intelligence (ComputerInputContext *context, STARSHIP *StarShipPtr)
 #ifdef DEBUG_CYBORG
 StarShipPtr->ship_input_state &= ~SPECIAL;
 #endif /* DEBUG_CYBORG */
+
+	if(EnemyStarShipPtr == NULL && StarShipPtr->cur_status_flags&PLAY_VICTORY_DITTY)
+		if(counter_shouldRunAway(StarShipPtr)) 
+			return BATTLE_ESCAPE;
 
 	StarShipPtr->ShipFacing = ShipFacing;
 	{
