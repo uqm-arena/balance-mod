@@ -29,7 +29,8 @@
 
 #define RATING_KOEFFICIENT_OF_USELESS 0.75
 
-#define MAX_SKIPS	3
+#define METRIC_DEPTH	3
+#define RATING_DEPTH	3
 
 // [Warping in ID0][Staying ID1], ID0 winning probability
 static float WINNING_PROBABILITY_TABLE[NUM_SPECIES_ID][NUM_SPECIES_ID] = {
@@ -977,7 +978,7 @@ _counter_getBest_getMetric_recursive(SIZE my_playerNr, HSTARSHIP my_hShip, HSTAR
 		skip[enemy_playerNr	][enemy_skips++	] = idx;
 
 	
-	if(my_skips >= MAX_SKIPS || enemy_skips >= MAX_SKIPS) {
+	if(my_skips >= METRIC_DEPTH || enemy_skips >= METRIC_DEPTH) {
 		if(p_metric_local != NULL)
 			*p_metric_local = METRIC_MIDDLE(ship_cost);
 		*p_metric_enemy = METRIC_MIDDLE(ship_cost);
@@ -1137,19 +1138,14 @@ _counter_getShipsUsefulness_getShipIDs(SIZE playerNr, SPECIES_ID *ships_ids, BYT
 }
 
 float *
-counter_getShipsUsefulness(SIZE my_playerNr)
+_counter_getShipsUsefulness(int depth, SPECIES_ID *my_ships_ids, SPECIES_ID *enemy_ships_ids, BYTE *my_ships_costs, BYTE *enemy_ships_costs, float *enemyshipsproblemness)
 {
 	static float shipsusefulness[MAX_SHIPS_PER_SIDE];
-	SPECIES_ID my_ships_ids[MAX_SHIPS_PER_SIDE], enemy_ships_ids[MAX_SHIPS_PER_SIDE];
-	BYTE my_ships_costs[MAX_SHIPS_PER_SIDE], enemy_ships_costs[MAX_SHIPS_PER_SIDE];
 	COUNT countering[MAX_SHIPS_PER_SIDE];
+	int i;
+//	SIZE enemy_playerNr 	= !my_playerNr;
 
-	SIZE enemy_playerNr 	= !my_playerNr;
-
-	_counter_getShipsUsefulness_getShipIDs(my_playerNr, 	my_ships_ids,		my_ships_costs);
-	_counter_getShipsUsefulness_getShipIDs(enemy_playerNr, 	enemy_ships_ids,	enemy_ships_costs);
-
-	int i=0;
+	i=0;
 	while(i<MAX_SHIPS_PER_SIDE) 
 		countering[i++]	  = MAX_SHIPS_PER_SIDE;
 
@@ -1186,48 +1182,92 @@ counter_getShipsUsefulness(SIZE my_playerNr)
 					continue;
 				}
 
-				shipusefulness_part  = enemy_ship_cost/my_ship_cost * _counter_getBest_calcLocalMetric(enemy_ID, my_ID, enemy_ship_cost);
+				shipusefulness_part  = enemyshipsproblemness[enemy_idx] * WINNING_PROBABILITY_TABLE[my_ID][enemy_ID];
 
-				if(shipusefulness_part > shipusefulness*(1+1E-10)) {
-					int i;
-					i=0;
-					while(i<MAX_SHIPS_PER_SIDE) {
-						if((my_ships_ids[i] == NO_ID) || (i == my_idx)) {
+				if(depth) {
+					shipusefulness_part *= shipusefulness_part;
+					shipusefulness      += shipusefulness_part * enemy_ship_cost/my_ship_cost;
+				} else {
+					if(shipusefulness_part > shipusefulness*(1+1E-10)) {
+						int i;
+						i=0;
+						while(i<MAX_SHIPS_PER_SIDE) {
+							if((my_ships_ids[i] == NO_ID) || (i == my_idx)) {
+								i++;
+								continue;
+							}
+
+							if(countering[i] == enemy_idx) {
+								if(shipusefulness_part >= shipsusefulness[i]*(1+1E-10)) {
+									shipsusefulness[i] = shipsusefulness[i] * RATING_KOEFFICIENT_OF_USELESS;
+									countering[i]      = MAX_SHIPS_PER_SIDE;
+									oneloopmore |= 1;
+								} else
+									break;
+							}
 							i++;
-							continue;
 						}
-
-						if(countering[i] == enemy_idx) {
-							if(shipusefulness_part >= shipsusefulness[i]*(1+1E-10)) {
-								shipsusefulness[i] = shipsusefulness[i] * RATING_KOEFFICIENT_OF_USELESS;
-								countering[i]      = MAX_SHIPS_PER_SIDE;
-								oneloopmore |= 1;
-							} else
-								break;
-						}
-						i++;
+						if(i == MAX_SHIPS_PER_SIDE) {
+							countering[my_idx] = enemy_idx;
+							oneloopmore |= 2;
+						} 
+						shipusefulness = shipusefulness_part;
 					}
-					if(i == MAX_SHIPS_PER_SIDE) {
-						countering[my_idx] = enemy_idx;
-						oneloopmore |= 2;
-					} 
-					shipusefulness = shipusefulness_part;
 				}
 
 				enemy_idx++;
 			}
 
-			shipsusefulness[my_idx] = (countering[my_idx] == MAX_SHIPS_PER_SIDE  ?  RATING_KOEFFICIENT_OF_USELESS  :  1)
+			if(depth) {
+				shipsusefulness[my_idx] = sqrt(shipusefulness);
+			} else 
+				shipsusefulness[my_idx] = 
+					(countering[my_idx] == MAX_SHIPS_PER_SIDE  ?  RATING_KOEFFICIENT_OF_USELESS  :  1)
 							* shipusefulness;
-			log_add (log_Debug, "%i\t%f\t%i\t%f", my_idx, shipsusefulness[my_idx], countering[my_idx], (countering[my_idx] == MAX_SHIPS_PER_SIDE  ?  RATING_KOEFFICIENT_OF_USELESS  :  1));
+
+			log_add (log_Debug, "%i\t%i\t%f\t%i\t%f", depth, my_idx, shipsusefulness[my_idx], countering[my_idx], (countering[my_idx] == MAX_SHIPS_PER_SIDE  ?  RATING_KOEFFICIENT_OF_USELESS  :  1));
+			assert(!isinf(shipsusefulness[my_idx]));
 			my_idx++;
 		}
 	} while(oneloopmore == (1|2));
 
+/*
+	if(!depth) {
+		i=0;
+		while(i<MAX_SHIPS_PER_SIDE) 
+			printf("%i ", countering[i++]);
+		printf("\n");
+	}
+*/
+
+	return shipsusefulness;
+}
+
+float *
+counter_getShipsUsefulness(SIZE my_playerNr, int depth)
+{
+	static float shipsusefulness[MAX_SHIPS_PER_SIDE], *shipsusefulness_t, *enemyshipsproblemness;
+	SPECIES_ID my_ships_ids[MAX_SHIPS_PER_SIDE], enemy_ships_ids[MAX_SHIPS_PER_SIDE];
+	BYTE my_ships_costs[MAX_SHIPS_PER_SIDE], enemy_ships_costs[MAX_SHIPS_PER_SIDE];
+	int i;
+
+	SIZE enemy_playerNr 	= !my_playerNr;
+
+	_counter_getShipsUsefulness_getShipIDs(my_playerNr, 	my_ships_ids,		my_ships_costs);
+	_counter_getShipsUsefulness_getShipIDs(enemy_playerNr, 	enemy_ships_ids,	enemy_ships_costs);
+
 	i=0;
-	while(i<MAX_SHIPS_PER_SIDE) 
-		printf("%i ", countering[i++]);
-	printf("\n");
+	while(i<MAX_SHIPS_PER_SIDE) {
+		shipsusefulness[i] = my_ships_costs[i];
+		i++;
+	}
+
+	while(depth>0) {
+		depth--;
+		enemyshipsproblemness 	= _counter_getShipsUsefulness(depth, enemy_ships_ids, my_ships_ids, enemy_ships_costs, my_ships_costs, shipsusefulness);
+		shipsusefulness_t	= _counter_getShipsUsefulness(depth, my_ships_ids, enemy_ships_ids, my_ships_costs, enemy_ships_costs, enemyshipsproblemness);
+		memcpy(shipsusefulness, shipsusefulness_t, sizeof(shipsusefulness));
+	}
 
 	return shipsusefulness;
 }
@@ -1269,7 +1309,7 @@ counter_getBest (SIZE my_playerNr)
 		UnlockElement (hObject);
 	}
 
-	usefulness = counter_getShipsUsefulness(my_playerNr);
+	usefulness = counter_getShipsUsefulness(my_playerNr, RATING_DEPTH);
 
 	metric_best = METRIC_INITIAL;
 	for (my_hShip = GetHeadLink (my_ship_q); my_hShip != 0; my_hShip = my_hNextShip)
@@ -1311,23 +1351,23 @@ counter_getBest (SIZE my_playerNr)
 			rnd	/= 1000*1000*1000;			// -1             .. 1		    [2x centered]
 			rnd	 = (rnd+1)*50;				//  0		  .. 100	    [2x centered to "50"]
 			percents = rnd;
-			log_add (log_Debug, "%i %f %f %i (%f)", my_ID, metric, metric_k, percents, rnd);
+//			log_add (log_Debug, "%i %f %f %i (%f)", my_ID, metric, metric_k, percents, rnd);
 
 			metric   = (metric*(100-percents))/100 + (metric_k*percents)/100;
-			log_add (log_Debug, "R: %f", metric);
+//			log_add (log_Debug, "R: %f", metric);
 		}
 
 		if (metric < metric_best || metric_best < -METRIC_ZERO)
 		{
 			metric_best	= metric;
 			idx_best	= my_StarShipPtr->index;
-			log_add (log_Debug, "-> %f\n", metric_best);
+//			log_add (log_Debug, "-> %f\n", metric_best);
 		}
 
-		log_add (log_Debug, "M: %f\n", metric);
+//		log_add (log_Debug, "M: %f\n", metric);
 	}
 
-	log_add (log_Debug, "_____SELECTING A SHIP: %i_____\n", idx_best);
+//	log_add (log_Debug, "_____SELECTING A SHIP: %i_____\n", idx_best);
 
 	return idx_best;
 }
