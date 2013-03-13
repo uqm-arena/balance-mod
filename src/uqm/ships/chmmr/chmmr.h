@@ -18,6 +18,7 @@
 #define CHMMR_H
 
 RACE_DESC *init_chmmr (void);
+void satellite_preprocess (ELEMENT *ElementPtr);
 
 #endif  /* CHMMR_H */
 

@@ -21,6 +21,7 @@
 #include "counters.h"
 #include "libs/log.h"
 #include "options.h"
+#include "ships/chmmr/chmmr.h"
 
 #define METRIC_INITIAL (-1)
 #define METRIC_ZERO (1E-10)
@@ -987,7 +988,7 @@ static float WINNING_PROBABILITY_TABLE_ADDITION[NUM_TABLE_ADDITIONS][NUM_SPECIES
 		0.40,	// CHMMR_ID
 		0.95,	// EARTHLING_ID
 		0.40,	// ORZ_ID
-		0.65,	// PKUNK_ID
+		0.70,	// PKUNK_ID
 		0.95,	// SHOFIXTI_ID
 		0.65,	// SPATHI_ID
 		0.95,	// SUPOX_ID
@@ -1018,7 +1019,7 @@ static float WINNING_PROBABILITY_TABLE_ADDITION[NUM_TABLE_ADDITIONS][NUM_SPECIES
 		0.35,	// CHMMR_ID
 		0.90,	// EARTHLING_ID
 		0.35,	// ORZ_ID
-		0.50,	// PKUNK_ID
+		0.65,	// PKUNK_ID
 		0.90,	// SHOFIXTI_ID
 		0.55,	// SPATHI_ID
 		0.70,	// SUPOX_ID
@@ -1045,16 +1046,16 @@ static float WINNING_PROBABILITY_TABLE_ADDITION[NUM_TABLE_ADDITIONS][NUM_SPECIES
 	},
 	{ // CHMMR_WITH_0SAT 
 		1,	// NO_ID
-		0.90,	// ARILOU_ID
-		0.50,	// CHMMR_ID
-		0.99,	// EARTHLING_ID
-		0.50,	// ORZ_ID
-		0.75,	// PKUNK_ID
-		0.50,	// SHOFIXTI_ID
-		0.65,	// SPATHI_ID
-		0.95,	// SUPOX_ID
-		0.80,	// THRADDASH_ID
-		0.75,	// UTWIG_ID
+		0.50,	// ARILOU_ID
+		0.30,	// CHMMR_ID
+		0.90,	// EARTHLING_ID
+		0.20,	// ORZ_ID
+		0.45,	// PKUNK_ID
+		0.70,	// SHOFIXTI_ID
+		0.50,	// SPATHI_ID
+		0.55,	// SUPOX_ID
+		0.65,	// THRADDASH_ID
+		0.70,	// UTWIG_ID
 		0.60,	// VUX_ID
 		0.60,	// YEHAT_ID
 		0.80,	// MELNORME_ID
@@ -1199,7 +1200,6 @@ _counter_getBest_getMetric_recursive(SIZE my_playerNr, HSTARSHIP my_hShip, HSTAR
 			enemy_ID  = enemy_StarShipPtr->SpeciesID;
 			enemy_hNextShip = _GetSuccLink (enemy_StarShipPtr);
 			UnlockStarShip (enemy_ship_q, enemy_hShip);
-			enemy_sID = enemy_ships_sids[enemy_idx];
 
 			if(enemy_ID == NO_ID) {
 				skipthisship=1;
@@ -1215,6 +1215,7 @@ _counter_getBest_getMetric_recursive(SIZE my_playerNr, HSTARSHIP my_hShip, HSTAR
 				}
 			}
 		}
+		enemy_sID = enemy_ships_sids[enemy_idx];
 //		log_add (log_Debug, "SKIP TEST: %i %i\n", enemy_idx, skipthisship);
 
 		if(!skipthisship) {
@@ -1319,22 +1320,17 @@ _counter_getChmmrSatellites(STARSHIP *ChmmrStarShipPtr) {
 		{
 			onBattleField=1;
 
-			if (!(ElementPtr->state_flags & CREW_OBJECT)
-					|| ElementPtr->preprocess_func != crew_preprocess)
-			{
-				switch(StarShipPtr->SpeciesID) {
-					case CHMMR_ID:
-						satellites++;
-						break;
-					default:
-						break;
-				}
-			}
+//			if (!(ElementPtr->state_flags & CREW_OBJECT)
+//					|| ElementPtr->preprocess_func != crew_preprocess)
+			if (ElementPtr->preprocess_func == satellite_preprocess)
+				satellites++;
 		}
 
 		UnlockElement (hElement);
 	}
 	
+	log_add(log_Debug, "SAT: %i", satellites);
+
 	if(onBattleField)
 		return satellites;
 	

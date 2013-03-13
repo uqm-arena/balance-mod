@@ -430,7 +430,7 @@ chmmr_postprocess (ELEMENT *ElementPtr)
 	StarShipPtr->special_counter = 0;
 }
 
-static void
+void
 satellite_preprocess (ELEMENT *ElementPtr)
 {
 	STARSHIP *StarShipPtr;
