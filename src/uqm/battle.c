@@ -47,7 +47,7 @@
 
 BYTE battle_counter[NUM_SIDES];
 		// The number of ships still available for battle to each side.
-		// A ship that has warped out is no longer available.
+		// [SINGLE PLAYER]: A ship that has warped out is no longer available.
 BOOLEAN instantVictory;
 size_t battleInputOrder[NUM_SIDES];
 		// Indices of the sides in the order their input is processed.
@@ -481,6 +481,7 @@ Battle (BattleFrameCallback *callback)
 #endif  /* NETPLAY_CHECKSUM */
 		battleFrameCount = 0;
 		ResetWinnerStarShip ();
+		counter_init ();
 		setBattleStateConnections (&bs);
 #endif  /* NETPLAY */
 
