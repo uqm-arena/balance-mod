@@ -16,5 +16,5 @@ then
     zip -r $1 balance
 else
     cd content/addons
-    zip -r balance-effects-unified.zip balance
+    zip -r improved-netmelee-effects.zip balance
 fi
