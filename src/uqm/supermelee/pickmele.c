@@ -398,6 +398,15 @@ GetRaceQueueValue (const QUEUE *queue) {
 		
 		if (StarShipPtr->SpeciesID == NO_ID)
 			continue;  // Not active any more.
+		/* TODO: verify this is actually set to NULL initially */
+		if (StarShipPtr->RaceDescPtr != NULL)
+		{
+			if (StarShipPtr->RaceDescPtr->ship_info.crew_level != StarShipPtr->RaceDescPtr->ship_info.max_crew)
+			{ /* The ship is damaged, assign a partial value */
+				result += (StarShipPtr->ship_cost * ((double) calculate_crew_percentage (StarShipPtr) / 100));
+				continue;
+			}
+		}
 
 		result += StarShipPtr->ship_cost;
 
@@ -757,6 +766,10 @@ MeleeShipDeath (STARSHIP *ship)
 	frame = SetAbsFrameIndex (PickMeleeFrame, ship->playerNr);
 	CrossOutShip (frame, ship->index);
 	UpdatePickMeleeFleetValue (frame, ship->playerNr);
+
+	/* update fleet value for the opposite side */
+	frame = SetAbsFrameIndex (PickMeleeFrame,  (ship->playerNr == 1) ? 0 : 1);
+	UpdatePickMeleeFleetValue (frame, (ship->playerNr == 1) ? 0 : 1);
 }
 
 // Post: the NetState for all players is NetState_interBattle
