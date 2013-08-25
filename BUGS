@@ -1,5 +1,10 @@
-All known bugs and missing features are listed in our online bug database,
-which can be found at
-	http://bugs.uqm.stack.nl/
-New bugs that you may find can be reported at the same location.
+Known bugs regarding the Improved Netmelee Mod can be viewed, and new bugs
+can be reported, at the GitHub issue tracker:
+	https://github.com/Roisack/Shiver-Balance-Mod/issues?state=open
 
+All known bugs and missing features for UQM itself are listed in the online
+bug database, which can be found at
+	http://bugs.uqm.stack.nl/
+New bugs that you may find can be reported at the same location - but please
+make sure they occur in unmodified UQM as well first, if not please use the
+Improved Netmelee Mod issue tracker.

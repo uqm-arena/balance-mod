@@ -1,3 +1,10 @@
+This changelog  contains changes made in upstream UQM only, for changes
+made by the Improved Netmelee Mod please see the detailed summary at:
+	http://wiki.uqm.stack.nl/User:Shiver/Balance_Mod/List_of_Changes
+
+as well as the Git revision history, accessible online at:
+	https://github.com/Roisack/Shiver-Balance-Mod/commits/master
+
 Changes towards version 0.7:
 - Build with debug info in strict-debug mode (bug #1127), from Scott A. Colcord
 - Added spoken Slylandro probe coordinates (bug #732) - Nic, Alex
@@ -353,7 +360,7 @@ Changes towards version 0.7:
 
 0.5:
 - Innocent original c&p bug fixed, from bpoint.
-- Handle relative dirs in -C correctly, from Jan Lönnberg (part of bug #738).
+- Handle relative dirs in -C correctly, from Jan Lï¿½nnberg (part of bug #738).
 - Internationalization fixes: moved many hardcoded English strings
   into string resource file starcon.txt (bug #778), from Andrew Zabolotny
 - Melee Scale and Slides/Movies now take effect immediately - Michael
@@ -447,7 +454,7 @@ Changes towards version 0.7:
   for compilation on VC6. - Alex
 - New 2x scaler 'hq' (by Maxim Stepin; www.hiend3d.com/hq2x.html) - Alex
 - Removed MikMod i/o hacks (using MREADER i/o now; bug #787) - Alex
-- Fixed fast escape weirdness (bug #619) - from Jan Lönnberg
+- Fixed fast escape weirdness (bug #619) - from Jan Lï¿½nnberg
 - New topographical 4x planet surface scaler (bug #786) - Alex
 - Added support for Tremor for Ogg Vorbis decoding (avoids floating point
   math) - SvdB
@@ -561,7 +568,7 @@ Changes towards version 0.7:
   (bug #683) - Michael
 - Fixed crash when restarting Sa-Matra battle after abort (bug #700) -Alex
 - Some cleanups, enabling successful build with GCC 4 (bug #710),
-  mostly from Ville SkyttÃ -SvdB
+  mostly from Ville Skyttï¿½ -SvdB
 - Sa-Matra portrait now fills the portrait space (bug #514), from Nic
 - Updated melee images with original DOS content; should resolve most
   captain portrait issues (bug #183)  -Alex
