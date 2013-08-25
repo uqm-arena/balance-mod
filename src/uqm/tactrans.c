@@ -796,8 +796,13 @@ ship_death (ELEMENT *ShipPtr)
 		}
 	}
 
-	assert (StarShipPtr->playerNr >= 0);
-	battle_counter[StarShipPtr->playerNr]--;
+
+	/* Don't stomp on respawning Pkunk */
+	if (!StarShipPtr->is_respawning)
+	{
+		assert (StarShipPtr->playerNr >= 0);
+		battle_counter[StarShipPtr->playerNr]--;
+	}
 
 	if (VictoriousStarShipPtr != NULL)
 		VictoriousStarShipPtr->cur_status_flags |= PLAY_VICTORY_DITTY;

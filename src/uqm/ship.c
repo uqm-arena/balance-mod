@@ -455,7 +455,8 @@ spawn_ship (STARSHIP *StarShipPtr)
 			RDPtr->ship_info.crew_level = RDPtr->ship_info.max_crew;
 	}
 
-	if(IS_COMINGBACK(StarShipPtr)) {
+	if (IS_COMINGBACK (StarShipPtr))
+	{
 		// To preserve slowness due to vux' limpets
 		memcpy(
 				&StarShipPtr->RaceDescPtr->characteristics,

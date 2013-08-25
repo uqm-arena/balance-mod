@@ -37,18 +37,18 @@ BEGIN
     BEGIN
         BLOCK "040904b0"
         BEGIN
-            VALUE "Comments", "See http://sc2.sourceforge.net\0"
-            VALUE "CompanyName", "sc2.sourceforge.net\0"
-            VALUE "FileDescription", "The Ur-Quan Masters main executable\0"
+            VALUE "Comments", "Github project page at https://github.com/Roisack/Shiver-Balance-Mod\0"
+            VALUE "CompanyName", "http://wiki.uqm.stack.nl/User:Shiver/Balance_Mod\0"
+            VALUE "FileDescription", "The Netmelee Improvement Mod executable\0"
             VALUE "FileVersion", UQM_STRING_VERSION "\0"
-            VALUE "InternalName", "uqm\0"
-            VALUE "LegalCopyright", "(C) 1992-1993, 2002-2011 by respective authors\0"
+            VALUE "InternalName", "uqm-improved-netmelee\0"
+            VALUE "LegalCopyright", "(C) 1992-1993, 2002-2013 by respective authors\0"
 #ifdef _DEBUG
-            VALUE "OriginalFilename", "uqmdebug.exe\0"
+            VALUE "OriginalFilename", "uqm-improved-netmelee-debug.exe\0"
 #else
-            VALUE "OriginalFilename", "uqm.exe\0"
+            VALUE "OriginalFilename", "uqm-improved-netmelee.exe\0"
 #endif
-            VALUE "ProductName", "The Ur-Quan Masters\0"
+            VALUE "ProductName", "The Ur-Quan Masters Netmelee Improvement Mod\0"
             VALUE "ProductVersion", UQM_STRING_VERSION "\0"
             VALUE "SpecialBuild", "Alpha\0"
         END
@@ -67,7 +67,7 @@ END
 
 // Icon with lowest ID value placed first to ensure application icon
 // remains consistent on all systems.
-SDL_app            ICON    PRELOAD DISCARDABLE "ur-quan-icon-alpha.ico"
+SDL_app            ICON    PRELOAD DISCARDABLE "torch-icon-alpha.ico"
 102                ICON    DISCARDABLE     "ur-quan-icon-std.ico"
 103                ICON    DISCARDABLE     "ur-quan1.ico"
 104                ICON    DISCARDABLE     "sis1.ico"

@@ -17,12 +17,7 @@
 #ifndef _SETUP_H
 #define _SETUP_H
 
-/* Obsolete since a new configure option was added.
- * Re-activate if it's ever removed.
-
 #define RETREAT_SETUPMENU
-
- */
 
 #include "displist.h"
 #include "globdata.h"

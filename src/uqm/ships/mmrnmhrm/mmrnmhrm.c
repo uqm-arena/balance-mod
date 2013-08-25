@@ -19,6 +19,7 @@
 #include "../ship.h"
 #include "mmrnmhrm.h"
 #include "resinst.h"
+#include "libs/log.h"
 
 // Core characteristics
 #define MAX_CREW 20
@@ -321,6 +322,58 @@ mmrnmhrm_postprocess (ELEMENT *ElementPtr)
 		// To fix transition trail shape
 		if (ElementPtr->state_flags & APPEARING)
 			ElementPtr->current.image.farray = ElementPtr->next.image.farray;
+	}
+	{
+		CHARACTERISTIC_STUFF* original_otherwing_desc;
+		original_otherwing_desc = ((CHARACTERISTIC_STUFF *)StarShipPtr->RaceDescPtr->data);
+		if ((StarShipPtr->RaceDescPtr->characteristics.max_thrust) ==
+			(original_otherwing_desc->max_thrust))
+		{ /* Our transformation characteristics are screwed up, probably from
+		   * retreating. We'll have to fix them. */
+			if (StarShipPtr->RaceDescPtr->characteristics.max_thrust == YWING_MAX_THRUST)
+			{ /* We are in Y-Wing mode, set the otherwing to X-Wing */
+				CHARACTERISTIC_STUFF* otherwing_desc;
+				
+				otherwing_desc = HMalloc (sizeof (*otherwing_desc));
+				otherwing_desc->max_thrust = MAX_THRUST;
+				otherwing_desc->thrust_increment = THRUST_INCREMENT;
+				otherwing_desc->energy_regeneration = ENERGY_REGENERATION;
+				otherwing_desc->weapon_energy_cost = WEAPON_ENERGY_COST;
+				otherwing_desc->special_energy_cost = SPECIAL_ENERGY_COST;
+				otherwing_desc->energy_wait = ENERGY_WAIT;
+				otherwing_desc->turn_wait = TURN_WAIT;
+				otherwing_desc->thrust_wait = THRUST_WAIT;
+				otherwing_desc->weapon_wait = WEAPON_WAIT;
+				otherwing_desc->special_wait = SPECIAL_WAIT;
+				otherwing_desc->ship_mass = SHIP_MASS;
+			
+			StarShipPtr->RaceDescPtr->data = (intptr_t) otherwing_desc;
+			} else if (StarShipPtr->RaceDescPtr->characteristics.max_thrust == MAX_THRUST)
+			{ /* We are in X-Wing mode, set the otherwing to Y-Wing */
+				CHARACTERISTIC_STUFF* otherwing_desc;
+				
+				otherwing_desc = HMalloc (sizeof (*otherwing_desc));
+				otherwing_desc->max_thrust = YWING_MAX_THRUST;
+				otherwing_desc->thrust_increment = YWING_THRUST_INCREMENT;
+				otherwing_desc->energy_regeneration = YWING_ENERGY_REGENERATION;
+				otherwing_desc->weapon_energy_cost = YWING_WEAPON_ENERGY_COST;
+				otherwing_desc->special_energy_cost = YWING_SPECIAL_ENERGY_COST;
+				otherwing_desc->energy_wait = YWING_ENERGY_WAIT;
+				otherwing_desc->turn_wait = YWING_TURN_WAIT;
+				otherwing_desc->thrust_wait = YWING_THRUST_WAIT;
+				otherwing_desc->weapon_wait = YWING_WEAPON_WAIT;
+				otherwing_desc->special_wait = YWING_SPECIAL_WAIT;
+				otherwing_desc->ship_mass = SHIP_MASS;
+			
+			StarShipPtr->RaceDescPtr->data = (intptr_t) otherwing_desc;
+			} else 
+			/* Should never happen - if there's some way to thow a fatal error, we should do it here */
+			{
+				log_add (log_Error, "WARNING - Mmrnmhrm transformation data is corrupted."
+				"\tsrc/uqm/ships/mmrnmhrm.c:322\n");
+			}
+		}
+		
 	}
 }
 

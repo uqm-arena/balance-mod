@@ -233,6 +233,7 @@ extern void FreeElement (HELEMENT hElement);
 extern void RemoveElement (HLINK hLink);
 
 // XXX: The following functions should not really be here
+
 extern void spawn_planet (void);
 extern void spawn_asteroid (ELEMENT *ElementPtr);
 extern void do_damage (ELEMENT *ElementPtr, SIZE damage);
@@ -241,6 +242,8 @@ extern void crew_collision (ELEMENT *ElementPtr0, POINT *pPt0,
 		ELEMENT *ElementPtr1, POINT *pPt1);
 extern void AbandonShip (ELEMENT *ShipPtr, ELEMENT *TargetPtr,
 		COUNT crew_loss);
+extern void draw_reticle (ELEMENT* ElementPtr);
+
 extern BOOLEAN Overlap (ELEMENT *ElementPtr); // Possibly *ElementPtr instead
 //extern BOOLEAN TimeSpaceMatterConflict (ELEMENT *ElementPtr);
 extern COUNT PlotIntercept (ELEMENT *ElementPtr0,
@@ -251,7 +254,6 @@ extern void MoveGalaxy (VIEW_STATE view_state, SIZE dx, SIZE dy);
 
 extern BOOLEAN CalculateGravity (ELEMENT *ElementPtr);
 
-extern void draw_reticle (ELEMENT* ElementPtr);
-
 #endif /* _ELEMENT_H */
+
 
