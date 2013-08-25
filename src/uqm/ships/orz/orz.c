@@ -197,7 +197,8 @@ initialize_turret_missile (ELEMENT *ShipPtr, HELEMENT MissileArray[])
 	return (1);
 }
 
-static BYTE
+/* Un-staticed to use elsewhere */
+BYTE
 count_marines (STARSHIP *StarShipPtr, BOOLEAN FindSpot)
 {
 	BYTE num_marines, id_use[MAX_MARINES];
