@@ -64,6 +64,11 @@
 static void reportShipSelected (GETMELEE_STATE *gms, COUNT index);
 #endif
 
+typedef enum
+{
+	SIMPLE_VALUE = 0,
+	ADJUSTED_VALUE = 1
+} VALUE_TYPE;
 
 FRAME PickMeleeFrame;
 
@@ -441,9 +446,9 @@ CountAbsenteeCrew (STARSHIP *StarShipPtr)
 	return ((marine_count > crew_object_count) ? marine_count : crew_object_count);
 }
 
-static COUNT
-GetRaceQueueValue (const QUEUE *queue) {
-	COUNT result;
+static double
+GetRaceQueueValue (const QUEUE *queue, VALUE_TYPE adjust_value) {
+	double result;
 	HSTARSHIP hBattleShip, hNextShip;
 
 	result = 0;
@@ -456,8 +461,8 @@ GetRaceQueueValue (const QUEUE *queue) {
 		if (StarShipPtr->SpeciesID == NO_ID)
 			continue;  // Not active any more.
 
-		/* This can be called with no ships spawned, and thus with RaceDescPtr uninitialized. */
-		if (StarShipPtr->RaceDescPtr != NULL)
+		/* This can be called on un-spawned ships, and thus with RaceDescPtr uninitialized. */
+		if (adjust_value && StarShipPtr->RaceDescPtr != NULL)
 		{
 			if (StarShipPtr->RaceDescPtr->ship_info.crew_level != 
 				(StarShipPtr->RaceDescPtr->ship_info.max_crew + CountAbsenteeCrew (StarShipPtr))
@@ -566,12 +571,14 @@ static void
 UpdatePickMeleeFleetValue (FRAME frame, COUNT which_player)
 {
 	CONTEXT OldContext;
-	COUNT value;
+	COUNT simple_value;
+	double adjusted_value;
 	RECT r;
 	TEXT t;
 	UNICODE buf[40];
 	
-	value = GetRaceQueueValue (&race_q[which_player]);
+	simple_value   = GetRaceQueueValue (&race_q[which_player], SIMPLE_VALUE);
+	adjusted_value = GetRaceQueueValue (&race_q[which_player], ADJUSTED_VALUE);
 
 	OldContext = SetContext (OffScreenContext);
 	SetContextFGFrame (frame);
@@ -580,15 +587,19 @@ UpdatePickMeleeFleetValue (FRAME frame, COUNT which_player)
 	GetFrameRect (frame, &r);
 	r.extent.width -= 4;
 	t.baseline.x = r.extent.width;
-	r.corner.x = r.extent.width - (6 * 3);
+	r.corner.x = r.extent.width - (6 * 11);
 	r.corner.y = 2;
-	r.extent.width = (6 * 3);
+	r.extent.width = (6 * 11);
 	r.extent.height = 7 - 2;
 	SetContextForeGroundColor (PICK_BG_COLOR);
 	DrawFilledRectangle (&r);
 
 	// Draw the new value text.
-	sprintf (buf, "%d", value);
+	if (simple_value == adjusted_value)
+		sprintf (buf, "%d", simple_value);
+	else
+		sprintf (buf, "%d (%.1f)", simple_value, adjusted_value);
+
 	t.baseline.y = 7;
 	t.align = ALIGN_RIGHT;
 	t.pStr = buf;
