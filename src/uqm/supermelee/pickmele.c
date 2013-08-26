@@ -464,9 +464,10 @@ GetRaceQueueValue (const QUEUE *queue, VALUE_TYPE adjust_value) {
 		/* This can be called on un-spawned ships, and thus with RaceDescPtr uninitialized. */
 		if (adjust_value && StarShipPtr->RaceDescPtr != NULL)
 		{
-			if (StarShipPtr->RaceDescPtr->ship_info.crew_level != 
-				(StarShipPtr->RaceDescPtr->ship_info.max_crew + CountAbsenteeCrew (StarShipPtr))
-			)
+			if ((StarShipPtr->RaceDescPtr->ship_info.crew_level !=
+					(StarShipPtr->RaceDescPtr->ship_info.max_crew + CountAbsenteeCrew (StarShipPtr))) ||
+			   ((StarShipPtr->SpeciesID == SYREEN_ID) &&
+					(StarShipPtr->RaceDescPtr->ship_info.crew_level != 12)))
 			{ /* The ship is damaged, assign a partial value */
 				result += (StarShipPtr->ship_cost *
 					((double) calculate_crew_percentage (StarShipPtr, CountAbsenteeCrew (StarShipPtr)) / 100));
