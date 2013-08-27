@@ -429,6 +429,12 @@ spawn_ship (STARSHIP *StarShipPtr)
 
 	StarShipPtr->RaceDescPtr = RDPtr;
 
+	/* 
+	 * Provide a copy of max_crew outside RaceDescPtr so crew percentages
+	 * can be calculated for retreated ships
+	 */
+	StarShipPtr->max_crew = StarShipPtr->RaceDescPtr->ship_info.max_crew;
+
 	StarShipPtr->ship_input_state = 0;
 	StarShipPtr->cur_status_flags = 0;
 	StarShipPtr->old_status_flags = 0;

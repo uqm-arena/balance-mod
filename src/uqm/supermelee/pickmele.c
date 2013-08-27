@@ -457,20 +457,30 @@ GetRaceQueueValue (const QUEUE *queue, VALUE_TYPE adjust_value) {
 	{
 		STARSHIP *StarShipPtr = LockStarShip (queue, hBattleShip);
 		hNextShip = _GetSuccLink (StarShipPtr);
-		
+		log_add (log_Debug, "%d", StarShipPtr->max_crew);
 		if (StarShipPtr->SpeciesID == NO_ID)
 			continue;  // Not active any more.
 
-		/* This can be called on un-spawned ships, and thus with RaceDescPtr uninitialized. */
-		if (adjust_value && StarShipPtr->RaceDescPtr != NULL)
+		if (adjust_value)
 		{
-			if ((StarShipPtr->RaceDescPtr->ship_info.crew_level !=
-					(StarShipPtr->RaceDescPtr->ship_info.max_crew + CountAbsenteeCrew (StarShipPtr))) ||
-			   ((StarShipPtr->SpeciesID == SYREEN_ID) &&
-					(StarShipPtr->RaceDescPtr->ship_info.crew_level != 12)))
+			/* This can be called on un-spawned ships, and thus with RaceDescPtr uninitialized. */
+			if (StarShipPtr->RaceDescPtr != NULL)
+			{
+				if ((StarShipPtr->RaceDescPtr->ship_info.crew_level !=
+						(StarShipPtr->RaceDescPtr->ship_info.max_crew + CountAbsenteeCrew (StarShipPtr))) ||
+				((StarShipPtr->SpeciesID == SYREEN_ID) &&
+						(StarShipPtr->RaceDescPtr->ship_info.crew_level != 12)))
+				{ /* The ship is damaged, assign a partial value */
+					result += (StarShipPtr->ship_cost *
+						((double) calculate_crew_percentage (StarShipPtr, CountAbsenteeCrew (StarShipPtr)) / 100));
+					continue;
+				}
+			} else if (((StarShipPtr->flee_counter) && (StarShipPtr->crew_level != StarShipPtr->max_crew)) ||
+					((StarShipPtr->SpeciesID == SYREEN_ID) &&
+						(StarShipPtr->crew_level != 12)))
 			{ /* The ship is damaged, assign a partial value */
 				result += (StarShipPtr->ship_cost *
-					((double) calculate_crew_percentage (StarShipPtr, CountAbsenteeCrew (StarShipPtr)) / 100));
+						((double) calculate_crew_percentage (StarShipPtr, 0) / 100));
 				continue;
 			}
 		}
