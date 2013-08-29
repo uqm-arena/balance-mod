@@ -474,9 +474,9 @@ GetRaceQueueValue (const QUEUE *queue, VALUE_TYPE adjust_value) {
 						((double) calculate_crew_percentage (StarShipPtr, CountAbsenteeCrew (StarShipPtr)) / 100));
 					continue;
 				}
-			} else if (((StarShipPtr->flee_counter) && (StarShipPtr->crew_level != StarShipPtr->max_crew)) ||
+			} else if ((StarShipPtr->flee_counter) && ((StarShipPtr->crew_level != StarShipPtr->max_crew) ||
 					((StarShipPtr->SpeciesID == SYREEN_ID) &&
-						(StarShipPtr->crew_level != 12)))
+						(StarShipPtr->crew_level != 12))))
 			{ /* The ship is damaged, assign a partial value */
 				result += (StarShipPtr->ship_cost *
 						((double) calculate_crew_percentage (StarShipPtr, 0) / 100));
