@@ -457,7 +457,6 @@ GetRaceQueueValue (const QUEUE *queue, VALUE_TYPE adjust_value) {
 	{
 		STARSHIP *StarShipPtr = LockStarShip (queue, hBattleShip);
 		hNextShip = _GetSuccLink (StarShipPtr);
-		log_add (log_Debug, "%d", StarShipPtr->max_crew);
 		if (StarShipPtr->SpeciesID == NO_ID)
 			continue;  // Not active any more.
 
