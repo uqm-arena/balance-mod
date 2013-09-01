@@ -434,7 +434,8 @@ draw_reticle (ELEMENT* ElementPtr)
 		{
 			GetElementStarShip (ObjectPtr, &EnemyShipPtr);
 			
-			if (StarShipPtr->SpeciesID == EnemyShipPtr->SpeciesID)
+			if ((StarShipPtr->SpeciesID == EnemyShipPtr->SpeciesID) &&
+				((StarShipPtr->SpeciesID != NO_ID) && (EnemyShipPtr->SpeciesID != NO_ID)))
 			{
 				hEnemyShip = hObject;
 				break;
