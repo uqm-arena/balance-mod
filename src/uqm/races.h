@@ -732,7 +732,6 @@ enum
 		BUILD_COLOR (MAKE_RGB15_INIT (0x14, 0x07, 0x1F), 0x39),  /* YEHAT_REBEL_SHIP */
 
 /* This is defined in misc.c and does not really belong here. */
-extern UWORD calculate_crew_percentage (STARSHIP* StarShipPtr);
+extern UWORD calculate_crew_percentage (STARSHIP * StarShipPtr, BYTE delta);
 
 #endif /* _RACES_H */
-
