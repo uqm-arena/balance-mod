@@ -165,7 +165,7 @@ initialize_turret_missile (ELEMENT *ShipPtr, HELEMENT MissileArray[])
 		NORMALIZE_FACING (StarShipPtr->ShipFacing + StarShipPtr->static_counter);
 	UnlockElement (GetSuccElement (ShipPtr));
 
-	MissileBlock.sender = (ShipPtr->state_flags & (GOOD_GUY | BAD_GUY)) | IGNORE_SIMILAR;
+	MissileBlock.sender = ShipPtr->playerNr;
 	MissileBlock.flags = IGNORE_SIMILAR;
 	MissileBlock.pixoffs = TURRET_OFFSET;
 	MissileBlock.speed = MISSILE_SPEED;
