@@ -34,6 +34,7 @@
 #include "setup.h"
 #include "sounds.h"
 #include "libs/mathlib.h"
+#include "ships/vux/vux.h" /* For vux_drawlimpet_onicon */
 // #include "ires_ind.h" <- not used, see rev 2958
 #include <libs/log.h>
 

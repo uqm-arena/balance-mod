@@ -510,7 +510,7 @@ calculate_crew_percentage (STARSHIP* StarShipPtr, BYTE delta)
 		{
 			if (StarShipPtr->SpeciesID == SYREEN_ID)
 			{
-												/* Syreen starting crew */
+				                                                                           /* 12 == Syreen starting crew */
 				return (UWORD) (((double)(StarShipPtr->RaceDescPtr->ship_info.crew_level + delta)) / (12.0) * (100));
 			} else if (StarShipPtr->RaceDescPtr->ship_info.crew_level + delta <= 0)
 			{
@@ -525,7 +525,7 @@ calculate_crew_percentage (STARSHIP* StarShipPtr, BYTE delta)
 	{ /* This ship has retreated and is currently not spawned, use StarShipPtr->crew_level */
 		if (StarShipPtr->SpeciesID == SYREEN_ID)
 		{
-									      /* Syreen starting crew */
+			                                                    /* 12 == Syreen starting crew */
 			return (UWORD) (((double)(StarShipPtr->crew_level + delta)) / (12.0) * (100));
 		} else if (StarShipPtr->crew_level + delta <= 0)
 		{
