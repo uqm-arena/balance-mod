@@ -1374,12 +1374,11 @@ SetGlobalOptions (GLOBALOPTS *opts)
 	optWhichShield = (opts->shield == OPTVAL_3DO) ? OPT_3DO : OPT_PC;
 	optMeleeScale = (opts->meleezoom == OPTVAL_3DO) ? TFB_SCALE_TRILINEAR : TFB_SCALE_STEP;
 	optWhichIntro = (opts->intro == OPTVAL_3DO) ? OPT_3DO : OPT_PC;
-<<<<<<< HEAD
-	opt_reticles = opts->reticles;
+
 	opt_ai_improved = opts->ai_improved;
-=======
+
 	opt_reticles = (opts->reticles == OPTVAL_ENABLED) ? TRUE : FALSE;
->>>>>>> master
+
 #ifdef RETREAT_SETUPMENU
 	opt_retreat = opts->retreat;
 	opt_retreat_wait = opts->retreat_wait;

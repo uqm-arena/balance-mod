@@ -50,7 +50,7 @@ InitStatusOffsets (void)
  * 
  * StarShipPtr: the starship crew is to be drawn for.
  */
-static void
+void
 draw_retreat_clock (STARSHIP *StarShipPtr)
 {
 	#define MAX_TIMER_DIGITS 3
