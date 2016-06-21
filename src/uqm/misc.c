@@ -434,7 +434,8 @@ draw_reticle (ELEMENT* ElementPtr)
 		{
 			GetElementStarShip (ObjectPtr, &EnemyShipPtr);
 			
-			if (StarShipPtr->SpeciesID == EnemyShipPtr->SpeciesID)
+			if ((StarShipPtr->SpeciesID == EnemyShipPtr->SpeciesID) &&
+				((StarShipPtr->SpeciesID != NO_ID) && (EnemyShipPtr->SpeciesID != NO_ID)))
 			{
 				hEnemyShip = hObject;
 				break;
@@ -490,27 +491,49 @@ draw_reticle (ELEMENT* ElementPtr)
 /*
  * Returns the percentage of normal full crew a ship has remaining.
  * Bloated Syreen gets a value < 100.
+ * 
+ * StarShipPtr - pointer to the desired STARSHIP object
+ * 
+ * delta - Delta to apply to the crew value before calculating
+ * percentage. Should usually be zero unless you have a good reason.
  */
 UWORD
-calculate_crew_percentage (STARSHIP* StarShipPtr)
+calculate_crew_percentage (STARSHIP* StarShipPtr, BYTE delta)
 {
-	/* 
-	 * We will divide by zero if we try to calculate crew percentage of a ship
-	 * with 0 max crew!
-	 */
-	if (StarShipPtr->RaceDescPtr->ship_info.max_crew != 0)
+	if (StarShipPtr->RaceDescPtr != NULL)
 	{
+		/* 
+		 * We will divide by zero if we try to calculate crew percentage of a ship
+		 * with 0 max crew!
+		 */
+		if (StarShipPtr->RaceDescPtr->ship_info.max_crew != 0)
+		{
+			if (StarShipPtr->SpeciesID == SYREEN_ID)
+			{
+				                                                                           /* 12 == Syreen starting crew */
+				return (UWORD) (((double)(StarShipPtr->RaceDescPtr->ship_info.crew_level + delta)) / (12.0) * (100));
+			} else if (StarShipPtr->RaceDescPtr->ship_info.crew_level + delta <= 0)
+			{
+				return (UWORD) 0.0;
+			} else
+			{
+				return (UWORD) (((double)(StarShipPtr->RaceDescPtr->ship_info.crew_level + delta)) /
+				((double)(StarShipPtr->RaceDescPtr->ship_info.max_crew)) * (100));
+			}
+		}
+	} else if (StarShipPtr->flee_counter)
+	{ /* This ship has retreated and is currently not spawned, use StarShipPtr->crew_level */
 		if (StarShipPtr->SpeciesID == SYREEN_ID)
 		{
-											   /* Syreen starting crew */
-			return (UWORD) (((double)(StarShipPtr->RaceDescPtr->ship_info.crew_level)) / (12.0) * (100));
-		} else if (StarShipPtr->RaceDescPtr->ship_info.crew_level <= 0)
+			                                                    /* 12 == Syreen starting crew */
+			return (UWORD) (((double)(StarShipPtr->crew_level + delta)) / (12.0) * (100));
+		} else if (StarShipPtr->crew_level + delta <= 0)
 		{
 			return (UWORD) 0.0;
 		} else
 		{
-			return (UWORD) (((double)(StarShipPtr->RaceDescPtr->ship_info.crew_level)) /
-			((double)(StarShipPtr->RaceDescPtr->ship_info.max_crew)) * (100));
+			return (UWORD) (((double)(StarShipPtr->crew_level + delta)) /
+			((double)(StarShipPtr->max_crew)) * (100));
 		}
 	}
 

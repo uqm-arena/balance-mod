@@ -1254,8 +1254,11 @@ GetGlobalOptions (GLOBALOPTS *opts)
 	opts->musicvol = (((int)(musicVolumeScale * 100.0f) + 2) / 5) * 5;
 	opts->sfxvol = (((int)(sfxVolumeScale * 100.0f) + 2) / 5) * 5;
 	opts->speechvol = (((int)(speechVolumeScale * 100.0f) + 2) / 5) * 5;
-	opts->reticles = opt_reticles;
+
 	opts->ai_improved = opt_ai_improved;
+
+	opts->reticles = opt_reticles ? OPTVAL_ENABLED : OPTVAL_DISABLED;
+
 #ifdef RETREAT_SETUPMENU
 	opts->retreat = opt_retreat;
 	opts->retreat_wait = opt_retreat_wait;
@@ -1371,8 +1374,12 @@ SetGlobalOptions (GLOBALOPTS *opts)
 	optWhichShield = (opts->shield == OPTVAL_3DO) ? OPT_3DO : OPT_PC;
 	optMeleeScale = (opts->meleezoom == OPTVAL_3DO) ? TFB_SCALE_TRILINEAR : TFB_SCALE_STEP;
 	optWhichIntro = (opts->intro == OPTVAL_3DO) ? OPT_3DO : OPT_PC;
+<<<<<<< HEAD
 	opt_reticles = opts->reticles;
 	opt_ai_improved = opts->ai_improved;
+=======
+	opt_reticles = (opts->reticles == OPTVAL_ENABLED) ? TRUE : FALSE;
+>>>>>>> master
 #ifdef RETREAT_SETUPMENU
 	opt_retreat = opts->retreat;
 	opt_retreat_wait = opts->retreat_wait;

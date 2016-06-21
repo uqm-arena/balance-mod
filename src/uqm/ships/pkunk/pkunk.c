@@ -214,6 +214,7 @@ new_pkunk (ELEMENT *ElementPtr)
 		ElementPtr->death_func =
 				(void (*) (ELEMENT *ElementPtr))
 						StarShipPtr->RaceDescPtr->init_weapon_func;
+		StarShipPtr->SpeciesID = PKUNK_ID;
 		StarShipPtr->RaceDescPtr->preprocess_func = pkunk_preprocess;
 		StarShipPtr->RaceDescPtr->postprocess_func = pkunk_postprocess;
 		StarShipPtr->RaceDescPtr->init_weapon_func = initialize_bug_missile;

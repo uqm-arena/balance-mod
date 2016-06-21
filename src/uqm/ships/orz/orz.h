@@ -23,5 +23,7 @@ void intruder_preprocess (ELEMENT *ElementPtr);
 void marine_collision (ELEMENT *ElementPtr0, POINT *pPt0,
 		ELEMENT *ElementPtr1, POINT *pPt1);
 
+extern BYTE count_marines (STARSHIP *StarShipPtr, BOOLEAN FindSpot);
+
 #endif  /* ORZ_H */
 

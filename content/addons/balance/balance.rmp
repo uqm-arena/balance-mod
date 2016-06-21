@@ -22,4 +22,7 @@ ship.urquan.graphics.special.medium = GFXRES:addons/balance/ships/urquan/special
 ship.urquan.graphics.special.small = GFXRES:addons/balance/ships/urquan/special-sml.ani
 ship.urquan.sounds = SNDRES:addons/balance/ships/urquan/dreadnought.snd
 ship.vux.sounds = SNDRES:addons/balance/ships/vux/intruder.snd
+ship.vux.graphics.limpets.large = GFXRES:addons/balance/ships/vux/limpets-big.ani
+ship.vux.graphics.limpets.medium = GFXRES:addons/balance/ships/vux/limpets-med.ani
+ship.vux.graphics.limpets.small = GFXRES:addons/balance/ships/vux/limpets-sml.ani
 ship.zoqfotpik.graphics.proboscis.large = GFXRES:addons/balance/ships/zoqfotpik/proboscis-big.ani

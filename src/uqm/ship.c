@@ -34,6 +34,7 @@
 #include "setup.h"
 #include "sounds.h"
 #include "libs/mathlib.h"
+#include "ships/vux/vux.h" /* For vux_drawlimpet_onicon */
 // #include "ires_ind.h" <- not used, see rev 2958
 #include <libs/log.h>
 
@@ -430,6 +431,12 @@ spawn_ship (STARSHIP *StarShipPtr)
 		return FALSE;
 
 	StarShipPtr->RaceDescPtr = RDPtr;
+
+	/* 
+	 * Provide a copy of max_crew outside RaceDescPtr so crew percentages
+	 * can be calculated for retreated ships
+	 */
+	StarShipPtr->max_crew = StarShipPtr->RaceDescPtr->ship_info.max_crew;
 
 	StarShipPtr->ship_input_state = 0;
 	StarShipPtr->cur_status_flags = 0;
