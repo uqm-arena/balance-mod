@@ -197,7 +197,7 @@ initialize_turret_missile (ELEMENT *ShipPtr, HELEMENT MissileArray[])
 	return (1);
 }
 
-/* Un-staticed to use elsewhere */
+/* Un-staticed to use elsewhere. */
 BYTE
 count_marines (STARSHIP *StarShipPtr, BOOLEAN FindSpot)
 {
@@ -209,36 +209,45 @@ count_marines (STARSHIP *StarShipPtr, BOOLEAN FindSpot)
 		id_use[num_marines] = 0;
 
 	num_marines = 0;
-	for (hElement = GetTailElement (); hElement; hElement = hNextElement)
-	{
-		ELEMENT *ElementPtr;
 
-		LockElement (hElement, &ElementPtr);
-		hNextElement = GetPredElement (ElementPtr);
-		if (ElementPtr->current.image.farray ==
-				StarShipPtr->RaceDescPtr->ship_data.special
-				&& ElementPtr->life_span
-				&& !(ElementPtr->state_flags & (FINITE_LIFE | DISAPPEARING)))
+	/* 
+	 * Now that this is sometimes used for non-Orz ships, we must ensure we
+	 * don't count certain other elements that "look" like marines, such as
+	 * Androsynth Blazers, as marines.
+	 */
+	if (StarShipPtr->SpeciesID == ORZ_ID)
+	{
+		for (hElement = GetTailElement (); hElement; hElement = hNextElement)
 		{
-			if (ElementPtr->state_flags & NONSOLID)
-			{
-				id_use[ElementPtr->turn_wait] = 1;
-			}
+			ELEMENT *ElementPtr;
 
-			if (++num_marines == MAX_MARINES)
+			LockElement (hElement, &ElementPtr);
+			hNextElement = GetPredElement (ElementPtr);
+			if (ElementPtr->current.image.farray ==
+					StarShipPtr->RaceDescPtr->ship_data.special
+					&& ElementPtr->life_span
+					&& !(ElementPtr->state_flags & (FINITE_LIFE | DISAPPEARING)))
 			{
-				UnlockElement (hElement);
-				hNextElement = 0;
+				if (ElementPtr->state_flags & NONSOLID)
+				{
+					id_use[ElementPtr->turn_wait] = 1;
+				}
+
+				if (++num_marines == MAX_MARINES)
+				{
+					UnlockElement (hElement);
+					hNextElement = 0;
+				}
 			}
+			UnlockElement (hElement);
 		}
-		UnlockElement (hElement);
-	}
 
-	if (FindSpot)
-	{
-		num_marines = 0;
-		while (id_use[num_marines])
-			++num_marines;
+		if (FindSpot)
+		{
+			num_marines = 0;
+			while (id_use[num_marines])
+				++num_marines;
+		}
 	}
 
 	return (num_marines);
