@@ -2,6 +2,6 @@ This is a mod of Ur-Quan Masters intended for making all ships usable in competi
 
 In order to build this mod, make sure you have the UQM main content package in content/packages.
 
-This is a fork of Balance Mod and not an official source repository. The official releases are on Ultronomicon. The mod is written by Shiver.
+This is the official repository. Alternatively, the latest release sources can be downloaded from [Ultronomicon](http://wiki.uqm.stack.nl/User:Shiver/Balance_Mod/Installation)
 
 This branch contains support for warp escape in Supermelee, originally written for Balance Mod version 1.2.8 by xaionaro (xai on IRC).
