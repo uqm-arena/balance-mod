@@ -198,8 +198,8 @@ initialize_spit (ELEMENT *ShipPtr, HELEMENT SpitArray[])
 		LockElement (SpitArray[0], &MissilePtr);
 
 		GetCurrentVelocityComponents (&ShipPtr->velocity, &dx, &dy);
-		dx = dx * 2/3;
-		dy = dy * 2/3;
+		dx = dx * 1/2;
+		dy = dy * 1/2;
 
 		// Add some of the Stinger's velocity to its projectiles.
 		DeltaVelocityComponents (&MissilePtr->velocity, dx, dy);
