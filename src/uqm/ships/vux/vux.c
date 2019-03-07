@@ -26,7 +26,7 @@
 
 // Core Characteristics
 #define MAX_CREW 20
-#define MAX_ENERGY 32
+#define MAX_ENERGY 36
 #define ENERGY_REGENERATION 1
 #define ENERGY_WAIT 7
 #define MAX_THRUST 21
@@ -47,7 +47,7 @@
 #define SPECIAL_WAIT 7
 #define LIMPET_SPEED 25
 #define LIMPET_OFFSET 8
-#define LIMPET_LIFE 72
+#define LIMPET_LIFE 80
 #define LIMPET_HITS 1
 #define LIMPET_DAMAGE 0
 #define TRACK_WAIT 0
@@ -55,8 +55,8 @@
 #define WORST_ACCEL 4
 
 // Aggressive Entry
-#define MAXX_ENTRY_DIST DISPLAY_TO_WORLD ((144) << 1)
-#define MAXY_ENTRY_DIST DISPLAY_TO_WORLD ((144) << 1)
+#define MAXX_ENTRY_DIST DISPLAY_TO_WORLD ((156) << 1)
+#define MAXY_ENTRY_DIST DISPLAY_TO_WORLD ((156) << 1)
 
 static RACE_DESC vux_desc =
 {
