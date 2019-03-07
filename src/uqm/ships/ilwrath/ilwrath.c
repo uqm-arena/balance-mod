@@ -37,12 +37,12 @@
 
 // Hellfire Spout
 #define WEAPON_ENERGY_COST 1
-#define ALTWEAPON_ENERGY_COST 2
+#define ALTWEAPON_ENERGY_COST 1
 #define WEAPON_WAIT 0
 #define ALTWEAPON_WAIT 1
-#define MISSILE_LIFE 8
 #define ILWRATH_OFFSET 29
-#define MISSILE_SPEED 35
+#define MISSILE_SPEED 32
+#define MISSILE_LIFE 8
 #define MISSILE_HITS 1
 #define MISSILE_DAMAGE 1
 #define MISSILE_OFFSET 0
@@ -55,7 +55,7 @@ static RACE_DESC ilwrath_desc =
 {
 	{ /* SHIP_INFO */
 		FIRES_FORE,
-		10, /* Super Melee cost */
+		12, /* Super Melee cost */
 		MAX_CREW, MAX_CREW,
 		MAX_ENERGY, MAX_ENERGY,
 		ILWRATH_RACE_STRINGS,
@@ -337,7 +337,7 @@ ilwrath_preprocess (ELEMENT *ElementPtr)
 		{
 			if (sameColor (color, BUILD_COLOR (MAKE_RGB15 (0x00, 0x00, 0x14), 0x01)))
 			{
-				if(PlayerControl[ElementPtr->playerNr] & HUMAN_CONTROL)
+				if (PlayerControl[ElementPtr->playerNr] & HUMAN_CONTROL)
 					SetPrimColor (lpPrim, INVIS_COLOR);
 				else
 					SetPrimColor (lpPrim, BLACK_COLOR);
