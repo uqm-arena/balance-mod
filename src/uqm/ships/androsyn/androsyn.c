@@ -249,13 +249,13 @@ spawn_blazer_trail (ELEMENT *ElementPtr)
 
 	if (ElementPtr->state_flags & PLAYER_SHIP)
 	{
-		HELEMENT hIonElement;
+		HELEMENT hTrailElement;
 
-		hIonElement = AllocElement ();
-		if (hIonElement)
+		hTrailElement = AllocElement ();
+		if (hTrailElement)
 		{
 			HELEMENT hHeadElement;
-			ELEMENT *IonElementPtr, *HeadElementPtr;
+			ELEMENT *TrailElementPtr, *HeadElementPtr;
 			STARSHIP *StarShipPtr;
 
 			GetElementStarShip (ElementPtr, &StarShipPtr);
@@ -263,35 +263,35 @@ spawn_blazer_trail (ELEMENT *ElementPtr)
 			hHeadElement = GetHeadElement();
 			LockElement (hHeadElement, &HeadElementPtr);
 			if (HeadElementPtr == ElementPtr)
-				InsertElement (hIonElement, GetHeadElement ());
+				InsertElement (hTrailElement, GetHeadElement ());
 			else
-				InsertElement (hIonElement, GetPredElement (ElementPtr));
+				InsertElement (hTrailElement, GetPredElement (ElementPtr));
 			UnlockElement(hHeadElement);
 
-			LockElement (hIonElement, &IonElementPtr);
-			IonElementPtr->state_flags = APPEARING | FINITE_LIFE | NONSOLID;
-			IonElementPtr->life_span = IonElementPtr->thrust_wait = 1;
-			SetPrimType (&DisplayArray[IonElementPtr->PrimIndex], STAMPFILL_PRIM);
-			SetPrimColor (&DisplayArray[IonElementPtr->PrimIndex], START_BLAZER_COLOR);
-			IonElementPtr->current.image.frame = ElementPtr->current.image.frame;
-			IonElementPtr->current.image.farray = ElementPtr->current.image.farray;
-			IonElementPtr->current.location = ElementPtr->current.location;
-			IonElementPtr->death_func = spawn_blazer_trail;
-			IonElementPtr->turn_wait = 0;
+			LockElement (hTrailElement, &TrailElementPtr);
+			TrailElementPtr->state_flags = APPEARING | FINITE_LIFE | NONSOLID;
+			TrailElementPtr->life_span = TrailElementPtr->thrust_wait = 1;
+			SetPrimType (&DisplayArray[TrailElementPtr->PrimIndex], STAMPFILL_PRIM);
+			SetPrimColor (&DisplayArray[TrailElementPtr->PrimIndex], START_BLAZER_COLOR);
+			TrailElementPtr->current.image.frame = ElementPtr->current.image.frame;
+			TrailElementPtr->current.image.farray = ElementPtr->current.image.farray;
+			TrailElementPtr->current.location = ElementPtr->current.location;
+			TrailElementPtr->death_func = spawn_blazer_trail;
+			TrailElementPtr->turn_wait = 0;
 
-			SetElementStarShip (IonElementPtr, StarShipPtr);
+			SetElementStarShip (TrailElementPtr, StarShipPtr);
 
 			{
 				/* normally done during preprocess, but because
 				 * object is being inserted at head rather than
 				 * appended after tail it may never get preprocessed.
 				 */
-				IonElementPtr->next = IonElementPtr->current;
-				--IonElementPtr->life_span;
-				IonElementPtr->state_flags |= PRE_PROCESS;
+				TrailElementPtr->next = TrailElementPtr->current;
+				--TrailElementPtr->life_span;
+				TrailElementPtr->state_flags |= PRE_PROCESS;
 			}
 
-			UnlockElement (hIonElement);
+			UnlockElement (hTrailElement);
 		}
 	}
 	else
