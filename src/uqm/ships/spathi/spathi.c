@@ -22,7 +22,7 @@
 #include "uqm/colors.h"
 #include "uqm/globdata.h"
 
-// Core characteristics
+// Core Characteristics
 #define MAX_CREW 30
 #define MAX_ENERGY 10
 #define ENERGY_REGENERATION 1

@@ -20,7 +20,7 @@
 #include "druuge.h"
 #include "resinst.h"
 
-// Core characteristics
+// Core Characteristics
 #define MAX_CREW 14
 #define MAX_ENERGY 32
 #define ENERGY_REGENERATION 1

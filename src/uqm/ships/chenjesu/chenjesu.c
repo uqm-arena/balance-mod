@@ -22,7 +22,7 @@
 #include "uqm/globdata.h"
 #include "libs/mathlib.h"
 
-// Core characteristics
+// Core Characteristics
 #define MAX_CREW 36
 #define MAX_ENERGY 30
 #define ENERGY_REGENERATION 1
@@ -33,7 +33,7 @@
 #define TURN_WAIT 6
 #define SHIP_MASS 9
 
-// Photon shard
+// Photon Shard
 #define WEAPON_ENERGY_COST 5
 #define WEAPON_WAIT 0
 #define CHENJESU_OFFSET 16

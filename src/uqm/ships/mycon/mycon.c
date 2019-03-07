@@ -20,7 +20,7 @@
 #include "mycon.h"
 #include "resinst.h"
 
-// Core characteristics
+// Core Characteristics
 #define MAX_CREW 20
 #define MAX_ENERGY 40
 #define ENERGY_REGENERATION 1

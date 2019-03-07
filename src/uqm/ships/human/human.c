@@ -22,7 +22,7 @@
 #include "uqm/colors.h"
 #include "uqm/globdata.h"
 
-// Core characteristics
+// Core Characteristics
 #define MAX_CREW 18
 #define MAX_ENERGY 18
 #define ENERGY_REGENERATION 1
@@ -205,7 +205,7 @@ spawn_point_defense (ELEMENT *ElementPtr)
 				// PDL will ignore planets.
 				&& !GRAVITY_MASS (ObjectPtr->mass_points)
 				// Prevent PDL from inflicting double damage against Umgah.
-				&& !(EnemyStarShipPtr && EnemyStarShipPtr->SpeciesID == UMGAH_ID // old was: ->RaceResIndex == UMGAH_SHIP_INDEX
+				&& !(EnemyStarShipPtr && EnemyStarShipPtr->SpeciesID == UMGAH_ID // old code was: ->RaceResIndex == UMGAH_SHIP_INDEX
 					&& ObjectPtr->mass_points == 1))
 			{
 				SIZE delta_x, delta_y;

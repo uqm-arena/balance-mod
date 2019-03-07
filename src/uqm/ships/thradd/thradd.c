@@ -22,7 +22,7 @@
 #include "uqm/globdata.h"
 #include "libs/mathlib.h"
 
-// Core characteristics
+// Core Characteristics
 #define MAX_CREW 10
 #define MAX_ENERGY 14
 #define ENERGY_REGENERATION 1

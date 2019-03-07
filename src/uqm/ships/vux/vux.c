@@ -24,7 +24,7 @@
 #include "libs/mathlib.h"
 #include <libs/log.h>
 
-// Core characteristics
+// Core Characteristics
 #define MAX_CREW 20
 #define MAX_ENERGY 32
 #define ENERGY_REGENERATION 1

@@ -24,7 +24,7 @@
 #include "uqm/setup.h"
 #include "libs/mathlib.h"
 
-// Core characteristics
+// Core Characteristics
 #define MAX_CREW 22
 #define MAX_ENERGY 12
 #define ENERGY_REGENERATION 4

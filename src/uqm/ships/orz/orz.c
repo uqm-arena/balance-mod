@@ -23,7 +23,7 @@
 #include "uqm/globdata.h"
 #include "libs/mathlib.h"
 
-// Core characteristics
+// Core Characteristics
 #define MAX_CREW 16
 #define MAX_ENERGY 20
 #define ENERGY_REGENERATION 1
@@ -44,7 +44,7 @@
 #define MISSILE_DAMAGE 3
 #define MISSILE_OFFSET 1
 
-// Marine
+// Marines
 #define SPECIAL_ENERGY_COST 0
 #define SPECIAL_WAIT 12
 #define MARINE_MAX_THRUST 32

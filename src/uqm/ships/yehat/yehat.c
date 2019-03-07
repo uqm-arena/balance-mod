@@ -21,7 +21,7 @@
 #include "resinst.h"
 #include "libs/mathlib.h"
 
-// Core characteristics
+// Core Characteristics
 #define MAX_CREW 20
 #define MAX_ENERGY 10
 #define ENERGY_REGENERATION 2
@@ -32,7 +32,7 @@
 #define TURN_WAIT 2
 #define SHIP_MASS 3
 
-// Pulse Cannons
+// Twin Pulse Cannons
 #define WEAPON_ENERGY_COST 1
 #define WEAPON_WAIT 0
 #define YEHAT_OFFSET 16

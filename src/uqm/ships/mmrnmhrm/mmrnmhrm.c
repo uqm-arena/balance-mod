@@ -21,12 +21,12 @@
 #include "resinst.h"
 #include "libs/log.h"
 
-// Core characteristics
+// Core Characteristics
 #define MAX_CREW 20
 #define MAX_ENERGY 10
 #define SHIP_MASS 3
 
-// X-Wing characteristics
+// X-Wing Characteristics
 #define ENERGY_REGENERATION 2
 #define ENERGY_WAIT 6
 #define MAX_THRUST 20
@@ -34,7 +34,7 @@
 #define THRUST_WAIT 1
 #define TURN_WAIT 1
 
-// Y-Wing characteristics
+// Y-Wing Characteristics
 #define YWING_ENERGY_REGENERATION 1
 #define YWING_SPECIAL_ENERGY_COST MAX_ENERGY
 #define YWING_ENERGY_WAIT 6

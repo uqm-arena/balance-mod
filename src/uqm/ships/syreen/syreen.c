@@ -21,7 +21,7 @@
 #include "resinst.h"
 #include "libs/mathlib.h"
 
-// Core characteristics
+// Core Characteristics
 #define SYREEN_MAX_CREW_SIZE MAX_CREW_SIZE
 #define MAX_CREW 12
 #define MAX_ENERGY 16
@@ -33,7 +33,7 @@
 #define TURN_WAIT 1
 #define SHIP_MASS 2
 
-// Particle blaster
+// Particle Blaster
 #define WEAPON_ENERGY_COST 1
 #define WEAPON_WAIT 8
 #define SYREEN_OFFSET 30
@@ -43,7 +43,7 @@
 #define MISSILE_DAMAGE 2
 #define MISSILE_OFFSET 3
 
-// Siren song
+// Siren Song
 #define SPECIAL_ENERGY_COST 8
 #define SPECIAL_WAIT 24
 #define ABANDONER_RANGE 208

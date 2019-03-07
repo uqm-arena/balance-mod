@@ -21,7 +21,7 @@
 #include "resinst.h"
 #include "libs/mathlib.h"
 
-// Core characteristics
+// Core Characteristics
 #define MAX_CREW 10
 #define MAX_ENERGY 24
 #define ENERGY_REGENERATION MAX_ENERGY
@@ -32,7 +32,7 @@
 #define TURN_WAIT 5
 #define SHIP_MASS 2
 
-// Antimatter cone
+// Antimatter Cone
 #define WEAPON_ENERGY_COST 0
 #define WEAPON_WAIT 0
 #define UMGAH_OFFSET 0

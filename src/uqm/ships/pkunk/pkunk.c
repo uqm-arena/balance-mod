@@ -23,7 +23,7 @@
 #include "libs/mathlib.h"
 #include "uqm/tactrans.h"
 
-// Core characteristics
+// Core Characteristics
 #define MAX_CREW 8
 #define MAX_ENERGY 12
 #define ENERGY_REGENERATION 0
