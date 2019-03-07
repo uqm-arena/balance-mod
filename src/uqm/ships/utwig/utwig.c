@@ -236,10 +236,12 @@ utwig_collision (ELEMENT *ElementPtr0, POINT *pPt0,
 			&& ElementPtr1->mass_points
 			// Chmmr satellites no longer charge Utwig's energy by 10 during direct collision.
 			&& !((StarShipPtr && StarShipPtr->SpeciesID == CHMMR_ID)
-				&& ElementPtr1->mass_points == 10)
-			// Ur-Quan fighter beams and fighter collisions no longer charge up Utwig's energy at all.
-			&& !((StarShipPtr && StarShipPtr->SpeciesID == UR_QUAN_ID)
+				&& ElementPtr1->mass_points == 10))
+			// This code stops Ur-Quan fighter beams from charging up Utwig's energy. Disabled for now.
+			/*
+				&& !((StarShipPtr && StarShipPtr->SpeciesID == UR_QUAN_ID)
 				&& ElementPtr1->mass_points == 1))
+			*/
 	{
 		ElementPtr0->life_span += ElementPtr1->mass_points;
 	}
