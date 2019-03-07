@@ -16,10 +16,13 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
+
 #include "../ship.h"
 #include "melnorme.h"
 #include "resinst.h"
+#include "uqm/colors.h"
 #include "uqm/globdata.h"
+#include "uqm/setup.h"
 #include "libs/mathlib.h"
 
 // Core Characteristics
@@ -54,6 +57,9 @@
 #define CMISSILE_HITS 50
 #define CMISSILE_DAMAGE 0
 #define CMISSILE_OFFSET 4
+
+// Holographic Targeting Aid
+#define HOLO_WAIT 12
 
 static RACE_DESC melnorme_desc =
 {
@@ -242,10 +248,10 @@ pump_up_postprocess (ELEMENT *ElementPtr)
 					COSINE (angle, WORLD_TO_VELOCITY (PUMPUP_SPEED)),
 					SINE (angle, WORLD_TO_VELOCITY (PUMPUP_SPEED)));
 			GetCurrentVelocityComponents (&ShipPtr->velocity, &dx, &dy);
-			dx = dx * 1/2;
-			dy = dy * 1/2;
+			dx = dx * 3/4;
+			dy = dy * 3/4;
 
-			// Add some of the Trader's velocity to its projectiles.
+			// Add some of the Trader's velocity to its projectiles
 			DeltaVelocityComponents (&EPtr->velocity, dx, dy);
 			EPtr->current.location.x -= VELOCITY_TO_WORLD (dx);
 			EPtr->current.location.y -= VELOCITY_TO_WORLD (dy);
@@ -291,7 +297,8 @@ pump_up_collision (ELEMENT *ElementPtr0, POINT *pPt0,
 	old_thrust_wait = ElementPtr0->thrust_wait;
 	ElementPtr0->blast_offset = r.extent.width >> 1;
 	hBlastElement = weapon_collision (ElementPtr0, pPt0, ElementPtr1, pPt1);
-	// This new section kills suspended blaster pulses after sustaining massive burst damage.
+
+	// This new section kills suspended blaster pulses after sustaining massive burst damage
 	if (ElementPtr1->mass_points >= ElementPtr0->mass_points)
 	{
 		ElementPtr0->postprocess_func = 0;
@@ -399,10 +406,6 @@ confuse_preprocess (ELEMENT *ElementPtr)
 					(StarShipPtr->ship_input_state
 					& ~(LEFT | RIGHT | SPECIAL))
 					| ElementPtr->turn_wait;
-
-			// Disable Ur-Quan autoturret.
-			if (StarShipPtr && StarShipPtr->SpeciesID == UR_QUAN_ID)
-				++StarShipPtr->auxiliary_counter;
 
 			hEffect = AllocElement ();
 			if (hEffect)
@@ -533,7 +536,7 @@ initialize_confusion (ELEMENT *ShipPtr, HELEMENT ConfusionArray[])
 		dx = dx * 3/4;
 		dy = dy * 3/4;
 
-		// Add some of the Trader's velocity to its projectiles.
+		// Add some of the Trader's velocity to its projectiles
 		DeltaVelocityComponents (&CMissilePtr->velocity, dx, dy);
 		CMissilePtr->current.location.x -= VELOCITY_TO_WORLD (dx);
 		CMissilePtr->current.location.y -= VELOCITY_TO_WORLD (dy);
@@ -543,46 +546,132 @@ initialize_confusion (ELEMENT *ShipPtr, HELEMENT ConfusionArray[])
 	return (1);
 }
 
-static COUNT
-initialize_test_pump_up (ELEMENT *ShipPtr, HELEMENT PumpUpArray[])
+// Trail effect for aim-assist function
+static void
+spawn_holo_trail (ELEMENT *ElementPtr)
 {
+	PRIMITIVE *lpPrim;
+
+	if (ElementPtr->hit_points == 200)
+	{
+		HELEMENT hTrailElement;
+
+		hTrailElement = AllocElement ();
+		if (hTrailElement)
+		{
+			ELEMENT *TrailElementPtr;
+			STARSHIP *StarShipPtr;
+
+			GetElementStarShip (ElementPtr, &StarShipPtr);
+
+			InsertElement (hTrailElement, GetHeadElement ());
+			LockElement (hTrailElement, &TrailElementPtr);
+			lpPrim = &(GLOBAL (DisplayArray))[TrailElementPtr->PrimIndex];
+			TrailElementPtr->state_flags = APPEARING | FINITE_LIFE | NONSOLID | BACKGROUND_OBJECT;
+			TrailElementPtr->life_span = TrailElementPtr->thrust_wait = 1;
+			TrailElementPtr->current.image.frame = IncFrameIndex (ElementPtr->current.image.frame);
+			TrailElementPtr->current.image.farray = ElementPtr->current.image.farray;
+			TrailElementPtr->current.location = ElementPtr->current.location;
+			TrailElementPtr->death_func = spawn_holo_trail;
+			TrailElementPtr->turn_wait = 0;
+			SetPrimType (&(GLOBAL (DisplayArray))[TrailElementPtr->PrimIndex], STAMP_PRIM);
+
+			SetElementStarShip (TrailElementPtr, StarShipPtr);
+
+			{
+				/* normally done during preprocess, but because
+				 * object is being inserted at head rather than
+				 * appended after tail it may never get preprocessed.
+				 */
+				TrailElementPtr->next = TrailElementPtr->current;
+				--TrailElementPtr->life_span;
+
+				TrailElementPtr->state_flags |= PRE_PROCESS;
+			}
+
+			UnlockElement (hTrailElement);
+		}
+	}
+	else
+	{
+		if (ElementPtr->turn_wait < 1)
+		{
+			lpPrim = &(GLOBAL (DisplayArray))[ElementPtr->PrimIndex];
+
+			ElementPtr->life_span = ElementPtr->thrust_wait;
+			// Reset the life span
+
+			++ElementPtr->turn_wait;
+
+			ElementPtr->next.image.frame = IncFrameIndex (ElementPtr->current.image.frame);
+
+			ElementPtr->state_flags &= ~DISAPPEARING;
+			ElementPtr->state_flags |= CHANGING;
+		}
+	}
+}
+
+// Aim-assist function
+static COUNT
+initialize_aimer (ELEMENT *ShipPtr, HELEMENT PumpUpArray[])
+{
+	ELEMENT *PumpUpPtr;
 	STARSHIP *StarShipPtr;
 	MISSILE_BLOCK MissileBlock;
-	//ELEMENT *PumpUpPtr;
+	PRIMITIVE *lpPrim;
 
 	GetElementStarShip (ShipPtr, &StarShipPtr);
 	MissileBlock.cx = ShipPtr->next.location.x;
 	MissileBlock.cy = ShipPtr->next.location.y;
 	MissileBlock.farray = StarShipPtr->RaceDescPtr->ship_data.weapon;
 	MissileBlock.face = StarShipPtr->ShipFacing;
-	MissileBlock.index = 0;
+
+	// The cyborg uses this function to aim its shots; it needs different variables
+	if (PlayerControl[ShipPtr->playerNr] & CYBORG_CONTROL)
+		MissileBlock.index = 0;
+	else
+		MissileBlock.index = 26;
+
 	MissileBlock.sender = ShipPtr->playerNr;
-	MissileBlock.flags = IGNORE_SIMILAR;
+	MissileBlock.flags = IGNORE_SIMILAR | NONSOLID | BACKGROUND_OBJECT;
 	MissileBlock.pixoffs = MELNORME_OFFSET;
 	MissileBlock.speed = PUMPUP_SPEED;
-	MissileBlock.hit_points = PUMPUP_DAMAGE;
-	MissileBlock.damage = PUMPUP_DAMAGE;
+	MissileBlock.hit_points = 200;
+	MissileBlock.damage = 0;
 	MissileBlock.life = PUMPUP_LIFE;
-	MissileBlock.preprocess_func = 0;
 	MissileBlock.blast_offs = 0;
+
+	if (PlayerControl[ShipPtr->playerNr] & HUMAN_CONTROL)
+		MissileBlock.preprocess_func = spawn_holo_trail;
+	else
+		MissileBlock.preprocess_func = NULL;
+
 	PumpUpArray[0] = initialize_missile (&MissileBlock);
 
-		if (PumpUpArray[0])
+	if (PumpUpArray[0])
 	{
 		SIZE dx, dy;
 		ELEMENT *MissilePtr;
+		PRIMITIVE *lpPrim;
 
 		LockElement (PumpUpArray[0], &MissilePtr);
 
-		GetCurrentVelocityComponents (&ShipPtr->velocity, &dx, &dy);
-		dx = dx * 1/2;
-		dy = dy * 1/2;
+		lpPrim = &(GLOBAL (DisplayArray))[MissilePtr->PrimIndex];
 
-		// Add some of the Trader's velocity to its projectiles.
+		// Hide holograms when the player isn't controlling the ship
+		if (!(PlayerControl[MissilePtr->playerNr] & HUMAN_CONTROL))
+		{
+			SetPrimColor (lpPrim, BLACK_COLOR);
+			SetPrimType (lpPrim, STAMPFILL_PRIM);
+		}
+
+		// Add some of the Trader's velocity to its projectiles
+		GetCurrentVelocityComponents (&ShipPtr->velocity, &dx, &dy);
+		dx = dx * 3/4;
+		dy = dy * 3/4;
 		DeltaVelocityComponents (&MissilePtr->velocity, dx, dy);
 		MissilePtr->current.location.x -= VELOCITY_TO_WORLD (dx);
 		MissilePtr->current.location.y -= VELOCITY_TO_WORLD (dy);
-
 		UnlockElement (PumpUpArray[0]);
 	}
 
@@ -616,6 +705,32 @@ melnorme_postprocess (ELEMENT *ElementPtr)
 					StarShipPtr->RaceDescPtr->characteristics.special_wait;
 		}
 	}
+
+	// Toggle aim-assist
+	if(StarShipPtr->cur_status_flags & DOWN
+			&& !(StarShipPtr->old_status_flags & DOWN))
+	{
+		if (StarShipPtr->static_counter > 0)
+			StarShipPtr->static_counter = 0;
+		else
+			StarShipPtr->static_counter = 1;
+	}
+
+	if (StarShipPtr->static_counter > 0
+			&& StarShipPtr->auxiliary_counter == 0)
+	{
+		HELEMENT Aimer;
+
+		initialize_aimer (ElementPtr, &Aimer);
+
+		if (Aimer)
+		{
+			ELEMENT *AimPtr;
+
+			PutElement (Aimer);
+			StarShipPtr->auxiliary_counter = HOLO_WAIT;
+		}
+	}
 }
 
 static void
@@ -628,7 +743,7 @@ melnorme_intelligence (ELEMENT *ShipPtr, EVALUATE_DESC *ObjectsOfConcern,
 
 	GetElementStarShip (ShipPtr, &StarShipPtr);
 
-	StarShipPtr->RaceDescPtr->init_weapon_func = initialize_test_pump_up;
+	StarShipPtr->RaceDescPtr->init_weapon_func = initialize_aimer;
 	old_count = StarShipPtr->weapon_counter;
 
 	if (StarShipPtr->weapon_counter == WEAPON_WAIT)
