@@ -39,8 +39,8 @@
 #define WEAPON_ENERGY_COST 1
 #define SHOFIXTI_OFFSET 15
 #define MISSILE_OFFSET 1
-#define MISSILE_SPEED 92
-#define MISSILE_LIFE 9
+#define MISSILE_SPEED 90
+#define MISSILE_LIFE 10
 #define MISSILE_HITS 1
 #define MISSILE_DAMAGE 1
 
@@ -48,8 +48,8 @@
 #define SPECIAL_ENERGY_COST 0
 #define DESTRUCT_RANGE 180 // DISPLAY_TO_WORLD is applied to this elsewhere.
 #define DESTRUCTION (DESTRUCT_RANGE / 20)
-#define MAX_DESTRUCTION 8 // Glory Device damage cap.
-#define CLOSE_ENOUGH 6 // At 6 or 7 damage, inflict 8 damage instead.
+#define CLOSE_ENOUGH 6
+#define GD_DAMAGE_CAP 8 // Glory Device damage cap.
 
 static RACE_DESC shofixti_desc =
 {
@@ -344,21 +344,17 @@ self_destruct (ELEMENT *ElementPtr)
 			
 					GetElementStarShip (ObjPtr, &EnemyStarShipPtr);
 
-					destruction = ((MAX_DESTRUCTION
-							* (DESTRUCT_RANGE - square_root (dist)))
-							/ DESTRUCT_RANGE) + 1;
+					destruction = 1 + DESTRUCTION * (DESTRUCT_RANGE - square_root (dist)) / DESTRUCT_RANGE;
 
-					// Glory Device damage cap.
+					// Adjust damage up to maximum value if target is within blast radius.
 					if (destruction >= CLOSE_ENOUGH)
-						destruction = MAX_DESTRUCTION;
+						destruction = GD_DAMAGE_CAP;
 					
 					// Utwig shield will absorb damage. Yehat shield will prevent it.
 					if (ObjPtr->state_flags & PLAYER_SHIP
-						&& (ObjPtr->life_span > NORMAL_LIFE))
+						&& ObjPtr->life_span > NORMAL_LIFE)
 					{			
-						if (EnemyStarShipPtr && EnemyStarShipPtr->SpeciesID == UTWIG_ID
-							&& (ObjPtr->state_flags & PLAYER_SHIP)
-							&& (ObjPtr->life_span > NORMAL_LIFE))
+						if (EnemyStarShipPtr && EnemyStarShipPtr->SpeciesID == UTWIG_ID)
 						{
 							DeltaEnergy (ObjPtr, +destruction);
 						}
@@ -373,6 +369,9 @@ self_destruct (ELEMENT *ElementPtr)
 					}
 					else if (!GRAVITY_MASS (ObjPtr->mass_points))
 					{
+						// Inflict bonus damage against non-ship objects such as Chmmr satellites.
+						destruction += (destruction / 2);
+
 						if ((BYTE)destruction < ObjPtr->hit_points)
 							ObjPtr->hit_points -= (BYTE)destruction;
 						else
