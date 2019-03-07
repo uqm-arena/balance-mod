@@ -28,7 +28,7 @@
 #define MAX_ENERGY 20
 #define ENERGY_REGENERATION 1
 #define ENERGY_WAIT 6
-#define MAX_THRUST 44
+#define MAX_THRUST 42
 #define THRUST_INCREMENT MAX_THRUST
 #define THRUST_WAIT 0
 #define TURN_WAIT 0
@@ -41,13 +41,14 @@
 #define LASER_RANGE DISPLAY_TO_WORLD (88 + ARILOU_OFFSET)
 
 // Teleporter
-#define SPECIAL_ENERGY_COST 4
+#define SPECIAL_ENERGY_COST 3
 #define SPECIAL_WAIT 0
-#define TRANSIT_TIME 13
-#define SPECIAL_STUN 4
-#define SPECIAL_LASER_FREEZE 13
+#define TOTAL_TRANSIT_TIME 14
+#define REPOSITION_DELAY 6
+#define SPECIAL_MOVEMENT_FREEZE 3
+#define SPECIAL_LASER_FREEZE 12
 #define PERSONAL_SPACE_BUBBLE		DISPLAY_TO_WORLD (400)
-#define HOP_DISTANCE				DISPLAY_TO_WORLD (240)
+#define HOP_DISTANCE				DISPLAY_TO_WORLD (250)
 #define HOP_VARIATION				DISPLAY_TO_WORLD (60)
 
 static RACE_DESC arilou_desc =
@@ -177,7 +178,7 @@ arilou_preprocess (ELEMENT *ElementPtr)
 			ZeroVelocityComponents (&ElementPtr->velocity);
 
 			ElementPtr->state_flags |= NONSOLID | FINITE_LIFE | CHANGING;
-			ElementPtr->life_span = TRANSIT_TIME;
+			ElementPtr->life_span = TOTAL_TRANSIT_TIME;
 			ElementPtr->is_teleporting = TRUE;
 
 			ElementPtr->next.image.farray =	StarShipPtr->RaceDescPtr->ship_data.special;
@@ -251,7 +252,7 @@ arilou_preprocess (ELEMENT *ElementPtr)
 			if (StarShipPtr->cur_status_flags & SPECIAL
 				&& StarShipPtr->RaceDescPtr->ship_info.energy_level >= SPECIAL_ENERGY_COST)
 			{
-				ElementPtr->life_span = TRANSIT_TIME;
+				ElementPtr->life_span = TOTAL_TRANSIT_TIME;
 
 				ElementPtr->current.image.farray =
 					ElementPtr->next.image.farray =
@@ -275,7 +276,7 @@ arilou_preprocess (ELEMENT *ElementPtr)
 				StarShipPtr->cur_status_flags &= ~THRUST;
 				StarShipPtr->old_status_flags &= ~THRUST;
 
-				ElementPtr->life_span = TRANSIT_TIME;
+				ElementPtr->life_span = TOTAL_TRANSIT_TIME;
 
 				ElementPtr->current.image.farray =
 					ElementPtr->next.image.farray =
@@ -300,9 +301,8 @@ arilou_preprocess (ELEMENT *ElementPtr)
 
 				// Stun the Skiff for an instant.
 				StarShipPtr->weapon_counter = SPECIAL_LASER_FREEZE;
-				StarShipPtr->special_counter = SPECIAL_STUN;
-				ElementPtr->thrust_wait = SPECIAL_STUN;
-				ElementPtr->turn_wait = SPECIAL_STUN;
+				ElementPtr->thrust_wait = SPECIAL_MOVEMENT_FREEZE;
+				ElementPtr->turn_wait = SPECIAL_MOVEMENT_FREEZE;
 				
 				ElementPtr->is_teleporting = FALSE;
 			}
@@ -311,15 +311,17 @@ arilou_preprocess (ELEMENT *ElementPtr)
 		{
 			// Teleportation in progress.
 			--life_span;
-			if (life_span != TRANSIT_TIME - 6)
+			if (life_span != TOTAL_TRANSIT_TIME - REPOSITION_DELAY)
 				{
 					if (life_span == 1)
 					{
+						// Image frame 0 is portal image #1.
 						ElementPtr->next.image.frame =
 							SetAbsFrameIndex (ElementPtr->next.image.frame, 0);
 					}
-					else if (life_span >= TRANSIT_TIME - 2 || life_span <= 3)
+					else if (life_span >= TOTAL_TRANSIT_TIME - 2 || life_span <= 3)
 					{
+						// Image frame 1 is portal image #2.
 						ElementPtr->next.image.frame =
 							SetAbsFrameIndex (ElementPtr->next.image.frame, 1);
 					}
