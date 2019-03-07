@@ -605,10 +605,10 @@ UpdatePickMeleeFleetValue (FRAME frame, COUNT which_player)
 	DrawFilledRectangle (&r);
 
 	// Draw the new value text.
-	if (simple_value == adjusted_value)
+	// if (simple_value == adjusted_value)
 		sprintf (buf, "%d", simple_value);
-	else
-		sprintf (buf, "%d (%.1f)", simple_value, adjusted_value);
+	// else
+	//	sprintf (buf, "%d (%.1f)", simple_value, adjusted_value);
 
 	t.baseline.y = 7;
 	t.align = ALIGN_RIGHT;
