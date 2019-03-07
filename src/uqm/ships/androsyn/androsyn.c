@@ -351,6 +351,7 @@ androsynth_postprocess (ELEMENT *ElementPtr)
 				ElementPtr->mass_points = BLAZER_MASS;
 				StarShipPtr->RaceDescPtr->characteristics.turn_wait
 						= BLAZER_TURN_WAIT;
+				StarShipPtr->RaceDescPtr->ship_info.ship_flags |= IMMEDIATE_WEAPON;
 				/* Save the current collision func because we were not the
 				 * ones who set it */
 				StarShipPtr->RaceDescPtr->data = (intptr_t)
