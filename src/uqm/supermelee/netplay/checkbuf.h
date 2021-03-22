@@ -16,15 +16,27 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef _CHECKBUF_H
-#define _CHECKBUF_H
+#ifndef UQM_SUPERMELEE_NETPLAY_CHECKBUF_H_
+#define UQM_SUPERMELEE_NETPLAY_CHECKBUF_H_
+
+#if defined(__cplusplus)
+extern "C" {
+#endif
 
 typedef struct ChecksumEntry ChecksumEntry;
 typedef struct ChecksumBuffer ChecksumBuffer;
 
+#if defined(__cplusplus)
+}
+#endif
+
 #include "../../battle.h"
 		// for BattleFrameCounter
 #include "checksum.h"
+
+#if defined(__cplusplus)
+extern "C" {
+#endif
 
 
 struct ChecksumEntry {
@@ -58,5 +70,8 @@ bool ChecksumBuffer_addChecksum(ChecksumBuffer *cb,
 bool ChecksumBuffer_getChecksum(ChecksumBuffer *cb,
 		BattleFrameCounter frameNr, Checksum *result);
 
-#endif  /* _CHECKBUF_H */
+#if defined(__cplusplus)
+}
+#endif
 
+#endif  /* UQM_SUPERMELEE_NETPLAY_CHECKBUF_H_ */

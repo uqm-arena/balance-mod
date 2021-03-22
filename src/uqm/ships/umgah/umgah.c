@@ -21,7 +21,7 @@
 #include "resinst.h"
 #include "libs/mathlib.h"
 
-// Core characteristics
+// Core Characteristics
 #define MAX_CREW 10
 #define MAX_ENERGY 24
 #define ENERGY_REGENERATION MAX_ENERGY
@@ -29,10 +29,11 @@
 #define MAX_THRUST 18
 #define THRUST_INCREMENT 6
 #define THRUST_WAIT 3
-#define TURN_WAIT 5
+#define TURN_WAIT 4
+#define TURN_WAIT_EXTRA 6
 #define SHIP_MASS 2
 
-// Antimatter cone
+// Antimatter Cone
 #define WEAPON_ENERGY_COST 0
 #define WEAPON_WAIT 0
 #define UMGAH_OFFSET 0
@@ -51,7 +52,7 @@ static RACE_DESC umgah_desc =
 {
 	{ /* SHIP_INFO */
 		FIRES_FORE | IMMEDIATE_WEAPON,
-		8, /* Super Melee cost */
+		7, /* Super Melee cost */
 		MAX_CREW, MAX_CREW,
 		MAX_ENERGY, MAX_ENERGY,
 		UMGAH_RACE_STRINGS,
@@ -206,6 +207,7 @@ umgah_postprocess (ELEMENT *ElementPtr)
 	STARSHIP *StarShipPtr;
 
 	GetElementStarShip (ElementPtr, &StarShipPtr);
+
 	if (StarShipPtr->special_counter > 0)
 	{
 		StarShipPtr->special_counter = 0;
@@ -218,24 +220,43 @@ static void
 umgah_preprocess (ELEMENT *ElementPtr)
 {   
     STARSHIP *StarShipPtr;
+	RACE_DESC *RDPtr;
 	
 	GetElementStarShip (ElementPtr, &StarShipPtr);
+	RDPtr = StarShipPtr->RaceDescPtr;
 	
 	if (ElementPtr->state_flags & APPEARING)
     {
         // Reset the value just in case
-		StarShipPtr->RaceDescPtr->data = 0;
+		RDPtr->data = 0;
 	}
 	else
 	{
 		COUNT facing;
+
+		// Alternate turning process for when the ship's cone is active.
+		if (StarShipPtr->cur_status_flags & WEAPON
+			&& StarShipPtr->cur_status_flags & (LEFT | RIGHT)
+			&& ElementPtr->turn_wait == 0)
+		{
+			if (StarShipPtr->cur_status_flags & LEFT)
+				StarShipPtr->ShipFacing = NORMALIZE_FACING (StarShipPtr->ShipFacing - 1);
+			else
+				StarShipPtr->ShipFacing = NORMALIZE_FACING (StarShipPtr->ShipFacing + 1);
+
+			ElementPtr->next.image.frame =
+					SetAbsFrameIndex (ElementPtr->next.image.frame,	StarShipPtr->ShipFacing);
+			ElementPtr->state_flags |= CHANGING;
+
+			ElementPtr->turn_wait = RDPtr->characteristics.turn_wait + TURN_WAIT_EXTRA + 1;
+		}
 	
 		if (ElementPtr->thrust_wait == 0
 				&& (StarShipPtr->cur_status_flags & THRUST)
 				&& (StarShipPtr->cur_status_flags & SPECIAL)
 				&& StarShipPtr->RaceDescPtr->ship_info.energy_level > 0)
 		{
-			// Retropropulsion energy cost reduction code.
+			// This is relevant for reducing Retropropulsion energy cost
 			if (StarShipPtr->auxiliary_counter == 0)
 			{
 				DeltaEnergy (ElementPtr, -SPECIAL_ENERGY_COST);
@@ -256,10 +277,10 @@ umgah_preprocess (ELEMENT *ElementPtr)
 			StarShipPtr->special_counter = SPECIAL_WAIT;
 		}
 		else if (ElementPtr->thrust_wait == 0
-				&& (StarShipPtr->cur_status_flags & SPECIAL)
+				&& StarShipPtr->cur_status_flags & SPECIAL
 				&& StarShipPtr->RaceDescPtr->ship_info.energy_level > 0)
 		{
-			// Retropropulsion energy cost reduction code.
+			// This is relevant for reducing Retropropulsion energy cost
 			if (StarShipPtr->auxiliary_counter == 0)
 			{
 				DeltaEnergy (ElementPtr, -SPECIAL_ENERGY_COST);

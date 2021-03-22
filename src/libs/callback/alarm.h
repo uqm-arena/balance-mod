@@ -16,17 +16,16 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef _ALARM_H
-#define _ALARM_H
+#ifndef LIBS_CALLBACK_ALARM_H_
+#define LIBS_CALLBACK_ALARM_H_
 
 #include "port.h"
 #include "types.h"
 
-#include SDL_INCLUDE(SDL.h)
-typedef Uint32 AlarmTime;
-static inline Uint32
+typedef uint32 AlarmTime;
+static inline uint32
 alarmTimeToMsUint32(AlarmTime time) {
-	return (Uint32) time;
+	return (uint32) time;
 }
 
 typedef struct Alarm Alarm;
@@ -44,11 +43,14 @@ struct Alarm {
 
 void Alarm_init(void);
 void Alarm_uninit(void);
-Alarm *Alarm_addRelativeMs(Uint32 ms, AlarmCallback callback,
+Alarm *Alarm_addAbsoluteMs(uint32 ms, AlarmCallback callback,
+		AlarmCallbackArg arg);
+Alarm *Alarm_addRelativeMs(uint32 ms, AlarmCallback callback,
 		AlarmCallbackArg arg);
 void Alarm_remove(Alarm *alarm);
-void Alarm_process(void);
-Uint32 Alarm_timeBeforeNextMs(void);
+bool Alarm_processOne(void);
+void Alarm_processAll(void);
+uint32 Alarm_timeBeforeNextMs(void);
 
-#endif  /* _ALARM_H */
+#endif  /* LIBS_CALLBACK_ALARM_H_ */
 

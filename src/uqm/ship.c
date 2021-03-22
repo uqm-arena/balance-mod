@@ -208,6 +208,9 @@ ship_preprocess (ELEMENT *ElementPtr)
 			if (RDPtr->preprocess_func)
 				(*RDPtr->preprocess_func) (ElementPtr);
 
+			// XXX: Hack: Pkunk sets hTarget!=0 when it reincarnates. In that
+			//   case there is no ship_transition() but a Phoenix transition
+			//   instead.
 			if (ElementPtr->hTarget == 0)
 			{
 				ship_transition (ElementPtr);
@@ -303,11 +306,10 @@ ship_preprocess (ELEMENT *ElementPtr)
 
 		ElementPtr->thrust_wait = RDPtr->characteristics.thrust_wait;
 
-		if ((!OBJECT_CLOAKED (ElementPtr)
-				&& LOBYTE (GLOBAL (CurrentActivity)) <=  IN_ENCOUNTER))
+		if (!OBJECT_CLOAKED (ElementPtr)
+				&& LOBYTE (GLOBAL (CurrentActivity)) <= IN_ENCOUNTER)
 		{
-			if (!(StarShipPtr && StarShipPtr->SpeciesID == SUPOX_ID))
-				spawn_ion_trail (ElementPtr);
+			spawn_ion_trail (ElementPtr);
 		}
 	}
 
@@ -524,7 +526,7 @@ spawn_ship (STARSHIP *StarShipPtr)
 		else
 		{
 			StarShipPtr->ShipFacing = NORMALIZE_FACING (TFB_Random ());
-			if (LOBYTE (GLOBAL (CurrentActivity)) == IN_HYPERSPACE)
+			if (inHQSpace ())
 			{	// Only one ship is ever spawned in HyperSpace -- flagship
 				COUNT facing = GLOBAL (ShipFacing);
 				// XXX: Solar system reentry test depends on ShipFacing != 0
@@ -565,7 +567,6 @@ spawn_ship (STARSHIP *StarShipPtr)
 
 		UnlockElement (hShip);
 	}
-
 
 	return (hShip != 0);
 }

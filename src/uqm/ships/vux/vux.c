@@ -24,9 +24,9 @@
 #include "libs/mathlib.h"
 #include <libs/log.h>
 
-// Core characteristics
+// Core Characteristics
 #define MAX_CREW 20
-#define MAX_ENERGY 32
+#define MAX_ENERGY 36
 #define ENERGY_REGENERATION 1
 #define ENERGY_WAIT 7
 #define MAX_THRUST 21
@@ -43,26 +43,29 @@
 #define LASER_RANGE DISPLAY_TO_WORLD (LASER_BASE + VUX_OFFSET)
 
 // Limpet
-#define SPECIAL_ENERGY_COST 3
+#define SPECIAL_ENERGY_COST 2
 #define SPECIAL_WAIT 7
+#define ENERGY_WAIT_EXTRA 2
 #define LIMPET_SPEED 25
 #define LIMPET_OFFSET 8
-#define LIMPET_LIFE 72
+#define LIMPET_LIFE 80
 #define LIMPET_HITS 1
 #define LIMPET_DAMAGE 0
 #define TRACK_WAIT 0
-#define WORST_TOPSPEED 8
-#define WORST_ACCEL 4
+#define WORST_MAX_THRUST 8
+#define WORST_THRUST_INC 4
+#define	WORST_THRUST_WAIT 48
+#define WORST_TURN_WAIT 156
 
 // Aggressive Entry
-#define MAXX_ENTRY_DIST DISPLAY_TO_WORLD ((144) << 1)
-#define MAXY_ENTRY_DIST DISPLAY_TO_WORLD ((144) << 1)
+#define MAXX_ENTRY_DIST DISPLAY_TO_WORLD ((164) << 1)
+#define MAXY_ENTRY_DIST DISPLAY_TO_WORLD ((164) << 1)
 
 static RACE_DESC vux_desc =
 {
 	{ /* SHIP_INFO */
 		FIRES_FORE | SEEKING_SPECIAL | IMMEDIATE_WEAPON,
-		14, /* Super Melee cost */
+		13, /* Super Melee cost */
 		MAX_CREW, MAX_CREW,
 		MAX_ENERGY, MAX_ENERGY,
 		VUX_RACE_STRINGS,
@@ -187,20 +190,20 @@ limpet_collision (ELEMENT *ElementPtr0, POINT *pPt0,
 	if (ElementPtr1->state_flags & PLAYER_SHIP
 	&& !((EnemyShipPtr && EnemyShipPtr->SpeciesID == UMGAH_ID)
 			&& ElementPtr1->current.image.farray == EnemyShipPtr->RaceDescPtr->ship_data.special)
-    && !((EnemyShipPtr && EnemyShipPtr->SpeciesID == ANDROSYNTH_ID)
+		&& !((EnemyShipPtr && EnemyShipPtr->SpeciesID == ANDROSYNTH_ID)
 			&& ElementPtr1->current.image.farray == EnemyShipPtr->RaceDescPtr->ship_data.special))
 	{
 		int thrust_loss;
 
 		if (RDPtr->characteristics.thrust_increment == RDPtr->characteristics.max_thrust)
 		{
-			if (RDPtr->characteristics.thrust_increment <= WORST_TOPSPEED)
+			if (RDPtr->characteristics.thrust_increment <= WORST_MAX_THRUST)
 			{
-				// Non-inertial enemy ship immobilized.
-				RDPtr->characteristics.max_thrust = WORST_TOPSPEED;
-				RDPtr->characteristics.thrust_increment = WORST_TOPSPEED;
-				RDPtr->characteristics.turn_wait = 144;
-				RDPtr->characteristics.thrust_wait = 48;
+				// Non-inertial enemy ship immobilized
+				RDPtr->characteristics.turn_wait = WORST_TURN_WAIT;
+				RDPtr->characteristics.thrust_wait = WORST_THRUST_WAIT;
+				RDPtr->characteristics.max_thrust = WORST_MAX_THRUST;
+				RDPtr->characteristics.thrust_increment = WORST_MAX_THRUST;
 				
 				ProcessSound (SetAbsSoundIndex (
 						// You can stop spamming limpets now. Here's a sound effect to remind you.
@@ -208,7 +211,7 @@ limpet_collision (ELEMENT *ElementPtr0, POINT *pPt0,
 			}
 			else
 			{
-				// This section pertains to ships with non-inertial thrust.
+				// This section pertains to ships with non-inertial thrust
 				--RDPtr->characteristics.max_thrust;
 				--RDPtr->characteristics.thrust_increment;
 				
@@ -224,13 +227,13 @@ limpet_collision (ELEMENT *ElementPtr0, POINT *pPt0,
 		}
 		else
 		{
-			if (RDPtr->characteristics.max_thrust <= WORST_TOPSPEED)
+			if (RDPtr->characteristics.max_thrust <= WORST_MAX_THRUST)
 			{
-				// Enemy ship immobilized.
-				RDPtr->characteristics.turn_wait = 144;
-				RDPtr->characteristics.thrust_wait = 48;
-				RDPtr->characteristics.max_thrust = WORST_TOPSPEED;
-				RDPtr->characteristics.thrust_increment = WORST_ACCEL;
+				// Enemy ship immobilized
+				RDPtr->characteristics.turn_wait = WORST_TURN_WAIT;
+				RDPtr->characteristics.thrust_wait = WORST_THRUST_WAIT;
+				RDPtr->characteristics.max_thrust = WORST_MAX_THRUST;
+				RDPtr->characteristics.thrust_increment = WORST_THRUST_INC;
 				
 				ProcessSound (SetAbsSoundIndex (
 						// You can stop spamming limpets now. Here's a sound effect to remind you.
@@ -253,9 +256,9 @@ limpet_collision (ELEMENT *ElementPtr0, POINT *pPt0,
 	
 				RDPtr->characteristics.max_thrust -= thrust_loss;
 			
-				//This bit prevents an inertial ship from becoming non-inertial.
+				// This bit prevents an inertial ship from becoming non-inertial
 				if (RDPtr->characteristics.thrust_increment >= RDPtr->characteristics.max_thrust)
-						RDPtr->characteristics.thrust_increment = WORST_ACCEL;
+						RDPtr->characteristics.thrust_increment = WORST_THRUST_INC;
 
 				ProcessSound (SetAbsSoundIndex (
 						/* LIMPET_AFFIXES */
@@ -386,7 +389,7 @@ vux_postprocess (ELEMENT *ElementPtr)
 	STARSHIP *StarShipPtr;
 
 	GetElementStarShip (ElementPtr, &StarShipPtr);
-	if ((StarShipPtr->cur_status_flags & SPECIAL)
+	if (StarShipPtr->cur_status_flags & SPECIAL
 			&& StarShipPtr->special_counter == 0
 			&& DeltaEnergy (ElementPtr, -SPECIAL_ENERGY_COST))
 	{
@@ -397,6 +400,17 @@ vux_postprocess (ELEMENT *ElementPtr)
 
 		StarShipPtr->special_counter =
 				StarShipPtr->RaceDescPtr->characteristics.special_wait;
+		
+		// Each limpet deployed will slow battery recharge, effect is cumulative
+		StarShipPtr->static_counter += ENERGY_WAIT_EXTRA;
+	}
+
+	// Dump static_counter into energy_counter when the normal delay elapses
+	if (StarShipPtr->energy_counter == 0
+			&& StarShipPtr->static_counter)
+	{
+		StarShipPtr->energy_counter += StarShipPtr->static_counter + 1;
+		StarShipPtr->static_counter = 0;
 	}
 }
 

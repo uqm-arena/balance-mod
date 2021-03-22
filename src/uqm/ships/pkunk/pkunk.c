@@ -23,7 +23,7 @@
 #include "libs/mathlib.h"
 #include "uqm/tactrans.h"
 
-// Core characteristics
+// Core Characteristics
 #define MAX_CREW 8
 #define MAX_ENERGY 12
 #define ENERGY_REGENERATION 0
@@ -452,7 +452,7 @@ pkunk_preprocess (ELEMENT *ElementPtr)
 					StarShipPtr->RaceDescPtr->ship_data.ship_sounds, 1
 					), ElementPtr);
               
-			// Use static_counter to keep track of Pkunk deaths.
+			// Use static_counter to keep track of Pkunk deaths
 			++StarShipPtr->static_counter;
             
 			ElementPtr->life_span = PHOENIX_LIFE;

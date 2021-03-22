@@ -57,6 +57,8 @@ static void cleanup_dead_ship (ELEMENT *ElementPtr);
 
 static BOOLEAN dittyIsPlaying;
 static STARSHIP *winnerStarShip;
+		// Indicates which ship is the winner of the current battle.
+		// The winner will be last to pick the next ship.
 
 
 BOOLEAN
@@ -258,7 +260,7 @@ battleEndReadyNetwork (NetworkInputContext *context)
 }
 #endif
 
-// Returns true iff this side is ready to end the battle.
+// Returns true if this side is ready to end the battle.
 static inline bool
 readyForBattleEnd (void)
 {
@@ -297,6 +299,8 @@ cleanup_dead_ship (ELEMENT *DeadShipPtr)
 {
 	STARSHIP *DeadStarShipPtr;
 	BYTE MiscElemCount;
+									
+	FRAME frame;
 
 	MiscElemCount = 0;
 
@@ -366,14 +370,18 @@ cleanup_dead_ship (ELEMENT *DeadShipPtr)
 				{
 					while(IS_RETREAT(DeadStarShipPtr)) // "while" instead of "if" to avoid "goto"-s
 					{
-						if(MiscElemCount>=MISC_STORAGE_SIZE) {
-							log_add(log_Error, "Error: MISC_STORAGE_SIZE is too small!\n");
+						if (MiscElemCount>=MISC_STORAGE_SIZE) 
+						{
+							log_add (log_Error, "Error: MISC_STORAGE_SIZE is too small!\n");
 							break;
 						}
-						switch(StarShipPtr->SpeciesID) {
+						switch(StarShipPtr->SpeciesID)
+						{
 							case CHMMR_ID:
-								if(ElementPtr->hit_points) {
-									((COUNT*)StarShipPtr->miscellanea_storage)[MiscElemCount] = ElementPtr->hit_points;
+								if(ElementPtr->hit_points)
+								{
+									((COUNT*)StarShipPtr->miscellanea_storage)[MiscElemCount] = 
+											ElementPtr->hit_points;
 									MiscElemCount++;
 								}
 								//break;
@@ -381,14 +389,8 @@ cleanup_dead_ship (ELEMENT *DeadShipPtr)
 								/* Mark the retreated ship in the ship selection box */
 								if((LOBYTE (GLOBAL (CurrentActivity)) == SUPER_MELEE))
 								{
-									LockMutex (GraphicsLock);
-									
-									FRAME frame;
-									
 									frame = SetAbsFrameIndex (PickMeleeFrame, StarShipPtr->playerNr);
 									mark_retreated_ship (frame, StarShipPtr);
-									
-									UnlockMutex (GraphicsLock);
 								}
 								break;
 						}
@@ -695,50 +697,37 @@ explosion_preprocess (ELEMENT *ShipPtr)
 }
 
 void
-ship_death (ELEMENT *ShipPtr)
+StopAllBattleMusic (void)
 {
-
-	STARSHIP *StarShipPtr;
-	STARSHIP *VictoriousStarShipPtr;
-	HELEMENT hElement, hNextElement;
-	ELEMENT *ElementPtr;
-
 	StopDitty ();
 	StopMusic ();
+}
 
-	GetElementStarShip (ShipPtr, &StarShipPtr);
+STARSHIP *
+FindAliveStarShip (ELEMENT *deadShip)
+{
+	STARSHIP *aliveShip = NULL;
+	HELEMENT hElement, hNextElement;
 
-        
-	// Enable Ilwrath's cloak visibility for both sides
-	// if the ship was cloaked upon destruction
-	// Having the cloak on for one side and off for one causes
-	// a desynch in net play
-	if (StarShipPtr->SpeciesID == ILWRATH_ID && StarShipPtr->crew_level == 0)
-	{
-		if (GetPrimType (&DisplayArray[ShipPtr->PrimIndex]) == STAMPFILL_PRIM)
-		{
-#ifdef DEBUG
-			fprintf(stderr, "fixing Ilwarth %d\n", StarShipPtr->SpeciesID);
-#endif
-			PRIMITIVE *lpPrim;
-			lpPrim = & (DisplayArray)[ShipPtr->PrimIndex];
-			SetPrimType(lpPrim, STAMP_PRIM);
-			SetPrimColor(lpPrim, BLACK_COLOR);
-		}
-	}
-
-	VictoriousStarShipPtr = NULL;
+	// Find the remaining ship, if any, and see if it is still alive.
 	for (hElement = GetHeadElement (); hElement; hElement = hNextElement)
 	{
+		ELEMENT *ElementPtr;
+
 		LockElement (hElement, &ElementPtr);
 		if ((ElementPtr->state_flags & PLAYER_SHIP)
-				&& ElementPtr != ShipPtr
+				&& ElementPtr != deadShip
 						/* and not running away */
-				&& ElementPtr->mass_points <= MAX_SHIP_MASS)
+				&& ElementPtr->mass_points <= MAX_SHIP_MASS + 1)
 		{
-			GetElementStarShip (ElementPtr, &VictoriousStarShipPtr);
-			if (VictoriousStarShipPtr->RaceDescPtr->ship_info.crew_level == 0)
-				VictoriousStarShipPtr = NULL;
+			GetElementStarShip (ElementPtr, &aliveShip);
+			assert (aliveShip != NULL);
+			if (aliveShip->RaceDescPtr->ship_info.crew_level == 0
+					/* reincarnating Pkunk is not actually dead */
+					&& ElementPtr->mass_points != MAX_SHIP_MASS + 1)
+			{
+				aliveShip = NULL;
+			}
 
 			UnlockElement (hElement);
 			break;
@@ -746,8 +735,69 @@ ship_death (ELEMENT *ShipPtr)
 		hNextElement = GetSuccElement (ElementPtr);
 		UnlockElement (hElement);
 	}
+	
+	return aliveShip;
+}
 
-	StarShipPtr->cur_status_flags &= ~PLAY_VICTORY_DITTY;
+STARSHIP *
+GetWinnerStarShip (void)
+{
+	return winnerStarShip;
+}
+
+void
+SetWinnerStarShip (STARSHIP *winner)
+{
+	if (winner == NULL)
+		return; // nothing to do
+	
+	winner->cur_status_flags |= PLAY_VICTORY_DITTY;
+
+	// The winner is set once per battle. If both ships die, this function is
+	// called twice, once for each ship. We need to preserve the winner
+	// determined on the first call.
+	if (winnerStarShip == NULL)
+		winnerStarShip = winner;
+}
+
+void
+RecordShipDeath (ELEMENT *deadShip)
+{
+	STARSHIP *deadStarShip;
+	PRIMITIVE *lpPrim;
+
+	GetElementStarShip (deadShip, &deadStarShip);
+	assert (deadStarShip != NULL);
+
+	// Enable Ilwrath's cloak visibility for both sides
+	// if the ship was cloaked upon destruction
+	// Having the cloak on for one side and off for one causes
+	// a desynch in net play
+	if (deadStarShip->SpeciesID == ILWRATH_ID && deadStarShip->crew_level == 0)
+	{
+		if (GetPrimType (&DisplayArray[deadShip->PrimIndex]) == STAMPFILL_PRIM)
+		{
+#ifdef DEBUG
+			fprintf(stderr, "fixing Ilwarth %d\n", deadStarShip->SpeciesID);
+#endif
+			lpPrim = & (DisplayArray)[deadShip->PrimIndex];
+			SetPrimType(lpPrim, STAMP_PRIM);
+			SetPrimColor(lpPrim, BLACK_COLOR);
+		}
+	}
+
+	if (LOBYTE (GLOBAL (CurrentActivity)) == SUPER_MELEE)
+		MeleeShipDeath (deadStarShip);
+}
+
+void
+StartShipExplosion (ELEMENT *ShipPtr, bool playSound)
+{
+	STARSHIP *StarShipPtr;
+
+	GetElementStarShip (ShipPtr, &StarShipPtr);
+
+	ZeroVelocityComponents (&ShipPtr->velocity);
 
 	DeltaEnergy (ShipPtr,
 			-(SIZE)StarShipPtr->RaceDescPtr->ship_info.energy_level);
@@ -755,32 +805,16 @@ ship_death (ELEMENT *ShipPtr)
 	ShipPtr->life_span = NUM_EXPLOSION_FRAMES * 3;
 	ShipPtr->state_flags &= ~DISAPPEARING;
 	ShipPtr->state_flags |= FINITE_LIFE | NONSOLID;
+	ShipPtr->preprocess_func = explosion_preprocess;
 	ShipPtr->postprocess_func = PostProcessStatus;
 	ShipPtr->death_func = cleanup_dead_ship;
 	ShipPtr->hTarget = 0;
-	ZeroVelocityComponents (&ShipPtr->velocity);
-	if (ShipPtr->crew_level) /* only happens for shofixti self-destruct */
+
+	if (playSound)
 	{
-		PlaySound (SetAbsSoundIndex (
-				StarShipPtr->RaceDescPtr->ship_data.ship_sounds, 1),
-				CalcSoundPosition (ShipPtr), ShipPtr,
-				GAME_SOUND_PRIORITY + 1);
-
-        ++ShipPtr->life_span;
-
-		DeltaCrew (ShipPtr, -(SIZE)ShipPtr->crew_level);
-		if (VictoriousStarShipPtr == NULL)
-		{	// No ships left alive after a Shofixti Glory device,
-			// thus Shofixti wins
-			VictoriousStarShipPtr = StarShipPtr;
-		}
-	}
-	else
-	{
-		ShipPtr->preprocess_func = explosion_preprocess;
-
 		PlaySound (SetAbsSoundIndex (GameSounds, SHIP_EXPLODES),
 				CalcSoundPosition (ShipPtr), ShipPtr, GAME_SOUND_PRIORITY + 1);
+		++ShipPtr->life_span;
 	}
 
 	if(opt_retreat != OPTVAL_DENY) {
@@ -803,18 +837,28 @@ ship_death (ELEMENT *ShipPtr)
 		assert (StarShipPtr->playerNr >= 0);
 		battle_counter[StarShipPtr->playerNr]--;
 	}
+}
 
-	if (VictoriousStarShipPtr != NULL)
-		VictoriousStarShipPtr->cur_status_flags |= PLAY_VICTORY_DITTY;
+void
+ship_death (ELEMENT *ShipPtr)
+{
+	STARSHIP *StarShipPtr;
+	STARSHIP *winner;
 
-	// The winner is set once per battle. If both ships die, this function is
-	// called twice, once for each ship. We need to preserve the winner
-	// determined on the first call.
-	if (winnerStarShip == NULL)
-		winnerStarShip = VictoriousStarShipPtr;
+	GetElementStarShip (ShipPtr, &StarShipPtr);
 
-	if (LOBYTE (GLOBAL (CurrentActivity)) == SUPER_MELEE)
-		MeleeShipDeath (StarShipPtr);
+	StopAllBattleMusic ();
+
+	// If the winning ship dies before the ditty starts, do not play it.
+	// e.g. a ship can die after the opponent begins exploding but
+	// before the explosion is over.
+	StarShipPtr->cur_status_flags &= ~PLAY_VICTORY_DITTY;
+
+	StartShipExplosion (ShipPtr, true);
+
+	winner = FindAliveStarShip (ShipPtr);
+	SetWinnerStarShip (winner);
+	RecordShipDeath (ShipPtr);
 }
 
 #define START_ION_COLOR BUILD_COLOR (MAKE_RGB15 (0x1F, 0x15, 0x00), 0x7A)
@@ -1018,7 +1062,6 @@ ship_transition (ELEMENT *ElementPtr)
 				ShipImagePtr->current.location.y =
 						WRAP_Y (ShipImagePtr->current.location.y);
 			}
-
 			ShipImagePtr->preprocess_func = ship_transition;
 			ShipImagePtr->death_func = cycle_ion_trail;
 			SetElementStarShip (ShipImagePtr, StarShipPtr);

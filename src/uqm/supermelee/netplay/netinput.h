@@ -16,12 +16,16 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef _NETINPUT_H
-#define _NETINPUT_H
+#ifndef UQM_SUPERMELEE_NETPLAY_NETINPUT_H_
+#define UQM_SUPERMELEE_NETPLAY_NETINPUT_H_
 
 #include "../../controls.h"
 		// for BATTLE_INPUT_STATE
 #include "../../init.h"
+
+#if defined(__cplusplus)
+extern "C" {
+#endif
 		// for NUM_PLAYERS
 
 typedef struct BattleInputBuffer {
@@ -46,5 +50,8 @@ bool BattleInputBuffer_pop(BattleInputBuffer *bib,
 
 BattleInputBuffer *getBattleInputBuffer(size_t player);
 
-#endif  /* _NETINPUT_H */
+#if defined(__cplusplus)
+}
+#endif
 
+#endif  /* UQM_SUPERMELEE_NETPLAY_NETINPUT_H_ */

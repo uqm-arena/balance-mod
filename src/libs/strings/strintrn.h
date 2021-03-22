@@ -16,13 +16,14 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-#ifndef _STRINTRN_H
-#define _STRINTRN_H
+#ifndef LIBS_STRINGS_STRINTRN_H_
+#define LIBS_STRINGS_STRINTRN_H_
 
 #include <stdio.h>
 #include <string.h>
 #include "libs/strlib.h"
 #include "libs/reslib.h"
+#include "stringhashtable.h"
 
 struct string_table_entry
 {
@@ -37,10 +38,12 @@ struct string_table
 	unsigned short flags;
 	int size;
 	STRING_TABLE_ENTRY_DESC *strings;
+	StringHashTable_HashTable *nameIndex;
 };
 
-#define HAS_SOUND_CLIPS (1 << 0)
-#define HAS_TIMESTAMP (1 << 1)
+#define HAS_SOUND_CLIPS  (1 << 0)
+#define HAS_TIMESTAMP    (1 << 1)
+#define HAS_NAMEINDEX    (1 << 2)
 
 STRING_TABLE AllocStringTable (int num_entries, int flags);
 void FreeStringTable (STRING_TABLE strtab);
@@ -49,5 +52,5 @@ void *_GetStringData (uio_Stream *fp, DWORD length);
 void *_GetBinaryTableData (uio_Stream *fp, DWORD length);
 void _GetConversationData (const char *path, RESOURCE_DATA *resdata);
 
-#endif /* _STRINTRN_H */
+#endif /* LIBS_STRINGS_STRINTRN_H_ */
 

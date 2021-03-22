@@ -198,9 +198,12 @@ StopTrack (void)
 static void
 DoTrackTag (TFB_SoundChunk *chunk)
 {
+	LockMutex (soundSource[SPEECH_SOURCE].stream_mutex);
 	if (chunk->callback)
-		chunk->callback ();
+		chunk->callback(0);
+	
 	cur_sub_chunk = chunk;
+	UnlockMutex (soundSource[SPEECH_SOURCE].stream_mutex);
 }
 
 // This func is called by PlayStream() when stream is about
@@ -421,7 +424,7 @@ SpliceMultiTrack (UNICODE *TrackNames[], UNICODE *TrackText)
 
 // XXX: This code and the entire trackplayer are begging to be overhauled
 void
-SpliceTrack (UNICODE *TrackName, UNICODE *TrackText, UNICODE *TimeStamp, TFB_TrackCB cb)
+SpliceTrack (UNICODE *TrackName, UNICODE *TrackText, UNICODE *TimeStamp, CallbackFunction cb)
 {
 	static UNICODE last_track_name[128] = "";
 	static unsigned long dec_offset = 0;

@@ -16,11 +16,15 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-#ifndef _CLOCK_H
-#define _CLOCK_H
+#ifndef UQM_CLOCK_H_
+#define UQM_CLOCK_H_
 
 #include "libs/tasklib.h"
 #include "displist.h"
+
+#if defined(__cplusplus)
+extern "C" {
+#endif
 
 
 #define START_YEAR 2155
@@ -100,5 +104,8 @@ extern void UnlockGameClock (void);
 // but not much else
 extern BOOLEAN GameClockRunning (void);
 
-#endif /* _CLOCK_H */
+#if defined(__cplusplus)
+}
+#endif
 
+#endif /* UQM_CLOCK_H_ */

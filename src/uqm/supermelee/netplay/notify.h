@@ -16,8 +16,8 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef _NOTIFY_H
-#define _NOTIFY_H
+#ifndef UQM_SUPERMELEE_NETPLAY_NOTIFY_H_
+#define UQM_SUPERMELEE_NETPLAY_NOTIFY_H_
 
 #include "netplay.h"
 		// for NETPLAY_CHECKSUM
@@ -31,6 +31,10 @@
 		// for MeleeShip
 #include "../meleesetup.h"
 		// for FleetShipIndex
+
+#if defined(__cplusplus)
+extern "C" {
+#endif
 
 void Netplay_Notify_shipSelected(NetConnection *conn, FleetShipIndex index);
 void Netplay_Notify_battleInput(NetConnection *conn,
@@ -51,5 +55,8 @@ void Netplay_Notify_checksum(NetConnection *conn,
 #endif
 
 
-#endif  /* _NOTIFY_H */
+#if defined(__cplusplus)
+}
+#endif
 
+#endif  /* UQM_SUPERMELEE_NETPLAY_NOTIFY_H_ */

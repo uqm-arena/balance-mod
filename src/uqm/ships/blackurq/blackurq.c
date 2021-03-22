@@ -21,7 +21,7 @@
 #include "resinst.h"
 #include "uqm/globdata.h"
 
-// Core characteristics
+// Core Characteristics
 #define MAX_CREW MAX_CREW_SIZE
 #define MAX_ENERGY MAX_ENERGY_SIZE
 #define ENERGY_REGENERATION 1
@@ -38,7 +38,7 @@
 #define MISSILE_OFFSET 9
 #define KOHR_AH_OFFSET 28
 #define MISSILE_SPEED 64
-#define MISSILE_LIFE 64 // It's infinite, actually.
+#define MISSILE_LIFE 64 // It's infinite, actually
 #define MISSILE_HITS 10
 #define MISSILE_DAMAGE 4
 #define SAW_RATE 0
@@ -351,7 +351,7 @@ initialize_buzzsaw (ELEMENT *ShipPtr, HELEMENT SawArray[])
 		dx = dx * 1/2;
 		dy = dy * 1/2;
         
-		// Add some of the Marauder's velocity to its projectiles.
+		// Add some of the Marauder's velocity to its projectiles
 		LockElement (SawArray[0], &SawPtr);
 		DeltaVelocityComponents (&SawPtr->velocity, dx, dy);
 		SawPtr->current.location.x -= VELOCITY_TO_WORLD (dx);

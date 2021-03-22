@@ -20,7 +20,7 @@
 #include "druuge.h"
 #include "resinst.h"
 
-// Core characteristics
+// Core Characteristics
 #define MAX_CREW 14
 #define MAX_ENERGY 32
 #define ENERGY_REGENERATION 1
@@ -52,7 +52,7 @@ static RACE_DESC druuge_desc =
 {
 	{ /* SHIP_INFO */
 		FIRES_FORE,
-		18, /* Super Melee cost */
+		17, /* Super Melee cost */
 		MAX_CREW, MAX_CREW,
 		MAX_ENERGY, MAX_ENERGY,
 		DRUUGE_RACE_STRINGS,
@@ -193,7 +193,7 @@ initialize_cannon (ELEMENT *ShipPtr, HELEMENT CannonArray[])
 		dx = dx * 1/2;
 		dy = dy * 1/2;
 
-		// Add some of the Mauler's velocity to its projectiles.
+		// Add some of the Mauler's velocity to its projectiles
 		DeltaVelocityComponents (&CannonPtr->velocity, dx, dy);
 		CannonPtr->current.location.x -= VELOCITY_TO_WORLD (dx);
 		CannonPtr->current.location.y -= VELOCITY_TO_WORLD (dy);

@@ -20,7 +20,7 @@
 
 /*==============================================================================
 
-  $Id: npertab.c 2412 2006-08-18 18:37:39Z avolkov $
+  $Id$
 
   MOD format period table.  Used by both the MOD and M15 (15-inst mod) Loaders.
 

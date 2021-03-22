@@ -16,8 +16,8 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef _PACKETSENDERS_H
-#define _PACKETSENDERS_H
+#ifndef UQM_SUPERMELEE_NETPLAY_PACKETSENDERS_H_
+#define UQM_SUPERMELEE_NETPLAY_PACKETSENDERS_H_
 
 #include "types.h"
 
@@ -30,6 +30,10 @@
 		// for MeleeShip
 #include "../meleesetup.h"
 		// for FleetShipIndex
+
+#if defined(__cplusplus)
+extern "C" {
+#endif
 
 void sendInit(NetConnection *conn);
 void sendPing(NetConnection *conn, uint32 id);
@@ -56,6 +60,8 @@ void sendAbort(NetConnection *conn, NetplayAbortReason reason);
 void sendReset(NetConnection *conn, NetplayResetReason reason);
 
 
-#endif  /* _PACKETSENDERS_H */
+#if defined(__cplusplus)
+}
+#endif
 
-
+#endif  /* UQM_SUPERMELEE_NETPLAY_PACKETSENDERS_H_ */

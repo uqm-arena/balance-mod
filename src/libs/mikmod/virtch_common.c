@@ -20,7 +20,7 @@
 
 /*==============================================================================
 
-  $Id: virtch_common.c 2421 2006-08-19 00:36:21Z avolkov $
+  $Id$
 
   Common source parts between the two software mixers.
   This file is probably the ugliest part of libmikmod...

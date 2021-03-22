@@ -16,8 +16,8 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef _PACKETQ_H
-#define _PACKETQ_H
+#ifndef UQM_SUPERMELEE_NETPLAY_PACKETQ_H_
+#define UQM_SUPERMELEE_NETPLAY_PACKETQ_H_
 
 typedef struct PacketQueue PacketQueue;
 
@@ -25,6 +25,10 @@ typedef struct PacketQueue PacketQueue;
 #include "types.h"
 
 #include <sys/types.h>
+
+#if defined(__cplusplus)
+extern "C" {
+#endif
 
 typedef struct PacketQueueLink PacketQueueLink;
 struct PacketQueueLink {
@@ -46,6 +50,10 @@ void PacketQueue_uninit(PacketQueue *queue);
 void queuePacket(NetConnection *conn, Packet *packet);
 int flushPacketQueue(NetConnection *conn);
 
+
+#if defined(__cplusplus)
+}
+#endif
 
 #endif
 

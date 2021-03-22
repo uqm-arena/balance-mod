@@ -18,8 +18,8 @@
  *
  */
 
-#ifndef _IO_H
-#define _IO_H
+#ifndef LIBS_UIO_IO_H_
+#define LIBS_UIO_IO_H_
 
 #include <assert.h>
 #include <sys/stat.h>
@@ -81,6 +81,12 @@ uio_MountHandle *uio_mountDir(uio_Repository *destRep, const char *mountPoint,
 		uio_DirHandle *sourceDir, const char *sourcePath,
 		const char *inPath, uio_AutoMount **autoMount, int flags,
 		uio_MountHandle *relative);
+
+// Mount a repository directory into same repository at a different
+// location.
+// From fossil.
+uio_MountHandle *uio_transplantDir(const char *mountPoint,
+		uio_DirHandle *sourceDir, int flags, uio_MountHandle *relative);
 
 // Unmount a previously mounted dir.
 int uio_unmountDir(uio_MountHandle *mountHandle);
@@ -149,5 +155,5 @@ void uio_DirHandle_print(const uio_DirHandle *dirHandle, FILE *out);
 #	define uio_DEBUG
 #endif
 
-#endif  /* _IO_H */
+#endif  /* LIBS_UIO_IO_H_ */
 

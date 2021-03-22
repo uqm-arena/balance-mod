@@ -21,7 +21,7 @@
 #include "resinst.h"
 #include "libs/mathlib.h"
 
-// Core characteristics
+// Core Characteristics
 #define MAX_CREW 20
 #define MAX_ENERGY 10
 #define ENERGY_REGENERATION 2
@@ -32,7 +32,7 @@
 #define TURN_WAIT 2
 #define SHIP_MASS 3
 
-// Pulse Cannons
+// Twin Pulse Cannons
 #define WEAPON_ENERGY_COST 1
 #define WEAPON_WAIT 0
 #define YEHAT_OFFSET 16
@@ -44,11 +44,10 @@
 #define MISSILE_OFFSET 1
 
 // Shield
-#define SPECIAL_ENERGY_COST 3
-#define SPECIAL_WAIT 0 // SPECIAL_WAIT is not used.
-#define SPECIAL_DURATION 16 // This is the shield's timer.
-#define SPECIAL_GAP 8 // This affects the number of frames the shield is on cooldown after each use.
-#define SPECIAL_ENERGY_FREEZE 24 // This is the number of frames the Yehat's energy will not recover after the shield has been used.
+#define SPECIAL_ENERGY_COST 2
+#define SPECIAL_WAIT 7
+#define SPECIAL_WAIT_BONUS 1 // Add this to the shield's duration at the start of a 'fresh' shield activation
+#define ENERGY_WAIT_EXTRA 8 // How long energy recovery stalls after shields drop
 
 static RACE_DESC yehat_desc =
 {
@@ -169,7 +168,7 @@ initialize_standard_missiles (ELEMENT *ShipPtr, HELEMENT MissileArray[])
 			dx = dx * 3/4;
 			dy = dy * 3/4;
 
-			// Add some of the Terminator's velocity to its projectiles.
+			// Add some of the Terminator's velocity to its projectiles
 			DeltaVelocityComponents (&MissilePtr->velocity, dx, dy);
 			MissilePtr->current.location.x -= VELOCITY_TO_WORLD (dx);
 			MissilePtr->current.location.y -= VELOCITY_TO_WORLD (dy);
@@ -223,13 +222,11 @@ yehat_intelligence (ELEMENT *ShipPtr, EVALUATE_DESC *ObjectsOfConcern,
 		{
 			if (ShipPtr->life_span <= NORMAL_LIFE + 1
 					&& (ShieldStatus > 0 || lpEvalDesc->ObjectPtr)
-					&& lpEvalDesc->which_turn <= 2
-					&& (ShieldStatus > 0
-					|| (lpEvalDesc->ObjectPtr->state_flags
-					& PLAYER_SHIP) /* means IMMEDIATE WEAPON */
-					|| PlotIntercept (lpEvalDesc->ObjectPtr,
-					ShipPtr, 2, 0))
-					&& (TFB_Random () & 3))
+						&& lpEvalDesc->which_turn <= 2
+						&& (ShieldStatus > 0
+							|| (lpEvalDesc->ObjectPtr->state_flags & PLAYER_SHIP) /* means IMMEDIATE WEAPON */
+							|| PlotIntercept (lpEvalDesc->ObjectPtr, ShipPtr, 2, 0))
+					&& (TFB_Random () & 4))
 				StarShipPtr->ship_input_state |= SPECIAL;
 
 			if (lpEvalDesc->ObjectPtr
@@ -320,12 +317,12 @@ yehat_postprocess (ELEMENT *ElementPtr)
 static void
 yehat_preprocess (ELEMENT *ElementPtr)
 {
+	STARSHIP *StarShipPtr;
+
+	GetElementStarShip (ElementPtr, &StarShipPtr);
+
 	if (!(ElementPtr->state_flags & APPEARING))
 	{
-		STARSHIP *StarShipPtr;
-
-		GetElementStarShip (ElementPtr, &StarShipPtr);
-
 		if ((ElementPtr->life_span > NORMAL_LIFE
 				/* take care of shield effect */
 				&& --ElementPtr->life_span == NORMAL_LIFE)
@@ -354,26 +351,48 @@ yehat_preprocess (ELEMENT *ElementPtr)
 				DeltaEnergy (ElementPtr, -SPECIAL_ENERGY_COST); /* so text will flash */
 			else
 			{				
+				// Only play the sound effect if the shield was off previously
+				if (ElementPtr->current.image.farray != StarShipPtr->RaceDescPtr->ship_data.special)
+				{
+					ProcessSound (SetAbsSoundIndex (
+						/* YEHAT_SHIELD_ON */
+						StarShipPtr->RaceDescPtr->ship_data.ship_sounds, 1), ElementPtr);
+				}
+				
 				ElementPtr->next.image.farray = StarShipPtr->RaceDescPtr->ship_data.special;
 				ElementPtr->next.image.frame =
 					SetEquFrameIndex (StarShipPtr->RaceDescPtr->ship_data.special[0],
 					ElementPtr->next.image.frame);
 				ElementPtr->state_flags |= CHANGING;
 				
-				ElementPtr->life_span = SPECIAL_DURATION + NORMAL_LIFE;
-
-				StarShipPtr->special_counter = SPECIAL_DURATION + SPECIAL_GAP;
-				StarShipPtr->special_counter = SPECIAL_DURATION + SPECIAL_GAP;
-						
 				DeltaEnergy (ElementPtr, -SPECIAL_ENERGY_COST);
+
+				ElementPtr->life_span = SPECIAL_WAIT + NORMAL_LIFE;
+				StarShipPtr->special_counter = SPECIAL_WAIT;
+
+				// Extend shield duration if this is the start of a 'fresh' shield activation
+				if (StarShipPtr->static_counter == 0)
+				{
+					ElementPtr->life_span += SPECIAL_WAIT_BONUS;
+					StarShipPtr->special_counter += SPECIAL_WAIT_BONUS;
+				}
 				
-				StarShipPtr->energy_counter = SPECIAL_ENERGY_FREEZE;
-			
-				ProcessSound (SetAbsSoundIndex (
-					/* YEHAT_SHIELD_ON */
-					StarShipPtr->RaceDescPtr->ship_data.ship_sounds, 1), ElementPtr);
+				// Shield activation will slow battery recharge, effect is non-cumulative
+				StarShipPtr->static_counter = ENERGY_WAIT_EXTRA;
 			}
 		}
+	}
+
+	// Stall battery regen while shield is up
+	if (ElementPtr->life_span > NORMAL_LIFE)
+		++StarShipPtr->energy_counter;
+
+	// Dump static_counter into energy_counter when the normal delay elapses
+	if (StarShipPtr->energy_counter == 0
+			&& StarShipPtr->static_counter)
+	{
+		StarShipPtr->energy_counter += StarShipPtr->static_counter;
+		StarShipPtr->static_counter = 0;
 	}
 }
 

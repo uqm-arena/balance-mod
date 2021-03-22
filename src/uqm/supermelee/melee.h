@@ -16,8 +16,8 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-#ifndef _MELEE_H
-#define _MELEE_H
+#ifndef UQM_SUPERMELEE_MELEE_H_
+#define UQM_SUPERMELEE_MELEE_H_
 
 #include "../init.h"
 #include "libs/gfxlib.h"
@@ -27,6 +27,10 @@
 #include "libs/reslib.h"
 #include "netplay/packet.h"
 		// for NetplayAbortReason and NetplayResetReason.
+
+#if defined(__cplusplus)
+extern "C" {
+#endif
 
 typedef struct melee_state MELEE_STATE;
 
@@ -50,9 +54,17 @@ extern FRAME PickMeleeFrame;
 
 typedef BYTE MELEE_OPTIONS;
 
+#if defined(__cplusplus)
+}
+#endif
+
 #include "loadmele.h"
 #include "meleesetup.h"
 #include "meleeship.h"
+
+#if defined(__cplusplus)
+extern "C" {
+#endif
 
 struct melee_state
 {
@@ -125,5 +137,8 @@ void Melee_RemoteChange_ship (MELEE_STATE *pMS, NetConnection *conn,
 void Melee_RemoteChange_teamName (MELEE_STATE *pMS, NetConnection *conn,
 		COUNT side, const char *name);
 
-#endif /* _MELEE_H */
+#if defined(__cplusplus)
+}
+#endif
 
+#endif /* UQM_MELEE_H_ */

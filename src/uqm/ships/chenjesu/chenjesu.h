@@ -17,7 +17,17 @@
 #ifndef CHENJESU_H
 #define CHENJESU_H
 
+#if defined(__cplusplus)
+extern "C" {
+#endif
+
 RACE_DESC *init_chenjesu (void);
+
+void fragment_preprocess (ELEMENT *ElementPtr);
+
+#if defined(__cplusplus)
+}
+#endif
 
 #endif  /* CHENJESU_H */
 

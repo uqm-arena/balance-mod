@@ -44,7 +44,7 @@ RSC=rc.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_CONSOLE" /D "_MBCS" /YX /FD /c
-# ADD CPP /nologo /MD /W2 /GX /Zi /O2 /I "..\..\src" /I "..\..\src\regex" /D "NDEBUG" /D "WIN32" /D "_CONSOLE" /D "_MBCS" /D _VW=320 /D _VH=240 /D "HAVE_OPENGL" /D "GFXMODULE_SDL" /D "THREADLIB_SDL" /D "HAVE_OPENAL" /D "HAVE_ZIP" /D "HAVE_JOYSTICK" /D "NETPLAY" /D "ZLIB_DLL" /D "USE_INTERNAL_MIKMOD" /D "USE_PLATFORM_ACCEL" /FD /c
+# ADD CPP /nologo /MD /W2 /GX /Zi /O2 /I "..\..\src" /I "..\..\src\regex" /D "NDEBUG" /D "WIN32" /D "_CONSOLE" /D "_MBCS" /D _VW=320 /D _VH=240 /D "GFXMODULE_SDL" /D "THREADLIB_SDL" /D "HAVE_OPENAL" /D "HAVE_ZIP" /D "HAVE_JOYSTICK" /D "NETPLAY" /D "ZLIB_DLL" /D "USE_INTERNAL_MIKMOD" /D "USE_PLATFORM_ACCEL" /FD /c
 # SUBTRACT CPP /YX
 # ADD BASE RSC /l 0x409 /d "NDEBUG"
 # ADD RSC /l 0x409 /d "NDEBUG"
@@ -53,7 +53,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib ws2_32.lib /nologo /subsystem:console /machine:I386
-# ADD LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib SDL.lib SDLmain.lib SDL_image.lib zdll.lib ws2_32.lib /nologo /subsystem:windows /pdb:none /debug /machine:I386 /nodefaultlib:"msvcrtd.lib" /out:"../../uqm.exe"
+# ADD LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib SDL.lib SDLmain.lib libpng16.lib zdll.lib ws2_32.lib user32.lib /nologo /subsystem:windows /pdb:none /debug /machine:I386 /nodefaultlib:"msvcrtd.lib" /out:"../../uqm.exe"
 # Begin Special Build Tool
 SOURCE="$(InputPath)"
 PostBuild_Desc=Stripping debug info...
@@ -74,7 +74,7 @@ PostBuild_Cmds=rebase -b 0x400000 -x . "../../uqm.exe"
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /GX /Zi /Od /D "WIN32" /D "_DEBUG" /D "_CONSOLE" /D "_MBCS" /YX /FD /GZ /c
-# ADD CPP /nologo /MDd /W3 /GX /Zi /Od /I "..\..\src" /I "..\..\src\regex" /D "DEBUG" /D "_DEBUG" /D "DEBUG_TRACK_SEM" /D "WIN32" /D "_CONSOLE" /D "_MBCS" /D _VW=320 /D _VH=240 /D "HAVE_OPENGL" /D "GFXMODULE_SDL" /D "THREADLIB_SDL" /D "HAVE_OPENAL" /D "HAVE_ZIP" /D "HAVE_JOYSTICK" /D "NETPLAY" /D "ZLIB_DLL" /D "USE_INTERNAL_MIKMOD" /D "USE_PLATFORM_ACCEL" /FR /FD /GZ /c
+# ADD CPP /nologo /MDd /W3 /GX /Zi /Od /I "..\..\src" /I "..\..\src\regex" /D "DEBUG" /D "_DEBUG" /D "DEBUG_TRACK_SEM" /D "DEBUG_DCQ_THREADS" /D "WIN32" /D "_CONSOLE" /D "_MBCS" /D _VW=320 /D _VH=240 /D "GFXMODULE_SDL" /D "THREADLIB_SDL" /D "HAVE_OPENAL" /D "HAVE_ZIP" /D "HAVE_JOYSTICK" /D "NETPLAY" /D "ZLIB_DLL" /D "USE_INTERNAL_MIKMOD" /D "USE_PLATFORM_ACCEL" /FR /FD /GZ /c
 # SUBTRACT CPP /YX
 # ADD BASE RSC /l 0x409 /d "_DEBUG"
 # ADD RSC /l 0x409 /d "_DEBUG"
@@ -83,7 +83,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo /o"UrQuanMasters.bsc"
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib ws2_32.lib /nologo /subsystem:console /debug /machine:I386 /pdbtype:sept
-# ADD LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib SDL.lib SDLmain.lib SDL_image.lib zdll.lib ws2_32.lib /nologo /subsystem:console /debug /machine:I386 /nodefaultlib:"msvcrt.lib" /out:"../../uqmdebug.exe" /pdbtype:sept
+# ADD LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib SDL.lib SDLmain.lib libpng16.lib zdll.lib ws2_32.lib user32.lib /nologo /subsystem:console /debug /machine:I386 /nodefaultlib:"msvcrt.lib" /out:"../../uqmdebug.exe" /pdbtype:sept
 # SUBTRACT LINK32 /nodefaultlib
 
 !ELSEIF  "$(CFG)" == "UrQuanMasters - Win32 Debug NoAccel"
@@ -101,7 +101,7 @@ LINK32=link.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /GX /Zi /Od /D "WIN32" /D "_DEBUG" /D "_CONSOLE" /D "_MBCS" /YX /FD /GZ /c
-# ADD CPP /nologo /MDd /W3 /GX /Zi /Od /I "..\..\src" /I "..\..\src\regex" /D "DEBUG" /D "_DEBUG" /D "DEBUG_TRACK_SEM" /D "WIN32" /D "_CONSOLE" /D "_MBCS" /D _VW=320 /D _VH=240 /D "HAVE_OPENGL" /D "GFXMODULE_SDL" /D "THREADLIB_SDL" /D "HAVE_OPENAL" /D "HAVE_ZIP" /D "HAVE_JOYSTICK" /D "NETPLAY" /D "ZLIB_DLL" /D "USE_INTERNAL_MIKMOD" /FR /FD /GZ /c
+# ADD CPP /nologo /MDd /W3 /GX /Zi /Od /I "..\..\src" /I "..\..\src\regex" /D "DEBUG" /D "_DEBUG" /D "DEBUG_TRACK_SEM" /D "DEBUG_DCQ_THREADS" /D "WIN32" /D "_CONSOLE" /D "_MBCS" /D _VW=320 /D _VH=240 /D "GFXMODULE_SDL" /D "THREADLIB_SDL" /D "HAVE_OPENAL" /D "HAVE_ZIP" /D "HAVE_JOYSTICK" /D "NETPLAY" /D "ZLIB_DLL" /D "USE_INTERNAL_MIKMOD" /FR /FD /GZ /c
 # SUBTRACT CPP /YX
 # ADD BASE RSC /l 0x409 /d "_DEBUG"
 # ADD RSC /l 0x409 /d "_DEBUG"
@@ -109,8 +109,8 @@ BSC32=bscmake.exe
 # ADD BASE BSC32 /nologo /o"UrQuanMasters.bsc"
 # ADD BSC32 /nologo /o"UrQuanMasters.bsc"
 LINK32=link.exe
-# ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib SDL.lib SDLmain.lib SDL_image.lib zdll.lib ws2_32.lib /nologo /subsystem:console /debug /machine:I386 /nodefaultlib:"msvcrt.lib" /out:"../../uqmdebug.exe" /pdbtype:sept
-# ADD LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib SDL.lib SDLmain.lib SDL_image.lib zdll.lib ws2_32.lib /nologo /subsystem:console /debug /machine:I386 /nodefaultlib:"msvcrt.lib" /out:"../../uqmdebug.exe" /pdbtype:sept
+# ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib SDL.lib SDLmain.lib libpng16.lib zdll.lib ws2_32.lib user32.lib /nologo /subsystem:console /debug /machine:I386 /nodefaultlib:"msvcrt.lib" /out:"../../uqmdebug.exe" /pdbtype:sept
+# ADD LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib SDL.lib SDLmain.lib libpng16.lib zdll.lib ws2_32.lib user32.lib /nologo /subsystem:console /debug /machine:I386 /nodefaultlib:"msvcrt.lib" /out:"../../uqmdebug.exe" /pdbtype:sept
 # SUBTRACT LINK32 /nodefaultlib
 
 !ELSEIF  "$(CFG)" == "UrQuanMasters - Win32 Release NoAccel"
@@ -128,7 +128,7 @@ LINK32=link.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_CONSOLE" /D "_MBCS" /YX /FD /c
-# ADD CPP /nologo /MD /W2 /GX /Zi /O2 /I "..\..\src" /I "..\..\src\regex" /D "NDEBUG" /D "WIN32" /D "_CONSOLE" /D "_MBCS" /D _VW=320 /D _VH=240 /D "HAVE_OPENGL" /D "GFXMODULE_SDL" /D "THREADLIB_SDL" /D "HAVE_OPENAL" /D "HAVE_ZIP" /D "HAVE_JOYSTICK" /D "NETPLAY" /D "ZLIB_DLL" /D "USE_INTERNAL_MIKMOD" /FD /c
+# ADD CPP /nologo /MD /W2 /GX /Zi /O2 /I "..\..\src" /I "..\..\src\regex" /D "NDEBUG" /D "WIN32" /D "_CONSOLE" /D "_MBCS" /D _VW=320 /D _VH=240 /D "GFXMODULE_SDL" /D "THREADLIB_SDL" /D "HAVE_OPENAL" /D "HAVE_ZIP" /D "HAVE_JOYSTICK" /D "NETPLAY" /D "ZLIB_DLL" /D "USE_INTERNAL_MIKMOD" /FD /c
 # SUBTRACT CPP /YX
 # ADD BASE RSC /l 0x409 /d "NDEBUG"
 # ADD RSC /l 0x409 /d "NDEBUG"
@@ -136,8 +136,8 @@ BSC32=bscmake.exe
 # ADD BASE BSC32 /nologo
 # ADD BSC32 /nologo
 LINK32=link.exe
-# ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib SDL.lib SDLmain.lib SDL_image.lib zdll.lib ws2_32.lib /nologo /subsystem:console /pdb:none /debug /machine:I386 /nodefaultlib:"msvcrtd.lib" /out:"../../uqm.exe"
-# ADD LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib SDL.lib SDLmain.lib SDL_image.lib zdll.lib ws2_32.lib /nologo /subsystem:windows /pdb:none /debug /machine:I386 /nodefaultlib:"msvcrtd.lib" /out:"../../uqm.exe"
+# ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib SDL.lib SDLmain.lib libpng16.lib zdll.lib ws2_32.lib user32.lib /nologo /subsystem:console /pdb:none /debug /machine:I386 /nodefaultlib:"msvcrtd.lib" /out:"../../uqm.exe"
+# ADD LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib SDL.lib SDLmain.lib libpng16.lib zdll.lib ws2_32.lib user32.lib /nologo /subsystem:windows /pdb:none /debug /machine:I386 /nodefaultlib:"msvcrtd.lib" /out:"../../uqm.exe"
 # Begin Special Build Tool
 SOURCE="$(InputPath)"
 PostBuild_Desc=Stripping debug info...
@@ -212,6 +212,14 @@ SOURCE=..\..\src\libs\callback\alarm.c
 # Begin Source File
 
 SOURCE=..\..\src\libs\callback\alarm.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\libs\callback\async.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\libs\callback\async.h
 # End Source File
 # Begin Source File
 
@@ -326,6 +334,14 @@ SOURCE=..\..\src\libs\graphics\sdl\palette.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\src\libs\graphics\sdl\png2sdl.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\libs\graphics\sdl\png2sdl.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\src\libs\graphics\sdl\primitives.c
 # End Source File
 # Begin Source File
@@ -363,6 +379,18 @@ SOURCE=..\..\src\libs\graphics\sdl\scalers.c
 # Begin Source File
 
 SOURCE=..\..\src\libs\graphics\sdl\scalers.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\libs\graphics\sdl\sdl1_common.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\libs\graphics\sdl\sdl2_common.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\libs\graphics\sdl\sdl2_pure.c
 # End Source File
 # Begin Source File
 
@@ -880,6 +908,14 @@ SOURCE=..\..\src\libs\strings\sfileins.c
 # Begin Source File
 
 SOURCE=..\..\src\libs\strings\sresins.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\libs\strings\stringhashtable.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\libs\strings\stringhashtable.h
 # End Source File
 # Begin Source File
 
@@ -1467,6 +1503,10 @@ SOURCE=..\..\src\libs\network\wspiapiwrap.h
 # Begin Source File
 
 SOURCE=..\..\src\libs\alarm.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\libs\async.h
 # End Source File
 # Begin Source File
 
@@ -2214,6 +2254,10 @@ SOURCE=..\..\src\uqm\planets\scan.h
 # Begin Source File
 
 SOURCE=..\..\src\uqm\planets\solarsys.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\uqm\planets\solarsys.h
 # End Source File
 # Begin Source File
 
@@ -3014,6 +3058,14 @@ SOURCE=..\..\src\uqm\supermelee\pickmele.h
 # End Group
 # Begin Source File
 
+SOURCE=..\..\src\uqm\balance-res.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\uqm\balance-strings.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\src\uqm\battle.c
 # End Source File
 # Begin Source File
@@ -3115,6 +3167,10 @@ SOURCE=..\..\src\uqm\cons_res.h
 # Begin Source File
 
 SOURCE=..\..\src\uqm\controls.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\uqm\corecode.h
 # End Source File
 # Begin Source File
 
@@ -3302,7 +3358,7 @@ SOURCE=..\..\src\uqm\load.c
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\uqm\load.h
+SOURCE=..\..\src\uqm\load_legacy.c
 # End Source File
 # Begin Source File
 
@@ -3474,6 +3530,10 @@ SOURCE=..\..\src\uqm\starmap.c
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\src\uqm\starmap.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\src\uqm\state.c
 # End Source File
 # Begin Source File
@@ -3627,10 +3687,6 @@ SOURCE=..\..\doc\devel\gfxversions
 # Begin Source File
 
 SOURCE=..\..\doc\devel\glossary
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\doc\devel\graphicslock
 # End Source File
 # Begin Source File
 

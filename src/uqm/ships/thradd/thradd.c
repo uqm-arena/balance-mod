@@ -22,9 +22,9 @@
 #include "uqm/globdata.h"
 #include "libs/mathlib.h"
 
-// Core characteristics
+// Core Characteristics
 #define MAX_CREW 10
-#define MAX_ENERGY 14
+#define MAX_ENERGY 16
 #define ENERGY_REGENERATION 1
 #define ENERGY_WAIT 6
 #define MAX_THRUST 28
@@ -36,21 +36,20 @@
 // Ion Blasters
 #define WEAPON_ENERGY_COST 2
 #define WEAPON_WAIT 3
-#define MISSILE_SPEED 72 // Was 80
-#define MISSILE_LIFE 10 // Was 9
+#define MISSILE_SPEED 72
+#define MISSILE_LIFE 10
 #define MISSILE_OFFSET 8
-#define THRADDASH_OFFSET_1 9
-#define THRADDASH_OFFSET_2 17
-#define MISSILE_HITS 2 // Was 1
+#define THRADDASH_OFFSET_MID 17
+#define THRADDASH_OFFSET_SIDE 9
+#define MISSILE_HITS 2
 #define MISSILE_DAMAGE 1
-#define MAX_RECOIL_VELOCITY WORLD_TO_VELOCITY (80)
 
 // Afterburner
 #define SPECIAL_ENERGY_COST 1
 #define SPECIAL_WAIT 0
 #define SPECIAL_THRUST_INCREMENT 12
 #define SPECIAL_MAX_THRUST 72
-#define NAPALM_LIFE 96
+#define NAPALM_LIFE 60
 #define NAPALM_OFFSET 0
 #define NAPALM_HITS 2
 #define NAPALM_DAMAGE 2
@@ -220,81 +219,6 @@ thraddash_intelligence (ELEMENT *ShipPtr, EVALUATE_DESC *ObjectsOfConcern, COUNT
 	}
 }
 
-/*
-static void
-kaboom (ELEMENT *ElementPtr)
-{
-	ElementPtr->next.image.frame =
-			IncFrameIndex (ElementPtr->current.image.frame);
-	ElementPtr->state_flags |= CHANGING;
-}
-*/
-
-/*
-static void
-repulsor_collision (ELEMENT *ElementPtr0, POINT *pPt0, ELEMENT *ElementPtr1, POINT *pPt1)
-{
-	STARSHIP *StarShipPtr;
-	
-	GetElementStarShip (ElementPtr0, &StarShipPtr);
-	
-	if ((ElementPtr1->state_flags & PLAYER_SHIP)
-			&& ElementPtr1->crew_level
-			&& !GRAVITY_MASS (ElementPtr1->mass_points + 1))
-	{
-		long knockback;
-		COUNT angle;
-		SIZE cur_delta_x, cur_delta_y;
-		STARSHIP *EnemyShipPtr;
-	
-		GetElementStarShip (ElementPtr1, &EnemyShipPtr);
-
-		EnemyShipPtr->cur_status_flags &= ~(SHIP_AT_MAX_SPEED | SHIP_BEYOND_MAX_SPEED);
-
-		angle = (GetVelocityTravelAngle (&ElementPtr0->velocity));
-
-		// Knockback effect is less potent against ships with high mass.
-		knockback = (WORLD_TO_VELOCITY (72 * 4)) / (ElementPtr1->mass_points + 9);
-
-		// Apply knockback against enemy ship.
-		DeltaVelocityComponents (&ElementPtr1->velocity,
-			COSINE (angle, knockback),
-			SINE (angle, knockback));
-
-		GetCurrentVelocityComponents (&ElementPtr1->velocity, &cur_delta_x, &cur_delta_y);
-
-		// Prevent knockback from exceeding maximum recoil velocity.
-		if ((long)cur_delta_x * (long)cur_delta_x
-			+ (long)cur_delta_y * (long)cur_delta_y
-			> (long)MAX_RECOIL_VELOCITY * (long)MAX_RECOIL_VELOCITY)
-		{
-			angle = ARCTAN (cur_delta_x, cur_delta_y);
-			SetVelocityComponents (&ElementPtr1->velocity,
-				COSINE (angle, MAX_RECOIL_VELOCITY),
-				SINE (angle, MAX_RECOIL_VELOCITY));
-		}
-		
-		// Freeze enemy thrusters. This effect is not cumulative.
-		ElementPtr1->thrust_wait = 20 - ElementPtr1->mass_points;
-	}
-	
-	HELEMENT hBlastElement;
-
-	hBlastElement = weapon_collision (ElementPtr0, pPt0, ElementPtr1, pPt1);
-	if (hBlastElement)
-	{
-		ELEMENT *BlastElementPtr;
-
-		LockElement (hBlastElement, &BlastElementPtr);
-		BlastElementPtr->life_span = 6;
-		BlastElementPtr->current.image.farray = ElementPtr0->next.image.farray;
-		BlastElementPtr->current.image.frame =
-				SetAbsFrameIndex (ElementPtr0->current.image.frame, 1);
-		BlastElementPtr->preprocess_func = kaboom;
-	}
-}
-*/
-
 static COUNT
 initialize_weapon (ELEMENT *ShipPtr, HELEMENT WeaponArray[])
 {
@@ -304,7 +228,6 @@ initialize_weapon (ELEMENT *ShipPtr, HELEMENT WeaponArray[])
 	
 	GetElementStarShip (ShipPtr, &StarShipPtr);
 	MissileBlock.farray = StarShipPtr->RaceDescPtr->ship_data.weapon;
-	// MissileBlock.face = StarShipPtr->ShipFacing;
 	MissileBlock.face = MissileBlock.index = StarShipPtr->ShipFacing;
 	MissileBlock.sender = ShipPtr->playerNr;
 	MissileBlock.flags = IGNORE_SIMILAR;
@@ -319,25 +242,25 @@ initialize_weapon (ELEMENT *ShipPtr, HELEMENT WeaponArray[])
 	{
 		if (i == 0)
 		{
-			MissileBlock.pixoffs = THRADDASH_OFFSET_2;
+			MissileBlock.pixoffs = THRADDASH_OFFSET_MID;
 			MissileBlock.cx = ShipPtr->next.location.x;
 			MissileBlock.cy = ShipPtr->next.location.y;
 		}
 		else if (StarShipPtr->static_counter == 0)
 		{
-			MissileBlock.pixoffs = THRADDASH_OFFSET_1;
+			MissileBlock.pixoffs = THRADDASH_OFFSET_SIDE;
 			MissileBlock.cx = ShipPtr->next.location.x
-				+ COSINE(FACING_TO_ANGLE (MissileBlock.face + 4), -25);
+				+ COSINE(FACING_TO_ANGLE (MissileBlock.face + 4), -28);
 			MissileBlock.cy = ShipPtr->next.location.y
-				+ SINE(FACING_TO_ANGLE (MissileBlock.face + 4), -25);
+				+ SINE(FACING_TO_ANGLE (MissileBlock.face + 4), -28);
 		}
 		else
 		{
-			MissileBlock.pixoffs = THRADDASH_OFFSET_1;
+			MissileBlock.pixoffs = THRADDASH_OFFSET_SIDE;
 			MissileBlock.cx = ShipPtr->next.location.x
-				+ COSINE(FACING_TO_ANGLE (MissileBlock.face + 4), 25);
+				+ COSINE(FACING_TO_ANGLE (MissileBlock.face + 4), 28);
 			MissileBlock.cy = ShipPtr->next.location.y
-				+ SINE(FACING_TO_ANGLE (MissileBlock.face + 4), 25);
+				+ SINE(FACING_TO_ANGLE (MissileBlock.face + 4), 28);
 		}
 
 		if ((WeaponArray[i] = initialize_missile (&MissileBlock)))
@@ -346,7 +269,12 @@ initialize_weapon (ELEMENT *ShipPtr, HELEMENT WeaponArray[])
 			ELEMENT *WeaponPtr;
 
 			LockElement (WeaponArray[i], &WeaponPtr);
+
 			GetCurrentVelocityComponents (&ShipPtr->velocity, &dx, &dy);
+			dx = dx * 3/4;
+			dy = dy * 3/4;
+
+			// Add some of the Torch's velocity to its projectiles
 			DeltaVelocityComponents (&WeaponPtr->velocity, dx, dy);
 			WeaponPtr->current.location.x -= VELOCITY_TO_WORLD (dx);
 			WeaponPtr->current.location.y -= VELOCITY_TO_WORLD (dy);
@@ -402,13 +330,13 @@ thraddash_preprocess (ELEMENT *ElementPtr)
 	
 	GetElementStarShip (ElementPtr, &StarShipPtr);
 	
-	// Switch side guns after every shot.
+	// Switch side guns after every shot
 	if (StarShipPtr->weapon_counter == 1)
 	{
 		if (StarShipPtr->static_counter == 0)
 			++StarShipPtr->static_counter;
 		else
-			StarShipPtr->static_counter = 0;
+			--StarShipPtr->static_counter;
 	}
 
 	if (!(StarShipPtr->cur_status_flags & SPECIAL))
@@ -445,12 +373,12 @@ thraddash_preprocess (ELEMENT *ElementPtr)
 		StarShipPtr->RaceDescPtr->characteristics.thrust_increment = thrust_increment;
 		StarShipPtr->RaceDescPtr->characteristics.max_thrust = max_thrust;
 		
-		// Reduce afterburner energy consumption to 2/3.
+		// Reduce afterburner energy consumption by 1/3
 		if (StarShipPtr->special_counter == 0)
 		{
 			DeltaEnergy (ElementPtr, -SPECIAL_ENERGY_COST);
 
-			StarShipPtr->special_counter = 3;
+			StarShipPtr->special_counter = 2;
 		}
 		else if (StarShipPtr->special_counter == 2)
 			DeltaEnergy (ElementPtr, -SPECIAL_ENERGY_COST);

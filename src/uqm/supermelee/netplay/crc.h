@@ -16,14 +16,18 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef _CRC_H
-#define _CRC_H
+#ifndef UQM_SUPERMELEE_NETPLAY_CRC_H_
+#define UQM_SUPERMELEE_NETPLAY_CRC_H_
 
 typedef struct crc_State crc_State;
 
 #include "types.h"
 
 #include <stddef.h>
+
+#if defined(__cplusplus)
+extern "C" {
+#endif
 
 struct crc_State {
 	uint32 crc;
@@ -36,6 +40,9 @@ void crc_processUint16(crc_State *state, uint16 val);
 void crc_processUint32(crc_State *state, uint32 val);
 uint32 crc_finish(const crc_State *state);
 
+#if defined(__cplusplus)
+}
+#endif
 
 #ifdef DUMP_CRC_OPS
 #include "netconnection.h"
@@ -49,5 +56,5 @@ uint32 crc_finish(const crc_State *state);
 			(void) 0
 #endif
 
-#endif  /* _CRC_H */
+#endif  /* UQM_SUPERMELEE_NETPLAY_CRC_H_ */
 

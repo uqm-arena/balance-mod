@@ -5,7 +5,82 @@ made by the Improved Netmelee Mod please see the detailed summary at:
 as well as the Git revision history, accessible online at:
 	https://github.com/Roisack/Shiver-Balance-Mod/commits/master
 
-Changes towards version 0.7:
+0.8:
+- Grouping ship properties together at the top of the ship .c files, from
+  oldlaptop.
+- Some added documentation for UIO.
+- Added a StringHashTable type.
+- A few superficial fixes to charhashtable.
+- Removed GraphicsLock and made comm callbacks queued - Alex
+- Split debug key function into sync and async parts, paving the way
+  for GraphicsLock removal - Alex
+- PageUp/PageDown now add/remove 10 fuel in the shipyard, from
+  Scott A. Colcord, Nic
+- Annihigate flash thread - SvdB
+- Switch SetFlashRect() to the new flash code - SvdB
+- Add C++ support to the build system, from Scott A. Colcord
+- Cleaning up DoModifyShips() - SvdB
+- Added Valgrind suppression file, from Louis Delacroix
+- Fix several memory leaks, from Loius Delacroix
+- Some cleanups / warnings fixes, from Louis Delacroix
+- Added a free callback function for the values of the key-value pairs
+  in hash tables - SvdB
+- Annigilate ActivateStarShip() - SvdB
+- Removed obsolete RESPONSE_TO_REF() - SvdB
+- Don't require the 'shadow' dir in addon packs, from Alex
+- Make use of GAME_STATE_FILE consistently, from Scott A. Colcord
+- Fixed unconst(), from Scott A. Colcord
+- Fixes to a few small bugs in UIO which shouldn't have had an impact on
+  UQM, but would in the future, from Alex
+- Allow F6 as a default alternate search key, from related projects.
+- "Player 1" and "Player 2" are now "Bottom" and "Top" player (#954) - McM
+- Fix Utwig dialog inconsistency (#756) - McM
+- Use a deterministic seed for Melnorme modules-for-fuel deals (#567) - McM
+- Various warnings cleanup (bug #50), from Scott A. Colcord
+- Fixed various Pkunk reincarnation and Shofixti Glory device interactions;
+  Pkunk ditty plays in a simultaneous destruction (bug #666) - Alex
+- Preparing for linking with C++ code, from Scott A. Colcord
+- Fixed player's phrase leading to Tanaka's response about a solitary
+  vigil (bug #859) - Alex
+- Added the Ur-Quan to the list of starfaring races on which Commander
+  Hayes provides info (bug #865) - Alex
+- Commander Hayes now advises the player correctly on the number of
+  landers one needs (bug #1098) - Alex
+- All Sound Options are now preserved between visits to the setup menu.
+  Some options still require a restart (bug #1132) - Alex
+- Removed the remnants of the --music option (bug #1133) - Alex
+- Fixed flagship re-entering the inner system after an encounter in the
+  outer system, thus trapping the player (bug #1135) - Alex
+- Fixed starmap fuel range circle shrinking (bug #1130) - Alex
+- Added gamma correction to the setup menu (bug #977) - Alex, Nic
+- Refactor Melnorme comm code to make modding easier; step 1 (bug #1128),
+  from Scott A. Colcord
+- Added aspect ratio option to the setup menu - Alex
+- Positional audio setup menu option now has an immediate effect - Alex
+- Added speech option which controls loading of 3dovoice addon (no need
+  to set speech volume to 0 anymore) - Alex
+- Added the MetaChron story to the no-voice Melnorme script (bug #43) - Alex
+- Spelling and punctuation pass (bug #1200), from Anthony J. Bentley
+- New Man Page edition of the user manual (Bug #1204), from Bentley
+- STAR CONTROL trademark information updated to reflect current events (#1201)
+- Reorganize and update credits generally - Michael
+- Port Win32 Installer generator to run in MSYS2 bash - Michael
+- Update Win32 Installer to bring net-install logic back up to date with
+  current Sourceforge installs; generic support now available for both HTTPS
+  and automatic redirection to mirrors - Michael
+- Fixed MSYS resource script compilation/linking, from Ala-lala
+- Fixed stale main-screen header text displays, from Kruzen
+
+0.7.1:
+- New SDL2 backend for modern operating systems - Michael
+- Fixed netplay when compiling against modern versions of Visual
+  Studio, from Ala-lala
+
+0.7.0-1: (Maintenance release):
+- Altered header include guard constants to stop conflicts with modern
+  versions of gcc - Michael
+
+0.7.0:
 - Build with debug info in strict-debug mode (bug #1127), from Scott A. Colcord
 - Added spoken Slylandro probe coordinates (bug #732) - Nic, Alex
 - Added the missing bits to the no-voice versions of Mycon, Syreen and
@@ -454,7 +529,7 @@ Changes towards version 0.7:
   for compilation on VC6. - Alex
 - New 2x scaler 'hq' (by Maxim Stepin; www.hiend3d.com/hq2x.html) - Alex
 - Removed MikMod i/o hacks (using MREADER i/o now; bug #787) - Alex
-- Fixed fast escape weirdness (bug #619) - from Jan L�nnberg
+- Fixed fast escape weirdness (bug #619) - from Jan Lönnberg
 - New topographical 4x planet surface scaler (bug #786) - Alex
 - Added support for Tremor for Ogg Vorbis decoding (avoids floating point
   math) - SvdB
@@ -568,7 +643,7 @@ Changes towards version 0.7:
   (bug #683) - Michael
 - Fixed crash when restarting Sa-Matra battle after abort (bug #700) -Alex
 - Some cleanups, enabling successful build with GCC 4 (bug #710),
-  mostly from Ville Skytt� -SvdB
+  mostly from Ville SkyttÃ -SvdB
 - Sa-Matra portrait now fills the portrait space (bug #514), from Nic
 - Updated melee images with original DOS content; should resolve most
   captain portrait issues (bug #183)  -Alex

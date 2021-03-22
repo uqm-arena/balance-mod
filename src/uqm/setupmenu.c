@@ -37,6 +37,8 @@
 #include "libs/memlib.h"
 #include "resinst.h"
 #include "nameref.h"
+#include <math.h>
+
 
 static STRING SetupTab;
 
@@ -66,24 +68,18 @@ static void rename_template (WIDGET_TEXTENTRY *self);
 static void rebind_control (WIDGET_CONTROLENTRY *widget);
 static void clear_control (WIDGET_CONTROLENTRY *widget);
 
-#ifdef HAVE_OPENGL
-#define RES_OPTS 4
-#else
-#define RES_OPTS 2
-#endif
-
 #define MENU_COUNT          8
 
 #ifdef RETREAT_SETUPMENU
-#define CHOICE_COUNT	   24
+#define CHOICE_COUNT	   26
 #else
-#define CHOICE_COUNT	   23
+#define CHOICE_COUNT	   24
 #endif
 
 #ifdef RETREAT_SETUPMENU
-#define SLIDER_COUNT        4
+#define SLIDER_COUNT        5
 #else
-#define SLIDER_COUNT        3
+#define SLIDER_COUNT        4
 #endif
 
 #define BUTTON_COUNT       10
@@ -105,11 +101,11 @@ static WIDGET_CONTROLENTRY controlentries[CONTROLENTRY_COUNT];
 typedef int (*HANDLER)(WIDGET *, int);
 
 static int choice_widths[CHOICE_COUNT] = {
-	3, 2, 3, 3, 2, 2, 2, 2, 2, 2, 
-	2, 2, 3, 2, 2, 3, 3, 2,	3, 3, 
-	3, 2, 2
+	3, 2, 3, 3, 2, 2, 2, 2, 2, 2, //  0-10
+	2, 2, 3, 2, 2, 3, 3, 2,	3, 3, // 11-20
+	3, 2, 2, 2, 2                 // 21-25
 #ifdef RETREAT_SETUPMENU
-	, 3
+	, 3                           // 26
 #endif
 };
 
@@ -117,27 +113,6 @@ static HANDLER button_handlers[BUTTON_COUNT] = {
 	quit_main_menu, quit_sub_menu, do_graphics, do_engine,
 	do_audio, do_resources, do_keyconfig, do_advanced, do_editkeys, 
 	do_keyconfig };
-
-static int menu_sizes[MENU_COUNT] = {
-	7, 5, 7, 10, 2, 5,
-
-/*
- * Outer #ifdef is original to UQM and makes compilation of an OpenGL
- * option conditional. Inner #ifdefs are added by the retreat patch
- * and make compilation of the new setup menu option conditional.
- */
-	4
-#ifdef HAVE_OPENGL
-	+1
-#endif /* HAVE_OPENGL */
-#ifdef RETREAT_SETUPMENU
-	+2
-#endif
-	,
-	11
-};
-
-static int menu_bgs[MENU_COUNT] = { 0, 1, 1, 2, 3, 1, 2, 1 };
 
 /* These refer to uninitialized widgets, but that's OK; we'll fill
  * them in before we touch them */
@@ -148,14 +123,18 @@ static WIDGET *main_widgets[] = {
 	(WIDGET *)(&buttons[5]),
 	(WIDGET *)(&buttons[6]),
 	(WIDGET *)(&buttons[7]),
-	(WIDGET *)(&buttons[0]) };
+	(WIDGET *)(&buttons[0]),
+	NULL };
 
 static WIDGET *graphics_widgets[] = {
 	(WIDGET *)(&choices[0]),
+	(WIDGET *)(&choices[23]),
 	(WIDGET *)(&choices[10]),
+	(WIDGET *)(&sliders[3]),
 	(WIDGET *)(&choices[2]),
 	(WIDGET *)(&choices[3]),
-	(WIDGET *)(&buttons[1]) };
+	(WIDGET *)(&buttons[1]),
+	NULL };
 
 static WIDGET *audio_widgets[] = {
 	(WIDGET *)(&sliders[0]),
@@ -164,7 +143,9 @@ static WIDGET *audio_widgets[] = {
 	(WIDGET *)(&choices[14]),
 	(WIDGET *)(&choices[9]),
 	(WIDGET *)(&choices[21]),
-	(WIDGET *)(&buttons[1]) };
+	(WIDGET *)(&choices[22]),
+	(WIDGET *)(&buttons[1]),
+	NULL };
 
 static WIDGET *engine_widgets[] = {
 	(WIDGET *)(&choices[4]),
@@ -175,8 +156,9 @@ static WIDGET *engine_widgets[] = {
 	(WIDGET *)(&choices[13]),
 	(WIDGET *)(&choices[11]),
 	(WIDGET *)(&choices[17]),
-	(WIDGET *)(&choices[22]),
-	(WIDGET *)(&buttons[1]) };
+	(WIDGET *)(&choices[24]),
+	(WIDGET *)(&buttons[1]),
+	NULL };
 
 static WIDGET *advanced_widgets[] = {
 #ifdef HAVE_OPENGL
@@ -186,17 +168,19 @@ static WIDGET *advanced_widgets[] = {
 	(WIDGET *)(&choices[15]),
 	(WIDGET *)(&choices[16]),
 #ifdef RETREAT_SETUPMENU
-	(WIDGET *)(&choices[23]),
-	(WIDGET *)(&sliders[3]),
+	(WIDGET *)(&choices[25]),
+	(WIDGET *)(&sliders[4]),
 #endif
-	(WIDGET *)(&buttons[1]) };
+	(WIDGET *)(&buttons[1]),
+	NULL };
 	
 static WIDGET *keyconfig_widgets[] = {
 	(WIDGET *)(&choices[18]),
 	(WIDGET *)(&choices[19]),
 	(WIDGET *)(&labels[1]),
 	(WIDGET *)(&buttons[8]),
-	(WIDGET *)(&buttons[1]) };
+	(WIDGET *)(&buttons[1]),
+	NULL };
 
 static WIDGET *editkeys_widgets[] = {
 	(WIDGET *)(&choices[20]),
@@ -209,15 +193,56 @@ static WIDGET *editkeys_widgets[] = {
 	(WIDGET *)(&controlentries[4]),
 	(WIDGET *)(&controlentries[5]),
 	(WIDGET *)(&controlentries[6]),
-	(WIDGET *)(&buttons[9]) };
+	(WIDGET *)(&buttons[9]),
+	NULL };
 
 static WIDGET *incomplete_widgets[] = {
 	(WIDGET *)(&labels[0]),
-	(WIDGET *)(&buttons[1]) };
+	(WIDGET *)(&buttons[1]),
+	NULL };
 
-static WIDGET **menu_widgets[MENU_COUNT] = {
-	main_widgets, graphics_widgets, audio_widgets, engine_widgets, 
-	incomplete_widgets, keyconfig_widgets, advanced_widgets, editkeys_widgets };
+static const struct
+{
+	WIDGET **widgets;
+	int bgIndex;
+}
+menu_defs[] =
+{
+	{main_widgets, 0},
+	{graphics_widgets, 1},
+	{audio_widgets, 1},
+	{engine_widgets, 2},
+	{incomplete_widgets, 3},
+	{keyconfig_widgets, 1},
+	{advanced_widgets, 2},
+	{editkeys_widgets, 1},
+	{NULL, 0}
+};
+
+// Start with reasonable gamma bounds. These will get updated
+// as we find out the actual bounds.
+static float minGamma = 0.4f;
+static float maxGamma = 2.5f;
+// The gamma slider uses an exponential curve
+// We use y = e^(2.1972*(x-1)) curve to give us a nice spread of
+// gamma values 0.11 < g < 9.0 centered at g=1.0
+#define GAMMA_CURVE_B  2.1972f
+static float minGammaX;
+static float maxGammaX;
+
+
+static int
+number_res_options (void)
+{
+	if (TFB_SupportsHardwareScaling ())
+	{
+		return 5;
+	}
+	else
+	{
+		return 2;
+	}
+}
 
 static int
 quit_main_menu (WIDGET *self, int event)
@@ -323,18 +348,18 @@ do_advanced (WIDGET *self, int event)
 }
 
 static void
-populate_editkeys (int template)
+populate_editkeys (int templat)
 {
 	int i, j;
 	
-	strncpy (textentries[0].value, input_templates[template].name, textentries[0].maxlen);
+	strncpy (textentries[0].value, input_templates[templat].name, textentries[0].maxlen);
 	textentries[0].value[textentries[0].maxlen-1] = 0;
 	
 	for (i = 0; i < NUM_KEYS; i++)
 	{
 		for (j = 0; j < 2; j++)
 		{
-			InterrogateInputState (template, i, j, controlentries[i].controlname[j], WIDGET_CONTROLENTRY_WIDTH);
+			InterrogateInputState (templat, i, j, controlentries[i].controlname[j], WIDGET_CONTROLENTRY_WIDTH);
 		}
 	}
 }
@@ -388,11 +413,11 @@ SetDefaults (void)
 	GetGlobalOptions (&opts);
 	if (opts.res == OPTVAL_CUSTOM)
 	{
-		choices[0].numopts = RES_OPTS + 1;
+		choices[0].numopts = number_res_options () + 1;
 	}
 	else
 	{
-		choices[0].numopts = RES_OPTS;
+		choices[0].numopts = number_res_options ();
 	}
 	choices[0].selected = opts.res;
 	choices[1].selected = opts.driver;
@@ -416,20 +441,23 @@ SetDefaults (void)
 	choices[19].selected = opts.player2;
 	choices[20].selected = 0;
 	choices[21].selected = opts.musicremix;
-	choices[22].selected = opts.reticles;
+	choices[22].selected = opts.speech;
+	choices[23].selected = opts.keepaspect;
+	choices[24].selected = opts.reticles;
 #ifdef RETREAT_SETUPMENU
-	choices[23].selected = opts.retreat;
+	choices[25].selected = opts.retreat;
 #endif
 	sliders[0].value = opts.musicvol;
 	sliders[1].value = opts.sfxvol;
 	sliders[2].value = opts.speechvol;
+	sliders[3].value = opts.gamma;
 #ifdef RETREAT_SETUPMENU
 	/* 
 	 * This value is stored in melee frames (1/24 second), but
 	 * we want the slider to work with seconds, so we need
 	 * to perform conversion here.
 	 */
-	 sliders[3].value = (opts.retreat_wait / 24);
+	 sliders[4].value = (opts.retreat_wait / 24);
 #endif
 }
 
@@ -458,19 +486,22 @@ PropagateResults (void)
 	opts.player1 = choices[18].selected;
 	opts.player2 = choices[19].selected;
 	opts.musicremix = choices[21].selected;
-	opts.reticles = choices[22].selected;
+	opts.speech = choices[22].selected;
+	opts.keepaspect = choices[23].selected;
+	opts.reticles = choices[24].selected;
 #ifdef RETREAT_SETUPMENU
-	opts.retreat = choices[23].selected;
+	opts.retreat = choices[25].selected;
 #endif
 	opts.musicvol = sliders[0].value;
 	opts.sfxvol = sliders[1].value;
 	opts.speechvol = sliders[2].value;
+	opts.gamma = sliders[3].value;
 #ifdef RETREAT_SETUPMENU
 	/*
 	 * As above, we need to convert between seconds
 	 * and frames for this value.
 	 */
-	opts.retreat_wait = (sliders[3].value * 24);
+	opts.retreat_wait = (sliders[4].value * 24);
 #endif
 	SetGlobalOptions (&opts);
 }
@@ -628,30 +659,169 @@ OnTextEntryEvent (WIDGET_TEXTENTRY *widget)
 	return TRUE; // event handled
 }
 
+static inline float
+gammaCurve (float x)
+{
+	// The slider uses an exponential curve
+	return exp ((x - 1) * GAMMA_CURVE_B);
+}
+
+static inline float
+solveGammaCurve (float y)
+{
+	return log (y) / GAMMA_CURVE_B + 1;
+}
+
+static int
+gammaToSlider (float gamma)
+{
+	const float x = solveGammaCurve (gamma);
+	const float step = (maxGammaX - minGammaX) / 100;
+	return (int) ((x - minGammaX) / step + 0.5);
+}
+
+static float
+sliderToGamma (int value)
+{
+	const float step = (maxGammaX - minGammaX) / 100;
+	const float x = minGammaX + step * value;
+	const float g = gammaCurve (x);
+	// report any value that is close enough as 1.0
+	return (fabs (g - 1.0f) < 0.001f) ? 1.0f : g;
+}
+
+static void
+updateGammaBounds (bool useUpper)
+{
+	float g, x;
+	int slider;
+	
+	// The slider uses an exponential curve.
+	// Calculate where on the curve the min and max gamma values are
+	minGammaX = solveGammaCurve (minGamma);
+	maxGammaX = solveGammaCurve (maxGamma);
+
+	// We have 100 discrete steps through the range, so the slider may
+	// skip over a 1.0 gamma. We need to ensure that there always is
+	// a 1.0 on the slider by tweaking the range (expanding/contracting).
+	slider = gammaToSlider (1.0f);
+	g = sliderToGamma (slider);
+	if (g == 1.0f)
+		return; // no adjustment needed
+
+	x = solveGammaCurve (g);
+	if (useUpper)
+	{	// Move the upper bound up or down to land on 1.0
+		const float d = (x - 1.0f) * 100 / slider;
+		maxGammaX -= d;
+		maxGamma = gammaCurve (maxGammaX);
+	}
+	else
+	{	// Move the lower bound up or down to land on 1.0
+		const float d = (x - 1.0f) * 100 / (100 - slider);
+		minGammaX -= d;
+		minGamma = gammaCurve (minGammaX);
+	}
+}
+
+static int
+gamma_HandleEventSlider (WIDGET *_self, int event)
+{
+	WIDGET_SLIDER *self = (WIDGET_SLIDER *)_self;
+	int prevValue = self->value;
+	float gamma;
+	bool set;
+
+	switch (event)
+	{
+	case WIDGET_EVENT_LEFT:
+		self->value -= self->step;
+		break;
+	case WIDGET_EVENT_RIGHT:
+		self->value += self->step;
+		break;
+	default:
+		return FALSE;
+	}
+
+	// Limit the slider to values accepted by gfx subsys
+	gamma = sliderToGamma (self->value);
+	set = TFB_SetGamma (gamma);
+	if (!set)
+	{	// revert
+		self->value = prevValue;
+		gamma = sliderToGamma (self->value);
+	}
+
+	// Grow or shrink the range based on accepted values
+	if (gamma < minGamma || (!set && event == WIDGET_EVENT_LEFT))
+	{
+		minGamma = gamma;
+		updateGammaBounds (true);
+		// at the lowest end
+		self->value = 0;
+	}
+	else if (gamma > maxGamma || (!set && event == WIDGET_EVENT_RIGHT))
+	{
+		maxGamma = gamma;
+		updateGammaBounds (false);
+		// at the highest end
+		self->value = 100;
+	}
+	return TRUE;
+}
+
+static void
+gamma_DrawValue (WIDGET_SLIDER *self, int x, int y)
+{
+	TEXT t;
+	char buf[16];
+	float gamma = sliderToGamma (self->value);
+	snprintf (buf, sizeof buf, "%.4f", gamma);
+
+	t.baseline.x = x;
+	t.baseline.y = y;
+	t.align = ALIGN_CENTER;
+	t.CharCount = ~0;
+	t.pStr = buf;
+
+	font_DrawText (&t);
+}
+
 static void
 rebind_control (WIDGET_CONTROLENTRY *widget)
 {
-	int template = choices[20].selected;
+	int templat = choices[20].selected;
 	int control = widget->controlindex;
 	int index = widget->highlighted;
 
 	FlushInput ();
 	DrawLabelAsWindow (&labels[3], NULL);
-	RebindInputState (template, control, index);
-	populate_editkeys (template);
+	RebindInputState (templat, control, index);
+	populate_editkeys (templat);
 	FlushInput ();
 }
 
 static void
 clear_control (WIDGET_CONTROLENTRY *widget)
 {
-	int template = choices[20].selected;
+	int templat = choices[20].selected;
 	int control = widget->controlindex;
 	int index = widget->highlighted;
       
-	RemoveInputState (template, control, index);
-	populate_editkeys (template);
+	RemoveInputState (templat, control, index);
+	populate_editkeys (templat);
 }	
+
+static int
+count_widgets (WIDGET **widgets)
+{
+	int count;
+
+	for (count = 0; *widgets != NULL; ++widgets, ++count)
+		;
+	return count;
+}
 
 static stringbank *bank = NULL;
 static FRAME setup_frame = NULL;
@@ -702,10 +872,14 @@ init_widgets (void)
 		menus[i].subtitle = buffer[i];
 		menus[i].bgStamp.origin.x = 0;
 		menus[i].bgStamp.origin.y = 0;
-		menus[i].bgStamp.frame = SetAbsFrameIndex (setup_frame, menu_bgs[i]);
-		menus[i].num_children = menu_sizes[i];
-		menus[i].child = menu_widgets[i];
+		menus[i].bgStamp.frame = SetAbsFrameIndex (setup_frame, menu_defs[i].bgIndex);
+		menus[i].num_children = count_widgets (menu_defs[i].widgets);
+		menus[i].child = menu_defs[i].widgets;
 		menus[i].highlighted = 0;
+	}
+	if (menu_defs[i].widgets != NULL)
+	{
+		log_add (log_Error, "Menu definition array has more items!");
 	}
 		
 	/* Options */
@@ -778,7 +952,7 @@ init_widgets (void)
 	}
 
 	/* The first choice is resolution, and is handled specially */
-	choices[0].numopts = RES_OPTS;
+	choices[0].numopts = number_res_options ();
 
 	/* Choices 18-20 are also special, being the names of the key configurations */
 	for (i = 0; i < 6; i++)
@@ -824,6 +998,10 @@ init_widgets (void)
 		sliders[i].tooltip[1] = "";
 		sliders[i].tooltip[2] = "";
 	}
+	// gamma is a special case
+	sliders[3].step = 1;
+	sliders[3].handleEvent = gamma_HandleEventSlider;
+	sliders[3].draw_value = gamma_DrawValue;
 
 	for (i = 0; i < SLIDER_COUNT; i++)
 	{
@@ -1100,6 +1278,8 @@ SetupMenu (void)
 void
 GetGlobalOptions (GLOBALOPTS *opts)
 {
+	bool whichBound;
+
 	if (GfxFlags & TFB_GFXFLAGS_SCALE_BILINEAR) 
 	{
 		opts->scaler = OPTVAL_BILINEAR_SCALE;
@@ -1143,6 +1323,8 @@ GetGlobalOptions (GLOBALOPTS *opts)
 	/* These values are read in, but won't change during a run. */
 	opts->music3do = opt3doMusic ? OPTVAL_ENABLED : OPTVAL_DISABLED;
 	opts->musicremix = optRemixMusic ? OPTVAL_ENABLED : OPTVAL_DISABLED;
+	opts->speech = optSpeech ? OPTVAL_ENABLED : OPTVAL_DISABLED;
+	opts->keepaspect = optKeepAspectRatio ? OPTVAL_ENABLED : OPTVAL_DISABLED;
 	switch (snddriver) {
 	case audio_DRIVER_OPENAL:
 		opts->adriver = OPTVAL_OPENAL;
@@ -1228,6 +1410,16 @@ GetGlobalOptions (GLOBALOPTS *opts)
 			opts->res = OPTVAL_1024_768;
 		}		
 		break;
+	case 1280:
+		if (ScreenHeightActual != 960)
+		{
+			opts->res = OPTVAL_CUSTOM;
+		}
+		else
+		{
+			opts->res = OPTVAL_1280_960;
+		}
+		break;
 	default:
 		opts->res = OPTVAL_CUSTOM;
 		break;
@@ -1244,6 +1436,16 @@ GetGlobalOptions (GLOBALOPTS *opts)
 			opts->driver = OPTVAL_PURE_IF_POSSIBLE;
 		}
 	}
+
+	whichBound = (optGamma < maxGamma);
+	// The option supplied by the user may be beyond our starting range
+	// but valid nonetheless. We need to account for that.
+	if (optGamma <= minGamma)
+		minGamma = optGamma - 0.03f;
+	else if (optGamma >= maxGamma)
+		maxGamma = optGamma + 0.3f;
+	updateGammaBounds (whichBound);
+	opts->gamma = gammaToSlider (optGamma);
 
 	opts->player1 = PlayerControls[0];
 	opts->player2 = PlayerControls[1];
@@ -1282,7 +1484,7 @@ SetGlobalOptions (GLOBALOPTS *opts)
 	case OPTVAL_640_480:
 		NewWidth = 640;
 		NewHeight = 480;
-#ifdef HAVE_OPENGL
+#ifdef HAVE_OPENGL	       
 		NewDriver = (opts->driver == OPTVAL_ALWAYS_GL ? TFB_GFXDRIVER_SDL_OPENGL : TFB_GFXDRIVER_SDL_PURE);
 #else
 		NewDriver = TFB_GFXDRIVER_SDL_PURE;
@@ -1296,6 +1498,11 @@ SetGlobalOptions (GLOBALOPTS *opts)
 	case OPTVAL_1024_768:
 		NewWidth = 1024;
 		NewHeight = 768;
+		NewDriver = TFB_GFXDRIVER_SDL_OPENGL;
+		break;
+	case OPTVAL_1280_960:
+		NewWidth = 1280;
+		NewHeight = 960;
 		NewDriver = TFB_GFXDRIVER_SDL_OPENGL;
 		break;
 	default:
@@ -1344,8 +1551,8 @@ SetGlobalOptions (GLOBALOPTS *opts)
 	else
 		NewGfxFlags &= ~TFB_GFXFLAGS_FULLSCREEN;
 
-	res_PutBoolean ("config.scanlines", opts->scanlines);
-	res_PutBoolean ("config.fullscreen", opts->fullscreen);
+	res_PutBoolean ("config.scanlines", (BOOLEAN)opts->scanlines);
+	res_PutBoolean ("config.fullscreen", (BOOLEAN)opts->fullscreen);
 
 
 	if ((NewWidth != ScreenWidthActual) ||
@@ -1359,15 +1566,27 @@ SetGlobalOptions (GLOBALOPTS *opts)
 		FlushGraphics ();
 		InitVideoPlayer (TRUE);
 	}
+
+	// Avoid setting gamma when it is not necessary
+	if (optGamma != 1.0f || sliderToGamma (opts->gamma) != 1.0f)
+	{
+		optGamma = sliderToGamma (opts->gamma);
+		setGammaCorrection (optGamma);
+	}
+
 	optSubtitles = (opts->subtitles == OPTVAL_ENABLED) ? TRUE : FALSE;
-	// optWhichMusic = (opts->music == OPTVAL_3DO) ? OPT_3DO : OPT_PC;
 	optWhichMenu = (opts->menu == OPTVAL_3DO) ? OPT_3DO : OPT_PC;
 	optWhichFonts = (opts->text == OPTVAL_3DO) ? OPT_3DO : OPT_PC;
 	optWhichCoarseScan = (opts->cscan == OPTVAL_3DO) ? OPT_3DO : OPT_PC;
 	optSmoothScroll = (opts->scroll == OPTVAL_3DO) ? OPT_3DO : OPT_PC;
 	optWhichShield = (opts->shield == OPTVAL_3DO) ? OPT_3DO : OPT_PC;
 	optMeleeScale = (opts->meleezoom == OPTVAL_3DO) ? TFB_SCALE_TRILINEAR : TFB_SCALE_STEP;
+	opt3doMusic = (opts->music3do == OPTVAL_ENABLED);
+	optRemixMusic = (opts->musicremix == OPTVAL_ENABLED);
+	optSpeech = (opts->speech == OPTVAL_ENABLED);
 	optWhichIntro = (opts->intro == OPTVAL_3DO) ? OPT_3DO : OPT_PC;
+	optStereoSFX = (opts->stereo == OPTVAL_ENABLED);
+	optKeepAspectRatio = (opts->keepaspect == OPTVAL_ENABLED);
 	opt_reticles = (opts->reticles == OPTVAL_ENABLED) ? TRUE : FALSE;
 #ifdef RETREAT_SETUPMENU
 	opt_retreat = opts->retreat;
@@ -1384,11 +1603,14 @@ SetGlobalOptions (GLOBALOPTS *opts)
 
 	res_PutBoolean ("config.3domusic", opts->music3do == OPTVAL_ENABLED);
 	res_PutBoolean ("config.remixmusic", opts->musicremix == OPTVAL_ENABLED);
+	res_PutBoolean ("config.speech", opts->speech == OPTVAL_ENABLED);
 	res_PutBoolean ("config.3domovies", opts->intro == OPTVAL_3DO);
 	res_PutBoolean ("config.showfps", opts->fps == OPTVAL_ENABLED);
 	res_PutBoolean ("config.smoothmelee", opts->meleezoom == OPTVAL_3DO);
 	res_PutBoolean ("config.positionalsfx", opts->stereo == OPTVAL_ENABLED); 
 	res_PutBoolean ("config.pulseshield", opts->shield == OPTVAL_3DO);
+	res_PutBoolean ("config.keepaspectratio", opts->keepaspect == OPTVAL_ENABLED);
+	res_PutInteger ("config.gamma", (int) (optGamma * GAMMA_SCALE + 0.5));
 	res_PutInteger ("config.player1control", opts->player1);
 	res_PutInteger ("config.player2control", opts->player2);
 

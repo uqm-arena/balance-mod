@@ -20,7 +20,7 @@
 
 /*==============================================================================
 
-  $Id: virtch.c 2421 2006-08-19 00:36:21Z avolkov $
+  $Id$
 
   Sample mixing routines, using a 32 bits mixing buffer.
 

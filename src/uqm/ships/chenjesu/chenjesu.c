@@ -22,7 +22,7 @@
 #include "uqm/globdata.h"
 #include "libs/mathlib.h"
 
-// Core characteristics
+// Core Characteristics
 #define MAX_CREW 36
 #define MAX_ENERGY 30
 #define ENERGY_REGENERATION 1
@@ -33,13 +33,12 @@
 #define TURN_WAIT 6
 #define SHIP_MASS 9
 
-// Photon shard
+// Photon Shard
 #define WEAPON_ENERGY_COST 5
 #define WEAPON_WAIT 0
 #define CHENJESU_OFFSET 16
 #define MISSILE_OFFSET 0
 #define MISSILE_SPEED 64
-#define FRAGMENT_SPEED 100
 #define MISSILE_LIFE 90
 #define MISSILE_HITS 10
 #define MISSILE_DAMAGE 6
@@ -48,12 +47,20 @@
 // Shrapnel
 #define FRAGMENT_OFFSET 2
 #define NUM_FRAGMENTS 8
-#define TWIRL_OUT 7
-#define TWIRL_IN 8
-#define FRAGMENT_LIFE (TWIRL_OUT + TWIRL_IN)
-#define FRAGMENT_RANGE DISPLAY_TO_WORLD (120) // This bit is for the cyborg only.
+#define FRAGMENT_SPEED 96
+#define FRAGMENT_LIFE 15
+#define FRAGMENT_RANGE DISPLAY_TO_WORLD (110) // This bit is for the cyborg only
 #define FRAGMENT_HITS 1
 #define FRAGMENT_DAMAGE 1
+
+// Shockwave
+#define WAVE_LIFE 7
+#define WAVE_DAMAGE_DELAY 2
+#define WAVE_DAMAGE 1
+#define WAVE_OBJ_RANGE 52
+#define WAVE_SHIP_RANGE 76
+/* Shockwave has longer range against enemy ships because this effect checks its target's central point
+   only; the extra range allows this effect to scathe the edge of a ship and still inflict damage */
 
 // DOGI
 #define SPECIAL_ENERGY_COST MAX_ENERGY
@@ -61,7 +68,6 @@
 #define DOGGY_OFFSET 20
 #define DOGGY_SPEED 32
 #define ENERGY_DRAIN 10
-#define FREE_DOGGY_OFFSET 68 
 #define MAX_DOGGIES 4
 #define DOGGY_HITS 3
 #define DOGGY_MASS 4
@@ -70,7 +76,7 @@ static RACE_DESC chenjesu_desc =
 {
 	{ /* SHIP_INFO */
 		FIRES_FORE | SEEKING_SPECIAL | SEEKING_WEAPON,
-		24, /* Super Melee cost */
+		25, /* Super Melee cost */
 		MAX_CREW, MAX_CREW,
 		MAX_ENERGY, MAX_ENERGY,
 		CHENJESU_RACE_STRINGS,
@@ -145,44 +151,123 @@ fragment_collision (ELEMENT *ElementPtr0, POINT *pPt0, ELEMENT *ElementPtr1, POI
 
 	GetElementStarShip (ElementPtr1, &OtherShipPtr);
 	
+	// Ignore DOGIs
 	if (OtherShipPtr && OtherShipPtr->SpeciesID == CHENJESU_ID
-		&& (ElementPtr0->playerNr)
-			== (ElementPtr1->playerNr)
+		&& ElementPtr0->playerNr == ElementPtr1->playerNr
 		&& ElementPtr1->mass_points == 4)
 	{
 		ElementPtr0->mass_points = 0;
 	}
-	
+
 	weapon_collision (ElementPtr0, pPt0, ElementPtr1, pPt1);
 }
 
-static void
+void
 fragment_preprocess (ELEMENT *ElementPtr)
 {
 	COUNT facing;
 		
-	facing = NORMALIZE_FACING (ANGLE_TO_FACING (
-		GetVelocityTravelAngle (&ElementPtr->velocity)));
-	
-	// Reverse direction back toward the explosion's origin.
-	if (ElementPtr->life_span == FRAGMENT_LIFE - TWIRL_OUT)
-		SetVelocityVector (&ElementPtr->velocity, FRAGMENT_SPEED, (facing + HALF_CIRCLE));
-	
+	facing = NORMALIZE_FACING (ANGLE_TO_FACING (GetVelocityTravelAngle (&ElementPtr->velocity)));
+
 	if (ElementPtr->thrust_wait == 0)
-		// Shrapnel twirls left.
+		// Shrapnel twirls left
 		SetVelocityVector (&ElementPtr->velocity, FRAGMENT_SPEED, (facing - 1));
 	else
-		// Shrapnel twirls right.
+		// Shrapnel twirls right
 		SetVelocityVector (&ElementPtr->velocity, FRAGMENT_SPEED, (facing + 1));
+}
+
+static void
+shockwave_preprocess (ELEMENT *ElementPtr)
+{
+	ElementPtr->next.image.frame = IncFrameIndex (ElementPtr->current.image.frame);
+	ElementPtr->state_flags |= CHANGING;
+	
+	if (ElementPtr->life_span == WAVE_LIFE - WAVE_DAMAGE_DELAY)
+	{
+		HELEMENT hElement, hNextElement, hTarget;
+		STARSHIP *StarShipPtr, *EnemyStarShipPtr;
+
+		GetElementStarShip (ElementPtr, &StarShipPtr);
+		hTarget = 0;
+
+		// Cycle through all objects in the arena
+		for (hElement = GetHeadElement ();
+			hElement != 0; hElement = hNextElement)
+		{
+			ELEMENT *ObjPtr;
+
+			LockElement (hElement, &ObjPtr);
+			hNextElement = GetSuccElement (ObjPtr);
+			if (CollidingElement (ObjPtr))
+			{
+				SIZE delta_x, delta_y;
+
+				// Begin distance check
+				if ((delta_x = ObjPtr->next.location.x
+						- ElementPtr->next.location.x) < 0)
+					delta_x = -delta_x;
+				if ((delta_y = ObjPtr->next.location.y
+						- ElementPtr->next.location.y) < 0)
+					delta_y = -delta_y;
+				delta_x = WORLD_TO_DISPLAY (delta_x);
+				delta_y = WORLD_TO_DISPLAY (delta_y);
+				
+				// Is the enemy ship within range?
+				if (ObjPtr->state_flags & PLAYER_SHIP
+						&& !elementsOfSamePlayer(ElementPtr, ObjPtr)
+						&& delta_x <= WAVE_SHIP_RANGE && delta_y <= WAVE_SHIP_RANGE
+						&& ((long)(delta_x * delta_x) + (long)(delta_y * delta_y)) <=
+							(long)(WAVE_SHIP_RANGE * WAVE_SHIP_RANGE))
+				{
+					GetElementStarShip (ObjPtr, &EnemyStarShipPtr);
+
+					// Utwig shield absorbs energy
+					if (EnemyStarShipPtr && EnemyStarShipPtr->SpeciesID == UTWIG_ID
+							&& ObjPtr->life_span > NORMAL_LIFE)
+					{
+						ObjPtr->life_span += WAVE_DAMAGE;
+					}
+					else if (ObjPtr->life_span == NORMAL_LIFE)
+					{
+						// Damage or destroy enemy ship
+						if (!DeltaCrew (ObjPtr, -WAVE_DAMAGE))
+							ObjPtr->life_span = 0;
+					}
+				}
+				// Locate non-friendly objects within radius
+				else if (!(ObjPtr->state_flags & PLAYER_SHIP)
+						&& !elementsOfSamePlayer(ElementPtr, ObjPtr)
+						&& !GRAVITY_MASS (ObjPtr->mass_points)
+						&& delta_x <= WAVE_OBJ_RANGE && delta_y <= WAVE_OBJ_RANGE
+						&& ((long)(delta_x * delta_x) + (long)(delta_y * delta_y)) <=
+							(long)(WAVE_OBJ_RANGE * WAVE_OBJ_RANGE))
+				{
+					// Damage or destroy object
+					if (WAVE_DAMAGE < ObjPtr->hit_points)
+						ObjPtr->hit_points -= WAVE_DAMAGE;
+					else
+					{
+						ObjPtr->hit_points = 0;
+						ObjPtr->life_span = 0;
+					}
+				}
+			}
+
+			UnlockElement (hElement);
+		}
+	}
 }
 
 static void
 crystal_postprocess (ELEMENT *ElementPtr)
 {
-	STARSHIP *StarShipPtr;
 	MISSILE_BLOCK MissileBlock;
 	SIZE twirl;
+	HELEMENT hWave;
+	STARSHIP *StarShipPtr;
     
+	// Generate shrapnel
 	GetElementStarShip (ElementPtr, &StarShipPtr);
 	MissileBlock.cx = ElementPtr->next.location.x;
 	MissileBlock.cy = ElementPtr->next.location.y;
@@ -223,6 +308,27 @@ crystal_postprocess (ELEMENT *ElementPtr)
 			UnlockElement (hFragment);
 			PutElement (hFragment);
 		}
+	}
+
+	// Generate shockwave
+	hWave = AllocElement ();
+	if (hWave)
+	{
+		ELEMENT *WavePtr;
+
+		LockElement (hWave, &WavePtr);
+		WavePtr->current.location = ElementPtr->next.location;
+		WavePtr->life_span = WAVE_LIFE;
+		WavePtr->current.image.farray = StarShipPtr->RaceDescPtr->ship_data.special;
+		WavePtr->current.image.frame =
+			SetAbsFrameIndex (WavePtr->current.image.farray[0], 7);
+		WavePtr->preprocess_func = shockwave_preprocess;
+		WavePtr->playerNr = ElementPtr->playerNr;
+		WavePtr->state_flags = APPEARING | NONSOLID | FINITE_LIFE;
+		SetPrimType (&(GLOBAL (DisplayArray))[WavePtr->PrimIndex], STAMP_PRIM);
+		SetElementStarShip (WavePtr, StarShipPtr);
+		UnlockElement (hWave);
+		PutElement (hWave);
 	}
 
 	ProcessSound (SetAbsSoundIndex (
@@ -339,8 +445,7 @@ doggy_preprocess (ELEMENT *ElementPtr)
 		}
 
 		if (facing != orig_facing)
-			SetVelocityVector (&ElementPtr->velocity,
-					DOGGY_SPEED, facing);
+			SetVelocityVector (&ElementPtr->velocity, DOGGY_SPEED, facing);
 	}
 }
 
@@ -391,8 +496,6 @@ doggy_collision (ELEMENT *ElementPtr0, POINT *pPt0,
 		ElementPtr0->thrust_wait += COLLISION_THRUST_WAIT << 1;
 }
 
-static void chenjesu_entrance (ELEMENT *ElementPtr);
-
 static void
 spawn_doggy (ELEMENT *ElementPtr)
 {
@@ -409,7 +512,6 @@ spawn_doggy (ELEMENT *ElementPtr)
 		{
 			COUNT angle;
 			ELEMENT *DoggyElementPtr;
-			SIZE offset;
 
 			ElementPtr->state_flags |= DEFY_PHYSICS;
 
@@ -433,17 +535,11 @@ spawn_doggy (ELEMENT *ElementPtr)
 				DoggyElementPtr->death_func = doggy_death;
 			}
 
-			// The free DOGI spawns a greater distance away from the ship.
-			if (StarShipPtr->RaceDescPtr->preprocess_func == chenjesu_entrance)
-				offset = FREE_DOGGY_OFFSET;
-			else
-				offset = DOGGY_OFFSET;
-
 			angle = FACING_TO_ANGLE (StarShipPtr->ShipFacing) + HALF_CIRCLE;
 			DoggyElementPtr->current.location.x = ElementPtr->next.location.x
-					+ COSINE (angle, DISPLAY_TO_WORLD (CHENJESU_OFFSET + offset));
+					+ COSINE (angle, DISPLAY_TO_WORLD (CHENJESU_OFFSET + DOGGY_OFFSET));
 			DoggyElementPtr->current.location.y = ElementPtr->next.location.y
-					+ SINE (angle, DISPLAY_TO_WORLD (CHENJESU_OFFSET + offset));
+					+ SINE (angle, DISPLAY_TO_WORLD (CHENJESU_OFFSET + DOGGY_OFFSET));
 			DoggyElementPtr->current.image.farray = StarShipPtr->RaceDescPtr->ship_data.special;
 			DoggyElementPtr->current.image.frame = StarShipPtr->RaceDescPtr->ship_data.special[0];
 
@@ -495,7 +591,7 @@ initialize_crystal (ELEMENT *ShipPtr, HELEMENT CrystalArray[])
 		dx = dx * 1/2;
 		dy = dy * 1/2;
         
-		// Add some of the Broodhome's velocity to its projectiles.
+		// Add some of the Broodhome's velocity to its projectiles
 		DeltaVelocityComponents (&CrystalPtr->velocity, dx, dy);
 		CrystalPtr->current.location.x -= VELOCITY_TO_WORLD (dx);
 		CrystalPtr->current.location.y -= VELOCITY_TO_WORLD (dy);
@@ -521,8 +617,7 @@ chenjesu_postprocess (ELEMENT *ElementPtr)
 	}
 
 	StarShipPtr->special_counter = 1;
-			/* say there is one doggy, because ship_postprocess will
-			 * decrement special_counter */
+	// say there is one doggy, because ship_postprocess will decrement special_counter
 }
 
 static void
@@ -531,34 +626,14 @@ chenjesu_preprocess (ELEMENT *ElementPtr)
 	STARSHIP *StarShipPtr;
 
 	GetElementStarShip (ElementPtr, &StarShipPtr);
-	if (StarShipPtr->special_counter > 1) /* only when STANDARD
-											 * computer opponent
-											 */
+
+	if (StarShipPtr->special_counter > 1) // only when STANDARD computer opponent (??)
 		StarShipPtr->special_counter += MAX_DOGGIES;
+
+	// Prevent more than one shot while holding down 'Fire'
 	if (StarShipPtr->cur_status_flags
-			& StarShipPtr->old_status_flags
-			& WEAPON)
+			& StarShipPtr->old_status_flags & WEAPON)
 		++StarShipPtr->weapon_counter;
-}
-
-// Spawn a free DOGI upon entering the arena. Currently disabled.
-static void
-chenjesu_entrance (ELEMENT *ElementPtr)
-{
-	STARSHIP *StarShipPtr;
-
-	GetElementStarShip (ElementPtr, &StarShipPtr);
-
-	if (!(ElementPtr->state_flags & APPEARING))
-	{
-		spawn_doggy (ElementPtr);
-		
-		ProcessSound (SetAbsSoundIndex (
-				/* RELEASE_DOGGY */
-		StarShipPtr->RaceDescPtr->ship_data.ship_sounds, 4), ElementPtr);
-
-		StarShipPtr->RaceDescPtr->preprocess_func = chenjesu_preprocess;
-	}
 }
 
 static void
@@ -566,7 +641,7 @@ chenjesu_intelligence (ELEMENT *ShipPtr, EVALUATE_DESC *ObjectsOfConcern,
 		COUNT ConcernCounter)
 {
 	EVALUATE_DESC *lpEvalDesc;
-	STARSHIP *StarShipPtr;
+	STARSHIP *StarShipPtr, *EnemyStarShipPtr;
 
 	GetElementStarShip (ShipPtr, &StarShipPtr);
 	StarShipPtr->ship_input_state &= ~SPECIAL;
@@ -574,20 +649,13 @@ chenjesu_intelligence (ELEMENT *ShipPtr, EVALUATE_DESC *ObjectsOfConcern,
 	lpEvalDesc = &ObjectsOfConcern[ENEMY_SHIP_INDEX];
 	if (lpEvalDesc->ObjectPtr)
 	{
-		STARSHIP *EnemyStarShipPtr;
-
 		GetElementStarShip (lpEvalDesc->ObjectPtr, &EnemyStarShipPtr);
 		if ((lpEvalDesc->which_turn <= 16
-				&& MANEUVERABILITY (
-				&EnemyStarShipPtr->RaceDescPtr->cyborg_control
-				) >= MEDIUM_SHIP)
-				|| (MANEUVERABILITY (
-				&EnemyStarShipPtr->RaceDescPtr->cyborg_control
-				) <= SLOW_SHIP
-				&& WEAPON_RANGE (
-				&EnemyStarShipPtr->RaceDescPtr->cyborg_control
-				) >= LONG_RANGE_WEAPON * 3 / 4
-				&& (EnemyStarShipPtr->RaceDescPtr->ship_info.ship_flags & SEEKING_WEAPON)))
+				&& MANEUVERABILITY (&EnemyStarShipPtr->RaceDescPtr->cyborg_control) >= MEDIUM_SHIP)
+				|| (MANEUVERABILITY (&EnemyStarShipPtr->RaceDescPtr->cyborg_control) <= SLOW_SHIP
+					&& WEAPON_RANGE (&EnemyStarShipPtr->RaceDescPtr->cyborg_control) >= LONG_RANGE_WEAPON * 3 / 4
+					&& (EnemyStarShipPtr->RaceDescPtr->ship_info.ship_flags & SEEKING_WEAPON))
+				|| (EnemyStarShipPtr->RaceDescPtr->ship_info.ship_flags & HEAVY_POINT_DEFENSE))
 			lpEvalDesc->MoveState = PURSUE;
 	}
 
@@ -662,8 +730,9 @@ chenjesu_intelligence (ELEMENT *ShipPtr, EVALUATE_DESC *ObjectsOfConcern,
 	if (StarShipPtr->special_counter < MAX_DOGGIES)
 	{
 		if (lpEvalDesc->ObjectPtr
-				&& StarShipPtr->RaceDescPtr->ship_info.energy_level <= SPECIAL_ENERGY_COST
-				&& !(StarShipPtr->ship_input_state & WEAPON))
+				&& StarShipPtr->RaceDescPtr->ship_info.energy_level > SPECIAL_ENERGY_COST >> 1
+				&& !(StarShipPtr->ship_input_state & WEAPON)
+				&& !(EnemyStarShipPtr->RaceDescPtr->ship_info.ship_flags & HEAVY_POINT_DEFENSE))
 			StarShipPtr->ship_input_state |= SPECIAL;
 	}
 }

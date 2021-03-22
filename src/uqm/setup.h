@@ -14,8 +14,8 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-#ifndef _SETUP_H
-#define _SETUP_H
+#ifndef UQM_SETUP_H_
+#define UQM_SETUP_H_
 
 #define RETREAT_SETUPMENU
 
@@ -25,6 +25,10 @@
 #include "libs/sndlib.h"
 #include "libs/gfxlib.h"
 #include "libs/threadlib.h"
+
+#if defined(__cplusplus)
+extern "C" {
+#endif
 
 extern RESOURCE_INDEX hResIndex;
 
@@ -51,7 +55,6 @@ extern FONT StarConFont;
 extern FONT MicroFont;
 extern FONT TinyFont;
 
-extern Mutex GraphicsLock;
 extern CondVar RenderingCond;
 
 extern QUEUE race_q[];
@@ -61,6 +64,10 @@ extern QUEUE race_q[];
 extern ACTIVITY LastActivity;
 
 extern BYTE PlayerControl[];
+
+extern BOOLEAN usingSpeech;
+		// Actual speech presence indicator which decouples reality from
+		// the user option, thus the user option remains as pure intent
 
 BOOLEAN InitContexts (void);
 void UninitPlayerInput (void);
@@ -79,6 +86,8 @@ void ClearPlayerInput (COUNT playerI);
 void ClearPlayerInputAll (void);
 
 
-#endif  /* _SETUP_H */
+#if defined(__cplusplus)
+}
+#endif
 
-
+#endif  /* UQM_SETUP_H_ */

@@ -16,8 +16,8 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef _NETMISC_H
-#define _NETMISC_H
+#ifndef UQM_SUPERMELEE_NETPLAY_NETMISC_H_
+#define UQM_SUPERMELEE_NETPLAY_NETMISC_H_
 
 typedef struct BattleStateData BattleStateData;
 
@@ -27,6 +27,10 @@ typedef struct BattleStateData BattleStateData;
 
 #include "../../battle.h"
 		// for BattleFrameCounter, BATTLE_FRAME_RATE
+
+#if defined(__cplusplus)
+extern "C" {
+#endif
 
 struct BattleStateData {
 	NETCONNECTION_STATE_DATA_COMMON
@@ -66,6 +70,8 @@ readyFlagsMeaningful(NetState state) {
 }
 
 
-#endif  /* _NETMISC_H */
+#if defined(__cplusplus)
+}
+#endif
 
-
+#endif  /* UQM_SUPERMELEE_NETPLAY_NETMISC_H_ */

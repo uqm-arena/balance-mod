@@ -21,10 +21,14 @@
  * processes.  They are built on top of threads, but add the ability to
  * modify a "state" variable to pass messages back and forth. */
 
-#ifndef _TASKLIB_H
-#define _TASKLIB_H
+#ifndef LIBS_TASKLIB_H_
+#define LIBS_TASKLIB_H_
 
 #include "libs/threadlib.h"
+
+#if defined(__cplusplus)
+extern "C" {
+#endif
 
 /* Bitmasks for setting task state. */
 #define TASK_INUSE       1
@@ -49,6 +53,10 @@ extern DWORD Task_ToggleState (Task task, DWORD state_mask);
 extern DWORD Task_ReadState (Task task, DWORD state_mask);
 extern void  FinishTask (Task task);
 extern void  ConcludeTask (Task task);
+
+#if defined(__cplusplus)
+}
+#endif
 
 #endif
 

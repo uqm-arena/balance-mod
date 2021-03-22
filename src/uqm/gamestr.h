@@ -19,11 +19,15 @@
  * the game. libs/strlib.h is for the string library.
  */
 
-#ifndef _GAMESTR_H
-#define _GAMESTR_H
+#ifndef UQM_GAMESTR_H_
+#define UQM_GAMESTR_H_
 
 
 #include "libs/strlib.h"
+
+#if defined(__cplusplus)
+extern "C" {
+#endif
 
 #define STAR_STRING_COUNT       133
 #define DEVICE_STRING_COUNT      29
@@ -82,5 +86,8 @@ extern STRING GameStrings;
 
 
 
-#endif  /* _GAMESTR_H */
+#if defined(__cplusplus)
+}
+#endif
 
+#endif  /* UQM_GAMESTR_H_ */

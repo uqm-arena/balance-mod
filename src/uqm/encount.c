@@ -22,6 +22,7 @@
 #include "battlecontrols.h"
 #include "build.h"
 #include "colors.h"
+#include "starmap.h"
 #include "cons_res.h"
 #include "controls.h"
 #include "menustat.h"
@@ -77,9 +78,7 @@ DoSelectAction (MENU_STATE *pMS)
 				if (!GameOptions ())
 					return FALSE;
 				DrawMenuStateStrings (PM_CONVERSE, pMS->CurState);
-				LockMutex (GraphicsLock);
 				SetFlashRect (SFR_MENU_3DO);
-				UnlockMutex (GraphicsLock);
 				break;
 			default:
 				printf ("Unknown option: %d\n", pMS->CurState);
@@ -269,7 +268,6 @@ InitEncounter (void)
 	extern FRAME planet[];
 	MUSIC_REF MR;
 
-	LockMutex (GraphicsLock);
 
 	SetContext (SpaceContext);
 	SetContextFont (TinyFont);
@@ -277,11 +275,9 @@ InitEncounter (void)
 	MR = LoadMusic (REDALERT_MUSIC);
 	PlayMusic (MR, FALSE, 1);
 	SegueFrame = CaptureDrawable (LoadGraphic (SEGUE_PMAP_ANIM));
-	UnlockMutex (GraphicsLock);
 	WaitForSoundEnd (TFBSOUND_WAIT_ALL);
 	StopMusic ();
 	DestroyMusic (MR);
-	LockMutex (GraphicsLock);
 	s.origin.x = s.origin.y = 0;
 
 	SetTransitionSource (NULL);
@@ -300,7 +296,7 @@ InitEncounter (void)
 	SetContextFont (MicroFont);
 	SetContextForeGroundColor (
 			BUILD_COLOR (MAKE_RGB15 (0x00, 0x00, 0x14), 0x01));
-	if (LOBYTE (GLOBAL (CurrentActivity)) == IN_HYPERSPACE)
+	if (inHQSpace ())
 	{
 		t.pStr = GAME_STRING (ENCOUNTER_STRING_BASE + 0);
 				// "ENCOUNTER IN"
@@ -330,6 +326,7 @@ InitEncounter (void)
 		t.CharCount = (COUNT)~0;
 		font_DrawText (&t);
 	}
+	DrawSISMessage (NULL);
 
 	s.origin.x = SIS_SCREEN_WIDTH >> 1;
 	s.origin.y = SIS_SCREEN_HEIGHT >> 1;
@@ -393,7 +390,6 @@ InitEncounter (void)
 	DestroyDrawable (ReleaseDrawable (SegueFrame));
 	ScreenTransition (3, NULL);
 
-	UnlockMutex (GraphicsLock);
 
 	{
 		MENU_STATE MenuState;
@@ -402,15 +398,11 @@ InitEncounter (void)
 		MenuState.Initialized = FALSE;
 
 		DrawMenuStateStrings (PM_CONVERSE, MenuState.CurState = HAIL);
-		LockMutex (GraphicsLock);
 		SetFlashRect (SFR_MENU_3DO);
-		UnlockMutex (GraphicsLock);
 
 		DoInput (&MenuState, TRUE);
 
-		LockMutex (GraphicsLock);
 		SetFlashRect (NULL);
-		UnlockMutex (GraphicsLock);
 
 		return (MenuState.CurState);
 	}
@@ -450,10 +442,8 @@ DrawFadeText (const UNICODE *str1, const UNICODE *str2, BOOLEAN fade_in,
 	{
 		for (i = 0; i < (SIZE) NUM_FADES; ++i)
 		{
-			UnlockMutex (GraphicsLock);
 			if (AnyButtonPress (TRUE))
 				i = NUM_FADES - 1;
-			LockMutex (GraphicsLock);
 
 			SetContextForeGroundColor (fade_cycle[i]);
 			font_DrawText (&t1);
@@ -466,10 +456,8 @@ DrawFadeText (const UNICODE *str1, const UNICODE *str2, BOOLEAN fade_in,
 	{
 		for (i = NUM_FADES - 1; i >= 0; --i)
 		{
-			UnlockMutex (GraphicsLock);
 			if (AnyButtonPress (TRUE))
 				i = 0;
-			LockMutex (GraphicsLock);
 
 			SetContextForeGroundColor (fade_cycle[i]);
 			font_DrawText (&t1);
@@ -491,7 +479,6 @@ UninitEncounter (void)
 
 	ships_killed = 0;
 
-	LockMutex (GraphicsLock);
 	free_gravity_well ();
 
 	if ((GLOBAL (CurrentActivity) & (CHECK_ABORT | CHECK_LOAD))
@@ -580,7 +567,7 @@ UninitEncounter (void)
 				{
 					DrawSISFrame ();
 					DrawSISMessage (NULL);
-					if (LOBYTE (GLOBAL (CurrentActivity)) == IN_HYPERSPACE)
+					if (inHQSpace ())
 						DrawHyperCoords (GLOBAL (ShipStamp.origin));
 					else if (GLOBAL (ip_planet) == 0)
 						DrawHyperCoords (CurStarDescPtr->star_pt);
@@ -701,10 +688,8 @@ UninitEncounter (void)
 								TimeCount Time = GetTimeCounter ();
 								for (j = 0; j < NUM_SHIP_FADES; ++j)
 								{
-									UnlockMutex (GraphicsLock);
 									Sleepy = (BOOLEAN)!AnyButtonPress (TRUE) &&
 											!(GLOBAL (CurrentActivity) & CHECK_ABORT);
-									LockMutex (GraphicsLock);
 									if (!Sleepy)
 										break;
 
@@ -737,9 +722,7 @@ UninitEncounter (void)
 			DestroyDrawable (ReleaseDrawable (s.frame));
 #endif /* NEVER */
 
-			UnlockMutex (GraphicsLock);
 			WaitForAnyButton (TRUE, ONE_SECOND * 3, FALSE);
-			LockMutex (GraphicsLock);
 			if (!CurrentInputState.key[PlayerControls[0]][KEY_ESCAPE])
 			{
 				DrawFadeText (str1, str2, FALSE, &scavenge_r);
@@ -765,9 +748,7 @@ UninitEncounter (void)
 					str2 = GAME_STRING (ENCOUNTER_STRING_BASE + 7);
 							// "Scavenged"
 					DrawFadeText (str1, str2, TRUE, &scavenge_r);
-					UnlockMutex (GraphicsLock);
 					WaitForAnyButton (TRUE, ONE_SECOND * 2, FALSE);
-					LockMutex (GraphicsLock);
 					if (!CurrentInputState.key[PlayerControls[0]][KEY_ESCAPE])
 						DrawFadeText (str1, str2, FALSE, &scavenge_r);
 				}
@@ -786,7 +767,6 @@ UninitEncounter (void)
 		}
 	}
 ExitUninitEncounter:
-	UnlockMutex (GraphicsLock);
 
 	return (ships_killed);
 }
@@ -798,7 +778,6 @@ EncounterBattle (void)
 	extern UWORD nth_frame;
 	InputContext *savedPlayerInput = NULL;
 
-	LockMutex (GraphicsLock);
 
 	SET_GAME_STATE (BATTLE_SEGUE, 1);
 
@@ -837,9 +816,7 @@ EncounterBattle (void)
 
 	GameSounds = CaptureSound (LoadSound (GAME_SOUNDS));
 
-	UnlockMutex (GraphicsLock);
 	Battle (NULL);
-	LockMutex (GraphicsLock);
 
 	DestroySound (ReleaseSound (GameSounds));
 	GameSounds = 0;
@@ -863,6 +840,5 @@ EncounterBattle (void)
 
 	GLOBAL (CurrentActivity) = OldActivity;
 
-	UnlockMutex (GraphicsLock);
 }
 

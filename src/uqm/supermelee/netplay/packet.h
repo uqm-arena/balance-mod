@@ -16,8 +16,12 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef _PACKET_H
-#define _PACKET_H
+#ifndef UQM_SUPERMELEE_NETPLAY_PACKET_H_
+#define UQM_SUPERMELEE_NETPLAY_PACKET_H_
+
+#if defined(__cplusplus)
+extern "C" {
+#endif
 
 typedef struct Packet Packet;
 
@@ -62,12 +66,19 @@ typedef enum NetplayResetReason {
 	ResetReason_manualReset,
 } NetplayResetReason;
 
+#if defined(__cplusplus)
+}
+#endif
+
 #ifndef PACKET_H_STANDALONE
 #include "netconnection.h"
 
 #include "types.h"
 #include "libs/network/bytesex.h"
 
+#if defined(__cplusplus)
+extern "C" {
+#endif
 
 /* NB: These handlers are expected not to modify the state if an
  *     error occurs.
@@ -83,8 +94,16 @@ typedef struct {
 } PacketTypeData;
 
 extern PacketTypeData packetTypeData[];
+
+#if defined(__cplusplus)
+}
 #endif
 
+#endif
+
+#if defined(__cplusplus)
+extern "C" {
+#endif
 
 // When adding new packets, be sure to have all the fields properly aligned,
 // and that the size of a packet is a multiple of 4 bytes in length.
@@ -279,6 +298,9 @@ Packet_Abort *Packet_Abort_create(uint16 reason);
 Packet_Reset *Packet_Reset_create(uint16 reason);
 #endif
 
+#if defined(__cplusplus)
+}
+#endif
 
-#endif  /* _PACKET_H */
+#endif  /* UQM_SUPERMELEE_NETPLAY_PACKET_H_ */
 

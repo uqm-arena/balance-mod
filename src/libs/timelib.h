@@ -14,12 +14,16 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-#ifndef _TIMLIB_H
-#define _TIMLIB_H
+#ifndef LIBS_TIMELIB_H_
+#define LIBS_TIMELIB_H_
 
 #define TIMELIB SDL
 
 #include "libs/compiler.h"
+
+#if defined(__cplusplus)
+extern "C" {
+#endif
 
 /* ONE_SECOND is the LCM of all the fractions of a second the game uses.
  * Battle is 24 FPS, Landers are 35 FPS, most UI-level things are 15 FPS,
@@ -38,5 +42,8 @@ extern void InitTimeSystem (void);
 extern void UnInitTimeSystem (void);
 extern TimeCount GetTimeCounter (void);
 
-#endif  /* _TIMLIB_H */
+#if defined(__cplusplus)
+}
+#endif
 
+#endif  /* LIBS_TIMLIB_H_ */

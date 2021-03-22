@@ -14,7 +14,7 @@ eval OBJDIR=\"${BUILD_WORK}\${${BUILD_PROJECT}_OBJS}\"
 
 . "${BUILD_ROOT}Makeproject"
 
-sh build/unix/recurse "$BUILD_PROJECT" "$BUILD_ROOT" | \
+build/unix/recurse "$BUILD_PROJECT" "$BUILD_ROOT" | \
 		while read TYPE FILE; do
 	case "$TYPE" in
 		C|CXX|M|RC)

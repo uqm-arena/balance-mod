@@ -22,6 +22,10 @@
 #include "planets/elemdata.h"
 		// for NUM_ELEMENT_CATEGORIES
 
+#if defined(__cplusplus)
+extern "C" {
+#endif
+
 #define CLEAR_SIS_RADAR (1 << 2)
 #define DRAW_SIS_DISPLAY (1 << 3)
 
@@ -72,7 +76,7 @@ enum
 	CANNON_WEAPON,
 	TRACKING_SYSTEM,
 	ANTIMISSILE_DEFENSE,
-	
+
 	NUM_PURCHASE_MODULES,
 
 	BOMB_MODULE_0 = NUM_PURCHASE_MODULES,
@@ -150,26 +154,6 @@ typedef struct
 	UNICODE PlanetName[SIS_NAME_SIZE];
 } SIS_STATE;
 
-// XXX: Theoretically, a player can have 17 devices on board without
-//   cheating. We only provide
-//   room for 16 below, which is not really a problem since this
-//   is only used for displaying savegame summaries. There is also
-//   room for only 16 devices on screen.
-#define MAX_EXCLUSIVE_DEVICES 16
-
-typedef struct
-{
-	SIS_STATE SS;
-	BYTE Activity;
-	BYTE Flags;
-	BYTE day_index, month_index;
-	COUNT year_index;
-	BYTE MCreditLo, MCreditHi;
-	BYTE NumShips, NumDevices;
-	BYTE ShipList[MAX_BUILT_SHIPS];
-	BYTE DeviceList[MAX_EXCLUSIVE_DEVICES];
-} SUMMARY_DESC;
-
 #define OVERRIDE_LANDER_FLAGS (1 << 7)
 #define AFTER_BOMB_INSTALLED (1 << 7)
 
@@ -177,7 +161,12 @@ extern void RepairSISBorder (void);
 extern void InitSISContexts (void);
 extern void DrawSISFrame (void);
 extern void ClearSISRect (BYTE ClearFlags);
-extern void SetFlashRect (RECT *pRect);
+extern void SetFlashRect (const RECT *pRect);
+extern void PreUpdateFlashRect (void);
+extern void PostUpdateFlashRect (void);
+extern void PauseFlash (void);
+extern void ContinueFlash (void);
+
 #define SFR_MENU_3DO ((RECT*)~0L)
 #define SFR_MENU_ANY ((RECT*)~1L)
 extern void DrawHyperCoords (POINT puniverse);
@@ -243,6 +232,10 @@ extern COUNT CountSISPieces (BYTE piece_type);
 
 extern void DrawFlagshipName (BOOLEAN InStatusArea);
 extern void DrawCaptainsName (void);
+
+#if defined(__cplusplus)
+}
+#endif
 
 #endif /* SIS_H_INCL__ */
 

@@ -22,7 +22,7 @@
 #include "uqm/globdata.h"
 #include "libs/mathlib.h"
 
-// Core characteristics
+// Core Characteristics
 #define MAX_CREW 12
 #define MAX_ENERGY 20
 #define ENERGY_REGENERATION 0
@@ -33,14 +33,16 @@
 #define TURN_WAIT 0
 #define SHIP_MASS 1
 
-// Lightning weapon
+// Lightning Weapon
 #define WEAPON_ENERGY_COST 2
-#define WEAPON_WAIT 20
+#define WEAPON_WAIT 17
+#define WEAPON_WAIT_ALT 20 // While lightning range is capped, attack time is extended to compensate for penalty
 #define SLYLANDRO_OFFSET 9
 #define LASER_RANGE 32
-#define LASER_MAX_RANGE DISPLAY_TO_WORLD (160)
+#define LASER_RANGE_SHORT 12 // While lightning range is capped, distal lightning segments shrink to this size
+#define LASER_LIMIT DISPLAY_TO_WORLD (167)
 
-// Energizer
+// Harvester
 #define SPECIAL_ENERGY_COST 0
 #define SPECIAL_WAIT 20
 #define HARVEST_RANGE (208 * 3 / 8)
@@ -116,8 +118,7 @@ static RACE_DESC slylandro_desc =
 	0, /* CodeRef */
 };
 
-static COUNT initialize_lightning (ELEMENT *ElementPtr,
-		HELEMENT LaserArray[]);
+static COUNT initialize_lightning (ELEMENT *ElementPtr,	HELEMENT LaserArray[]);
 
 static void
 lightning_postprocess (ELEMENT *ElementPtr)
@@ -125,6 +126,7 @@ lightning_postprocess (ELEMENT *ElementPtr)
 	SIZE delta_x, delta_y;
 	STARSHIP *StarShipPtr;
 	ELEMENT *ShipPtr;
+	HELEMENT Lightning;
 	
 	GetElementStarShip (ElementPtr, &StarShipPtr);
 
@@ -137,19 +139,28 @@ lightning_postprocess (ELEMENT *ElementPtr)
 		delta_x = -delta_x;
 	if (delta_y < 0)
 		delta_y = -delta_y;
+
+	if (StarShipPtr->static_counter > 0
+		&& (delta_x + LASER_RANGE >= LASER_LIMIT
+			|| delta_y + LASER_RANGE >= LASER_LIMIT
+			|| (long)(delta_x + LASER_RANGE) * (delta_x + LASER_RANGE)
+			 + (long)(delta_y + LASER_RANGE) * (delta_y + LASER_RANGE)
+			>= (long)LASER_LIMIT * LASER_LIMIT))
+		ElementPtr->cycle = 2;
+
 	if (ElementPtr->turn_wait
 		&& !(ElementPtr->state_flags & COLLISION)
-		&& (delta_x <= LASER_MAX_RANGE
-		&& delta_y <= LASER_MAX_RANGE
-		&& (long)delta_x * delta_x + (long)delta_y * delta_y
-		<= (long)LASER_MAX_RANGE * LASER_MAX_RANGE))
+		&& (StarShipPtr->static_counter == 0
+			|| (delta_x <= LASER_LIMIT
+				&& delta_y <= LASER_LIMIT
+				&& (long)delta_x * delta_x + (long)delta_y * delta_y
+				<= (long)LASER_LIMIT * LASER_LIMIT)))
 	{
-		HELEMENT Lightning;
-
 		initialize_lightning (ElementPtr, &Lightning);
 		if (Lightning)
 			PutElement (Lightning);
 	}
+
 	UnlockElement (StarShipPtr->hShip);
 }
 
@@ -157,12 +168,18 @@ static void
 lightning_collision (ELEMENT *ElementPtr0, POINT *pPt0,
 		ELEMENT *ElementPtr1, POINT *pPt1)
 {
+	COUNT weapon_duration;
 	STARSHIP *StarShipPtr;
 
 	GetElementStarShip (ElementPtr0, &StarShipPtr);
-	if (StarShipPtr->weapon_counter > WEAPON_WAIT >> 1)
-		StarShipPtr->weapon_counter =
-				WEAPON_WAIT - StarShipPtr->weapon_counter;
+
+	if (StarShipPtr->static_counter > 0)
+		weapon_duration = WEAPON_WAIT_ALT;
+	else
+		weapon_duration = WEAPON_WAIT;
+
+	if (StarShipPtr->weapon_counter > weapon_duration >> 1)
+		StarShipPtr->weapon_counter = weapon_duration - StarShipPtr->weapon_counter;
 	StarShipPtr->weapon_counter -= ElementPtr0->turn_wait;
 	ElementPtr0->turn_wait = 0;
 
@@ -188,12 +205,17 @@ initialize_lightning (ELEMENT *ElementPtr, HELEMENT LaserArray[])
 	if (LaserArray[0])
 	{
 		SIZE delta;
-		COUNT angle, facing;
+		COUNT angle, facing, weapon_duration;
 		DWORD rand_val;
 		ELEMENT *LaserPtr;
 		STARSHIP *StarShipPtr;
 
 		GetElementStarShip (ElementPtr, &StarShipPtr);
+
+		if (StarShipPtr->static_counter > 0)
+			weapon_duration = WEAPON_WAIT_ALT;
+		else
+			weapon_duration = WEAPON_WAIT;
 
 		LockElement (LaserArray[0], &LaserPtr);
 		LaserPtr->postprocess_func = lightning_postprocess;
@@ -221,10 +243,10 @@ initialize_lightning (ELEMENT *ElementPtr, HELEMENT LaserArray[])
 			angle = FACING_TO_ANGLE (facing);
 
 			if ((LaserPtr->turn_wait = StarShipPtr->weapon_counter) == 0)
-				LaserPtr->turn_wait = WEAPON_WAIT;
+				LaserPtr->turn_wait = weapon_duration;
 
-			if (LaserPtr->turn_wait > WEAPON_WAIT >> 1)
-				LaserPtr->turn_wait = WEAPON_WAIT - LaserPtr->turn_wait;
+			if (LaserPtr->turn_wait > weapon_duration >> 1)
+				LaserPtr->turn_wait = weapon_duration - LaserPtr->turn_wait;
 
 			switch (HIBYTE (LOWORD (rand_val)) & 3)
 			{
@@ -263,11 +285,16 @@ initialize_lightning (ELEMENT *ElementPtr, HELEMENT LaserArray[])
 			angle += LOWORD (rand_val) & (QUADRANT - 1);
 		else
 			angle -= LOWORD (rand_val) & (QUADRANT - 1);
-		delta = WORLD_TO_VELOCITY (
-				DISPLAY_TO_WORLD ((HIWORD (rand_val) & (LASER_RANGE - 1)) + 4)
-				);
-		SetVelocityComponents (&LaserPtr->velocity,
-				COSINE (angle, delta), SINE (angle, delta));
+
+		// When lightning is almost at max range, shorten the next line
+		if (ElementPtr->cycle == 2)
+			delta = WORLD_TO_VELOCITY (
+				DISPLAY_TO_WORLD ((HIWORD (rand_val) & (LASER_RANGE_SHORT - 1)) + 2));
+		else
+			delta = WORLD_TO_VELOCITY (
+				DISPLAY_TO_WORLD ((HIWORD (rand_val) & (LASER_RANGE - 1)) + 4));
+
+		SetVelocityComponents (&LaserPtr->velocity, COSINE (angle, delta), SINE (angle, delta));
 
 		SetElementStarShip (LaserPtr, StarShipPtr);
 		UnlockElement (LaserArray[0]);
@@ -335,11 +362,18 @@ harvest_space_junk (ELEMENT *ElementPtr)
 static void
 slylandro_postprocess (ELEMENT *ElementPtr)
 {
+	COUNT weapon_duration;
 	STARSHIP *StarShipPtr;
 
 	GetElementStarShip (ElementPtr, &StarShipPtr);
+
+	if (StarShipPtr->static_counter > 0)
+		weapon_duration = WEAPON_WAIT_ALT;
+	else
+		weapon_duration = WEAPON_WAIT;
+
 	if (StarShipPtr->weapon_counter
-			&& StarShipPtr->weapon_counter < WEAPON_WAIT)
+			&& StarShipPtr->weapon_counter < weapon_duration)
 	{
 		HELEMENT Lightning;
 
@@ -362,13 +396,37 @@ slylandro_preprocess (ELEMENT *ElementPtr)
 {
 	if (!(ElementPtr->state_flags & (APPEARING | NONSOLID)))
 	{
-		STARSHIP *StarShipPtr;
+		COUNT facing = 0;
+		STARSHIP *StarShipPtr, *EnemyStarShipPtr;
 
 		GetElementStarShip (ElementPtr, &StarShipPtr);
+
+		// Identify enemy ship - if it's a certain type, apply weapon range cap
+		if (TrackAnyShip (ElementPtr, &facing) >= 0)
+		{
+			ELEMENT *EnemyPtr;
+
+			LockElement (ElementPtr->hTarget, &EnemyPtr);
+			GetElementStarShip (EnemyPtr, &EnemyStarShipPtr);
+
+			if (EnemyStarShipPtr
+				&& (EnemyStarShipPtr->SpeciesID == CHMMR_ID
+					|| EnemyStarShipPtr->SpeciesID == MMRNMHRM_ID
+					|| EnemyStarShipPtr->SpeciesID == VUX_ID
+					|| EnemyStarShipPtr->SpeciesID == YEHAT_ID))
+				StarShipPtr->static_counter = 1;
+			else
+				StarShipPtr->static_counter = 0;
+
+			UnlockElement (ElementPtr->hTarget);
+		}
+
+		// Directional reverse ability
 		if ((StarShipPtr->cur_status_flags & THRUST)
 				&& !(StarShipPtr->old_status_flags & THRUST))
 			StarShipPtr->ShipFacing += ANGLE_TO_FACING (HALF_CIRCLE);
 
+		// Turn the ship's trajectory
 		if (ElementPtr->turn_wait == 0)
 		{
 			ElementPtr->turn_wait +=
@@ -381,6 +439,7 @@ slylandro_preprocess (ELEMENT *ElementPtr)
 
 		StarShipPtr->ShipFacing = NORMALIZE_FACING (StarShipPtr->ShipFacing);
 
+		// Always propel forward
 		if (ElementPtr->thrust_wait == 0)
 		{
 			ElementPtr->thrust_wait +=
@@ -393,6 +452,7 @@ slylandro_preprocess (ELEMENT *ElementPtr)
 			StarShipPtr->cur_status_flags &= ~SHIP_IN_GRAVITY_WELL;
 		}
 
+		// Rotate ship body regardless of trajectory
 		ElementPtr->next.image.frame = IncFrameIndex (ElementPtr->next.image.frame);
 		ElementPtr->state_flags |= CHANGING;
 	}

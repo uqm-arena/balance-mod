@@ -21,12 +21,12 @@
 #include "resinst.h"
 #include "libs/log.h"
 
-// Core characteristics
+// Core Characteristics
 #define MAX_CREW 20
 #define MAX_ENERGY 10
 #define SHIP_MASS 3
 
-// X-Wing characteristics
+// X-Wing Characteristics
 #define ENERGY_REGENERATION 2
 #define ENERGY_WAIT 6
 #define MAX_THRUST 20
@@ -34,12 +34,12 @@
 #define THRUST_WAIT 1
 #define TURN_WAIT 1
 
-// Y-Wing characteristics
+// Y-Wing Characteristics
 #define YWING_ENERGY_REGENERATION 1
 #define YWING_SPECIAL_ENERGY_COST MAX_ENERGY
 #define YWING_ENERGY_WAIT 6
 #define YWING_MAX_THRUST 50
-#define YWING_THRUST_INCREMENT 10
+#define YWING_THRUST_INCREMENT 5
 #define YWING_THRUST_WAIT 0
 #define YWING_TURN_WAIT 14
 
@@ -48,17 +48,18 @@
 #define WEAPON_WAIT 0
 #define CENTER_OFFS 16
 #define WING_OFFS 40
-#define LASER_RANGE DISPLAY_TO_WORLD (144)
+#define LASER_RANGE DISPLAY_TO_WORLD (148)
 
 // Y-Wing Missiles
 #define YWING_WEAPON_ENERGY_COST 1
 #define YWING_WEAPON_WAIT 20
 #define LAUNCH_OFFS 16
 #define MISSILE_OFFSET 0
-#define MISSILE_SPEED 80
+#define MISSILE_SPEED 78
 #define MISSILE_LIFE 40
 #define MISSILE_HITS 1
 #define MISSILE_DAMAGE 1
+#define MISSILE_DECEL 10
 #define TRACK_WAIT 5
 
 // Transform
@@ -70,7 +71,7 @@ static RACE_DESC mmrnmhrm_desc =
 {
 	{ /* SHIP_INFO */
 		FIRES_FORE | IMMEDIATE_WEAPON,
-		20, /* Super Melee cost */
+		19, /* Super Melee cost */
 		MAX_CREW, MAX_CREW,
 		MAX_ENERGY, MAX_ENERGY,
 		MMRNMHRM_RACE_STRINGS,
@@ -144,18 +145,47 @@ missile_preprocess (ELEMENT *ElementPtr)
 		--ElementPtr->turn_wait;
 	else
 	{
-		COUNT facing;
+		COUNT prefacing, facing, launch_facing, angle;
+		SIZE current_speed, normal_speed, delta_x, delta_y;
 
-		facing = GetFrameIndex (ElementPtr->next.image.frame);
+		GetCurrentVelocityComponents (&ElementPtr->velocity, &delta_x, &delta_y);
+		current_speed = square_root (VelocitySquared (delta_x, delta_y));
+		normal_speed = WORLD_TO_VELOCITY (MISSILE_SPEED);
+
+		prefacing = facing = GetFrameIndex (ElementPtr->next.image.frame);
+		launch_facing = ElementPtr->thrust_wait;
+
+		// Boosted missiles slow down as they turn
+		if (current_speed > WORLD_TO_VELOCITY (MISSILE_SPEED)
+				&& TrackShip (ElementPtr, &prefacing) > 0
+				&& NORMALIZE_FACING (prefacing - launch_facing) >= 2)
+		{
+			if (current_speed >= WORLD_TO_VELOCITY (MISSILE_SPEED + MISSILE_DECEL))
+				current_speed -= WORLD_TO_VELOCITY (MISSILE_DECEL);
+			else
+				current_speed = WORLD_TO_VELOCITY (MISSILE_SPEED);
+
+			// Don't use this first check to turn the missile
+			angle = FACING_TO_ANGLE (facing);
+
+			// Adjust speed here so the second TrackShip check takes the new speed into account
+			SetVelocityComponents (&ElementPtr->velocity,
+				(SIZE)COSINE (angle, current_speed),
+				(SIZE)SINE (angle, current_speed));
+		}
+
+		// Second TrackShip check takes adjusted speed into account
 		if (TrackShip (ElementPtr, &facing) > 0)
 		{
-			ElementPtr->next.image.frame =
-					SetAbsFrameIndex (ElementPtr->next.image.frame,
-					facing);
+			ElementPtr->next.image.frame = SetAbsFrameIndex (ElementPtr->next.image.frame, facing);
 			ElementPtr->state_flags |= CHANGING;
 
-			SetVelocityVector (&ElementPtr->velocity,
-					MISSILE_SPEED, facing);
+			// Now we're ready to turn
+			angle = FACING_TO_ANGLE (facing);
+
+			SetVelocityComponents (&ElementPtr->velocity,
+				(SIZE)COSINE (angle, current_speed),
+				(SIZE)SINE (angle, current_speed));
 		}
 
 		ElementPtr->turn_wait = TRACK_WAIT;
@@ -228,15 +258,17 @@ initialize_dual_weapons (ELEMENT *ShipPtr, HELEMENT WeaponArray[])
 	{
 		MISSILE_BLOCK TorpBlock;
 		ELEMENT *TorpPtr;
+		COUNT travel_angle;
+		SIZE cur_delta_x, cur_delta_y, delta_speed;
 
 		TorpBlock.farray = StarShipPtr->RaceDescPtr->ship_data.weapon;
 		TorpBlock.sender = ShipPtr->playerNr;
 		TorpBlock.flags = IGNORE_SIMILAR;
 		TorpBlock.pixoffs = 0;
-		TorpBlock.speed = MISSILE_SPEED;
 		TorpBlock.hit_points = MISSILE_HITS;
 		TorpBlock.damage = MISSILE_DAMAGE;
 		TorpBlock.life = MISSILE_LIFE;
+		TorpBlock.speed = MISSILE_SPEED;
 		TorpBlock.preprocess_func = missile_preprocess;
 		TorpBlock.blast_offs = MISSILE_OFFSET;
 
@@ -244,23 +276,40 @@ initialize_dual_weapons (ELEMENT *ShipPtr, HELEMENT WeaponArray[])
 		offs_x = -SINE (FACING_TO_ANGLE (TorpBlock.face), LAUNCH_OFFS);
 		offs_y = COSINE (FACING_TO_ANGLE (TorpBlock.face), LAUNCH_OFFS);
 
+		// Find X-Form's velocity
+		travel_angle = GetVelocityTravelAngle (&ShipPtr->velocity);
+		GetCurrentVelocityComponents (&ShipPtr->velocity, &cur_delta_x, &cur_delta_y);
+		delta_speed = square_root (VelocitySquared (cur_delta_x, cur_delta_y));
+		delta_speed = delta_speed * 2/5;
+
 		TorpBlock.cx = cx + offs_x;
 		TorpBlock.cy = cy + offs_y;
 		if ((WeaponArray[0] = initialize_missile (&TorpBlock)))
 		{
 			LockElement (WeaponArray[0], &TorpPtr);
 			TorpPtr->turn_wait = TRACK_WAIT;
+			TorpPtr->thrust_wait = facing; // Remember ship's facing angle when missile was launched
+
+			// Add some of the X-Form's velocity to its projectiles
+			DeltaVelocityComponents (&TorpPtr->velocity,
+				(SIZE)COSINE ((travel_angle - 4), delta_speed),
+				(SIZE)SINE ((travel_angle - 4), delta_speed));
 			UnlockElement (WeaponArray[0]);
 		}
 
 		TorpBlock.face = TorpBlock.index = NORMALIZE_FACING (facing + 1);
-
 		TorpBlock.cx = cx - offs_x;
 		TorpBlock.cy = cy - offs_y;
 		if ((WeaponArray[1] = initialize_missile (&TorpBlock)))
 		{
 			LockElement (WeaponArray[1], &TorpPtr);
 			TorpPtr->turn_wait = TRACK_WAIT;
+			TorpPtr->thrust_wait = facing; // Remember ship's facing angle when missile was launched
+
+			// Add some of the X-Form's velocity to its projectiles
+			DeltaVelocityComponents (&TorpPtr->velocity,
+				(SIZE)COSINE ((travel_angle + 4), delta_speed),
+				(SIZE)SINE ((travel_angle + 4), delta_speed));
 			UnlockElement (WeaponArray[1]);
 		}
 	}

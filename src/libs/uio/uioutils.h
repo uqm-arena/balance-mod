@@ -18,8 +18,8 @@
  *
  */
 
-#ifndef _UIOUTILS_H
-#define _UIOUTILS_H
+#ifndef LIBS_UIO_UIOUTILS_H_
+#define LIBS_UIO_UIOUTILS_H_
 
 #include <time.h>
 
@@ -44,8 +44,8 @@ char *dosToUnixPath(const char *path);
 static inline void *
 unconst(const void *arg) {
 	union {
-		char *c;
-		const char *cc;
+		void *c;
+		const void *cc;
 	} u;
 	u.cc = arg;
 	return u.c;
@@ -88,5 +88,5 @@ minu(unsigned int i1, unsigned int i2) {
 }
 
 
-#endif  /* _UIOUTILS_H */
+#endif  /* LIBS_UIO_UIOUTILS_H_ */
 

@@ -23,8 +23,8 @@
 #include "uqm/globdata.h"
 #include "libs/mathlib.h"
 
-// Core characteristics
-#define MAX_CREW 16
+// Core Characteristics
+#define MAX_CREW 18
 #define MAX_ENERGY 20
 #define ENERGY_REGENERATION 1
 #define ENERGY_WAIT 6
@@ -44,7 +44,7 @@
 #define MISSILE_DAMAGE 3
 #define MISSILE_OFFSET 1
 
-// Marine
+// Marines
 #define SPECIAL_ENERGY_COST 0
 #define SPECIAL_WAIT 12
 #define MARINE_MAX_THRUST 32
@@ -187,7 +187,7 @@ initialize_turret_missile (ELEMENT *ShipPtr, HELEMENT MissileArray[])
 		dx = dx * 1/2;
 		dy = dy * 1/2;
         
-		// Add some of the Nemesis' velocity to its projectiles.
+		// Add some of the Nemesis' velocity to its projectiles
 		DeltaVelocityComponents (&HowitzerPtr->velocity, dx, dy);
 		HowitzerPtr->current.location.x -= VELOCITY_TO_WORLD (dx);
 		HowitzerPtr->current.location.y -= VELOCITY_TO_WORLD (dy);
@@ -545,10 +545,9 @@ marine_preprocess (ELEMENT *ElementPtr)
 		else
 		{
 			LockElement (hTarget, &ObjectPtr);
-			delta_x = WRAP_DELTA_X (ObjectPtr->current.location.x
-				- ElementPtr->current.location.x);
-			delta_y = WRAP_DELTA_Y (ObjectPtr->current.location.y
-				- ElementPtr->current.location.y);
+			delta_x = WRAP_DELTA_X (ObjectPtr->current.location.x - ElementPtr->current.location.x);
+			delta_y = WRAP_DELTA_Y (ObjectPtr->current.location.y - ElementPtr->current.location.y);
+
 			if (GRAVITY_MASS (ObjectPtr->mass_points))
 			{
 				delta_facing = NORMALIZE_FACING (pfacing - facing
@@ -569,7 +568,8 @@ marine_preprocess (ELEMENT *ElementPtr)
 			else
 			{
 				COUNT num_frames;
-				//VELOCITY_DESC ShipVelocity;
+				VELOCITY_DESC ShipVelocity;
+				STARSHIP *TargetStarShipPtr;
 
 				if (elementsOfSamePlayer (ObjectPtr, ElementPtr)
 						&& (ElementPtr->state_flags & IGNORE_SIMILAR))
@@ -580,6 +580,8 @@ marine_preprocess (ELEMENT *ElementPtr)
 					ElementPtr->state_flags &= ~IGNORE_SIMILAR;
 					ElementPtr->state_flags |= CHANGING;
 				}
+				
+				GetElementStarShip (ObjectPtr, &TargetStarShipPtr);
                 
                 dist = square_root ((long)delta_x * delta_x + (long)delta_y * delta_y);
 
@@ -588,24 +590,24 @@ marine_preprocess (ELEMENT *ElementPtr)
 				if (num_frames == 0)
 					num_frames = 1;
 
-				//ShipVelocity = ObjectPtr->velocity;
-				GetNextVelocityComponents (&ObjectPtr->velocity, &delta_x, &delta_y, num_frames);
+				ShipVelocity = ObjectPtr->velocity;
+				GetNextVelocityComponents (&ShipVelocity, &delta_x, &delta_y, num_frames);
 
-                // Lead the target by its current trajectory.
-				delta_x = (ObjectPtr->current.location.x + (delta_x * 3/2))
-						- ElementPtr->current.location.x;
-				delta_y = (ObjectPtr->current.location.y + (delta_y * 3/2))
-						- ElementPtr->current.location.y;
+				// Lead the target by its current trajectory
+				delta_x = ObjectPtr->current.location.x + (delta_x * 3/2) - ElementPtr->current.location.x;
+				delta_y = ObjectPtr->current.location.y + (delta_y * 3/2) - ElementPtr->current.location.y;
                 
-				// Re-route to the enemy ship itself if already on top of the target's projected destination.
-				if (dist <= DISPLAY_TO_WORLD (16))
+				// 1) Re-route to the target ship itself if already on top of their projected destination
+				// 2) Don't lead Supox while it's boosting, be confused by that ability
+				if (dist <= DISPLAY_TO_WORLD (16)
+						|| TargetStarShipPtr && TargetStarShipPtr->SpeciesID == SUPOX_ID
+							&& TargetStarShipPtr->static_counter > 0)
 				{
-					delta_x = ObjectPtr->current.location.x	- ElementPtr->current.location.x;
-					delta_y = ObjectPtr->current.location.y	- ElementPtr->current.location.y;
+					delta_x = ObjectPtr->current.location.x - ElementPtr->current.location.x;
+					delta_y = ObjectPtr->current.location.y - ElementPtr->current.location.y;
 				}
                 
-				delta_facing = NORMALIZE_FACING (
-						ANGLE_TO_FACING (ARCTAN (delta_x, delta_y)) - facing);
+				delta_facing = NORMALIZE_FACING (ANGLE_TO_FACING (ARCTAN (delta_x, delta_y)) - facing);
 
 				if (delta_facing > 0)
 				{
@@ -963,7 +965,7 @@ orz_preprocess (ELEMENT *ElementPtr)
 	GetElementStarShip (ElementPtr, &StarShipPtr);
 	if (!(ElementPtr->state_flags & APPEARING))
 	{
-		// Marine recall changes are contained below.
+		// Marine recall changes are contained below
 		if((StarShipPtr->cur_status_flags & SPECIAL)
 				&& (StarShipPtr->cur_status_flags & DOWN))
 		{
@@ -986,8 +988,7 @@ orz_preprocess (ELEMENT *ElementPtr)
 				}
 				UnlockElement(hShip);
 			}
-		}
-        // Marine recall changes end here.
+		} // Marine recall changes end here
 		else if (((StarShipPtr->cur_status_flags
 				| StarShipPtr->old_status_flags) & SPECIAL)
 				&& (StarShipPtr->cur_status_flags & (LEFT | RIGHT))
@@ -1100,10 +1101,9 @@ orz_intelligence (ELEMENT *ShipPtr, EVALUATE_DESC *ObjectsOfConcern,
 				&& StarShipPtr->RaceDescPtr->ship_info.crew_level >
 				(BYTE)(StarShipPtr->RaceDescPtr->ship_info.max_crew >> 2)
 				&& !(EnemyStarShipPtr->RaceDescPtr->ship_info.ship_flags
-				& HEAVY_POINT_DEFENSE)
+					& HEAVY_POINT_DEFENSE)
 				&& (MANEUVERABILITY (
-						&EnemyStarShipPtr->RaceDescPtr->cyborg_control
-						) < SLOW_SHIP
+					&EnemyStarShipPtr->RaceDescPtr->cyborg_control) < SLOW_SHIP
 				|| lpEvalDesc->which_turn <= 12
 				|| count_marines (StarShipPtr, FALSE) < 2))
 		{

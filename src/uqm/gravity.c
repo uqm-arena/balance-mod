@@ -34,7 +34,6 @@ CalculateGravity (ELEMENT *ElementPtr)
 	retval = FALSE;
 	HasGravity = (BOOLEAN)(CollidingElement (ElementPtr)
 			&& GRAVITY_MASS (ElementPtr->mass_points + 1));
-
 	for (hTestElement = GetHeadElement ();
 			hTestElement != 0; hTestElement = hSuccElement)
 	{
@@ -42,7 +41,6 @@ CalculateGravity (ELEMENT *ElementPtr)
 		ELEMENT *TestElementPtr;
 
 		LockElement (hTestElement, &TestElementPtr);
-
 		if (TestElementPtr != ElementPtr
 				&& CollidingElement (TestElementPtr)
 				&& (TestHasGravity =

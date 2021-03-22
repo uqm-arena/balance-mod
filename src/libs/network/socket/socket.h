@@ -16,8 +16,8 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef _UQM_SOCKET_H
-#define _UQM_SOCKET_H
+#ifndef LIBS_NETWORK_SOCKET_SOCKET_H_
+#define LIBS_NETWORK_SOCKET_SOCKET_H_
 
 typedef struct Socket Socket;
 #define Socket_noSocket ((Socket *) NULL)
@@ -80,7 +80,11 @@ int Socket_bind(Socket *sock, const struct sockaddr *addr,
 int Socket_listen(Socket *sock, int backlog);
 Socket *Socket_accept(Socket *sock, struct sockaddr *addr, socklen_t *addrLen);
 ssize_t Socket_send(Socket *sock, const void *buf, size_t len, int flags);
+ssize_t Socket_sendto(Socket *sock, const void *buf, size_t len, int flags,
+		const struct sockaddr *addr, socklen_t addrLen);
 ssize_t Socket_recv(Socket *sock, void *buf, size_t len, int flags);
+ssize_t Socket_recvfrom(Socket *sock, void *buf, size_t len, int flags,
+		struct sockaddr *from, socklen_t *fromLen);
 
 int Socket_setNonBlocking(Socket *sock);
 int Socket_setReuseAddr(Socket *sock);
@@ -91,5 +95,5 @@ int Socket_setInlineOOB(Socket *sock);
 int Socket_setKeepAlive(Socket *sock);
 int Socket_getError(Socket *sock, int *err);
 
-#endif  /* _UQM_SOCKET_H */
+#endif  /* LIBS_NETWORK_SOCKET_SOCKET_H_ */
 

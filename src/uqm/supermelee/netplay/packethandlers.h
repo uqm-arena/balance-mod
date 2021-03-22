@@ -16,14 +16,18 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef _PACKETHANDLERS_H
-#define _PACKETHANDLERS_H
+#ifndef UQM_SUPERMELEE_NETPLAY_PACKETHANDLERS_H_
+#define UQM_SUPERMELEE_NETPLAY_PACKETHANDLERS_H_
 
 #include "packet.h"
 
+#if defined(__cplusplus)
+extern "C" {
+#endif
+
 #define DECLARE_PACKETHANDLER(type) \
 		int PacketHandler_##type(NetConnection *conn, \
-				const Packet_##type *packet);
+				const Packet_##type *packet)
 
 DECLARE_PACKETHANDLER(Init);
 DECLARE_PACKETHANDLER(Ping);
@@ -45,4 +49,8 @@ DECLARE_PACKETHANDLER(Abort);
 DECLARE_PACKETHANDLER(Reset);
 
 
-#endif  /* _PACKETHANDLERS_H */
+#if defined(__cplusplus)
+}
+#endif
+
+#endif  /* UQM_SUPERMELEE_NETPLAY_PACKETHANDLERS_H_ */

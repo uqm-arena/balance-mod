@@ -22,7 +22,7 @@
 #include "uqm/colors.h"
 #include "uqm/globdata.h"
 
-// Core characteristics
+// Core Characteristics
 #define MAX_CREW 30
 #define MAX_ENERGY 10
 #define ENERGY_REGENERATION 1
@@ -33,30 +33,29 @@
 #define TURN_WAIT 1
 #define SHIP_MASS 5
 
-// Flak Gun
+// Front Cannon
 #define WEAPON_ENERGY_COST 3
 #define WEAPON_WAIT 5
 #define SPATHI_FORWARD_OFFSET 16
-#define MISSILE_SPEED 112
+#define MISSILE_SPEED 100
 #define MISSILE_LIFE 10
 #define MISSILE_DECELERATION 12
 #define MISSILE_DECEL_WAIT 1
 #define MISSILE_HITS 1
 #define MISSILE_DAMAGE 1
 #define MISSILE_OFFSET 1
+#define MISSILE_RANGE 700 // This is for the cyborg only
 
 // Torpedo
 #define SPECIAL_ENERGY_COST 3
 #define SPECIAL_WAIT 7
 #define SPATHI_REAR_OFFSET 20
 #define DISCRIMINATOR_SPEED 40
-#define DISCRIMINATOR_LIFE 24
+#define DISCRIMINATOR_LIFE 25
 #define DISCRIMINATOR_HITS 1
 #define DISCRIMINATOR_DAMAGE 2
 #define DISCRIMINATOR_OFFSET 4
 #define TRACK_WAIT 1
-// #define MISSILE_RANGE (MISSILE_SPEED * MISSILE_LIFE)
-#define MISSILE_RANGE 800 // This is for the cyborg only.
 
 static RACE_DESC spathi_desc =
 {
@@ -247,7 +246,7 @@ spawn_butt_missile (ELEMENT *ShipPtr)
 }
 
 static void
-flak_preprocess (ELEMENT *ElementPtr)
+trishot_preprocess (ELEMENT *ElementPtr)
 {
 	if (ElementPtr->turn_wait > 0)
 		--ElementPtr->turn_wait;
@@ -268,7 +267,7 @@ flak_preprocess (ELEMENT *ElementPtr)
 }
 
 static COUNT
-initialize_flak (ELEMENT *ShipPtr, HELEMENT MissileArray[])
+initialize_trishot (ELEMENT *ShipPtr, HELEMENT MissileArray[])
 {
 	COUNT i;
 	STARSHIP *StarShipPtr;
@@ -286,7 +285,7 @@ initialize_flak (ELEMENT *ShipPtr, HELEMENT MissileArray[])
 	MissileBlock.hit_points = MISSILE_HITS;
 	MissileBlock.damage = MISSILE_DAMAGE;
 	MissileBlock.life = MISSILE_LIFE;
-	MissileBlock.preprocess_func = flak_preprocess;
+	MissileBlock.preprocess_func = trishot_preprocess;
 	MissileBlock.blast_offs = MISSILE_OFFSET;
 
 	for(i = 0; i < 3; ++i)
@@ -299,16 +298,16 @@ initialize_flak (ELEMENT *ShipPtr, HELEMENT MissileArray[])
 		else if (i == 1)
 		{
 			MissileBlock.cx = ShipPtr->next.location.x
-				+ COSINE(FACING_TO_ANGLE(StarShipPtr->ShipFacing + 4), 12);
+				+ COSINE(FACING_TO_ANGLE(StarShipPtr->ShipFacing + 4), 4);
 			MissileBlock.cy = ShipPtr->next.location.y
-				+ SINE(FACING_TO_ANGLE(StarShipPtr->ShipFacing + 4), 12);
+				+ SINE(FACING_TO_ANGLE(StarShipPtr->ShipFacing + 4), 4);
 		}
 		else if (i == 2)
 		{
 			MissileBlock.cx = ShipPtr->next.location.x
-				+ COSINE(FACING_TO_ANGLE(StarShipPtr->ShipFacing + 4), -12);
+				+ COSINE(FACING_TO_ANGLE(StarShipPtr->ShipFacing + 4), -4);
 			MissileBlock.cy = ShipPtr->next.location.y
-				+ SINE(FACING_TO_ANGLE(StarShipPtr->ShipFacing + 4), -12);
+				+ SINE(FACING_TO_ANGLE(StarShipPtr->ShipFacing + 4), -4);
 		}
 		
 		if ((MissileArray[i] = initialize_missile (&MissileBlock)))
@@ -334,7 +333,7 @@ initialize_flak (ELEMENT *ShipPtr, HELEMENT MissileArray[])
 
 			GetCurrentVelocityComponents (&ShipPtr->velocity, &dx, &dy);
 
-			// Add the Eluder's velocity to its projectiles.
+			// Add the Eluder's velocity to its projectiles
 			DeltaVelocityComponents (&MissilePtr->velocity, dx, dy);
 			MissilePtr->current.location.x -= VELOCITY_TO_WORLD (dx);
 			MissilePtr->current.location.y -= VELOCITY_TO_WORLD (dy);
@@ -424,7 +423,7 @@ init_spathi (void)
 	RACE_DESC *RaceDescPtr;
 
 	spathi_desc.postprocess_func = spathi_postprocess;
-	spathi_desc.init_weapon_func = initialize_flak;
+	spathi_desc.init_weapon_func = initialize_trishot;
 	spathi_desc.cyborg_control.intelligence_func = spathi_intelligence;
 
 	RaceDescPtr = &spathi_desc;

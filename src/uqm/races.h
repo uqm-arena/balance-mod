@@ -16,8 +16,8 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-#ifndef _RACES_H
-#define _RACES_H
+#ifndef UQM_RACES_H_
+#define UQM_RACES_H_
 
 #include "types.h"
 #include "libs/compiler.h"
@@ -30,6 +30,10 @@ typedef HLINK HSTARSHIP;
 #include "element.h"
 #include "libs/sndlib.h"
 #include "libs/reslib.h"
+
+#if defined(__cplusplus)
+extern "C" {
+#endif
 
 #define IS_RETREAT(StarShipPtr) ((StarShipPtr->state_flee) && (StarShipPtr->RaceDescPtr->ship_info.crew_level != 0) && (opt_retreat != OPTVAL_DENY))
 
@@ -224,7 +228,7 @@ struct race_desc
 	POSTPROCESS_FUNC *postprocess_func;
 	INIT_WEAPON_FUNC *init_weapon_func;
 
-	intptr_t data;  // private ship data, ship code owns this
+	void* data;  // private ship data, ship code owns this
 
 	void *CodeRef;
 };
@@ -447,9 +451,9 @@ typedef struct
 // Values for FLEET_INFO.allied_state
 enum
 {
-	DEAD_GUY = 0,
-	GOOD_GUY,
-	BAD_GUY,
+	DEAD_GUY = 0,  // Race is extinct
+	GOOD_GUY,      // Race is allied with the player
+	BAD_GUY,       // Race is not allied with the player
 };
 
 static inline FLEET_INFO *
@@ -734,4 +738,8 @@ enum
 /* This is defined in misc.c and does not really belong here. */
 extern UWORD calculate_crew_percentage (STARSHIP * StarShipPtr, BYTE delta);
 
-#endif /* _RACES_H */
+#if defined(__cplusplus)
+}
+#endif
+
+#endif /* UQM_RACES_H_ */

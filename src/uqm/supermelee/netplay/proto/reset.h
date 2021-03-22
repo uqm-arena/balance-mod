@@ -16,11 +16,15 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef _RESET_H
-#define _RESET_H
+#ifndef UQM_SUPERMELEE_NETPLAY_PROTO_RESET_H_
+#define UQM_SUPERMELEE_NETPLAY_PROTO_RESET_H_
 
 #include "../netconnection.h"
 #include "../packet.h"
+
+#if defined(__cplusplus)
+extern "C" {
+#endif
 
 void Netplay_setResetCallback(NetConnection *conn,
 		NetConnection_ResetCallback callback, void *resetArg);
@@ -29,6 +33,9 @@ void Netplay_remoteReset(NetConnection *conn, NetplayResetReason reason);
 bool Netplay_isLocalReset(const NetConnection *conn);
 bool Netplay_isRemoteReset(const NetConnection *conn);
 
+#if defined(__cplusplus)
+}
+#endif
 
-#endif  /* _RESET_H */
+#endif  /* UQM_SUPERMELEE_NETPLAY_PROTO_RESET_H_ */
 

@@ -16,13 +16,17 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-#ifndef _INPLIB_H
-#define _INPLIB_H
+#ifndef LIBS_INPLIB_H_
+#define LIBS_INPLIB_H_
 
 #include <stddef.h>
 #include "libs/compiler.h"
 #include "libs/uio.h"
 #include "libs/unicode.h"
+
+#if defined(__cplusplus)
+extern "C" {
+#endif
 
 
 extern BOOLEAN AnyButtonPress (BOOLEAN DetectSpecial);
@@ -49,9 +53,9 @@ UniChar GetLastCharacter (void);
 
 /* Interrogating the current key configuration */
 
-void InterrogateInputState (int template, int control, int index, char *buffer, int maxlen);
-void RemoveInputState (int template, int control, int index);
-void RebindInputState (int template, int control, int index);
+void InterrogateInputState (int templat, int control, int index, char *buffer, int maxlen);
+void RemoveInputState (int templat, int control, int index);
+void RebindInputState (int templat, int control, int index);
 
 void SaveKeyConfiguration (uio_DirHandle *path, const char *fname);
 
@@ -59,5 +63,8 @@ void SaveKeyConfiguration (uio_DirHandle *path, const char *fname);
 
 void BeginInputFrame (void);
 
-#endif /* _INPLIB_H */
+#if defined(__cplusplus)
+}
+#endif
 
+#endif /* LIBS_INPLIB_H */

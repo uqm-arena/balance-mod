@@ -16,13 +16,17 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-#ifndef _DISPLIST_H
-#define _DISPLIST_H
+#ifndef UQM_DISPLIST_H_
+#define UQM_DISPLIST_H_
 
 #include <assert.h>
 #include "port.h"
 #include "libs/compiler.h"
 #include "libs/memlib.h"
+
+#if defined(__cplusplus)
+extern "C" {
+#endif
 
 // Note that we MUST use the QUEUE_TABLE variant at this time, because
 // certain gameplay elements depend on it. Namely, the maximum number
@@ -120,5 +124,8 @@ extern void RemoveQueue (QUEUE *pq, HLINK hLink);
 extern COUNT CountLinks (QUEUE *pq);
 void ForAllLinks(QUEUE *pq, void (*callback)(LINK *, void *), void *arg);
 
-#endif /* _DISPLIST_H */
+#if defined(__cplusplus)
+}
+#endif
 
+#endif /* UQM_DISPLIST_H_ */

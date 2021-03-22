@@ -16,8 +16,8 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-#ifndef _LOADMELE_H
-#define _LOADMELE_H
+#ifndef UQM_SUPERMELEE_LOADMELE_H_
+#define UQM_SUPERMELEE_LOADMELE_H_
 
 #define LOAD_TEAM_VIEW_SIZE 5
 
@@ -25,6 +25,10 @@ struct melee_load_state;
 
 #include "melee.h"
 #include "meleesetup.h"
+
+#if defined(__cplusplus)
+extern "C" {
+#endif
 
 struct melee_load_state
 {
@@ -56,6 +60,8 @@ bool ReadTeamImage (MeleeTeam *pTI, uio_Stream *load_fp);
 int WriteTeamImage (const MeleeTeam *pTI, uio_Stream *save_fp);
 void LoadTeamList (MELEE_STATE *pMS);
 
-#endif /* _LOADMELE_H */
+#if defined(__cplusplus)
+}
+#endif
 
-
+#endif /* UQM_SUPERMELEE_LOADMELE_H_ */

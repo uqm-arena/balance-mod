@@ -16,10 +16,15 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-#ifndef _DECLIB_H
-#define _DECLIB_H
+#ifndef LIBS_DECLIB_H_
+#define LIBS_DECLIB_H_
 
 #include "libs/compiler.h"
+
+#if defined(__cplusplus)
+extern "C" {
+#endif
+
 typedef struct _LZHCODE_DESC* DECODE_REF;
 
 enum
@@ -45,4 +50,8 @@ extern COUNT cread (void *pStr, COUNT size, COUNT count,
 extern COUNT cwrite (const void *pStr, COUNT size, COUNT count,
 		DECODE_REF DecodeRef);
 
-#endif /* _DECLIB_H */
+#if defined(__cplusplus)
+}
+#endif
+
+#endif /* LIBS_DECLIB_H_ */

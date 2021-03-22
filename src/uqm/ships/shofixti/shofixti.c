@@ -22,11 +22,11 @@
 #include "uqm/globdata.h"
 #include "libs/mathlib.h"
 
-// Core characteristics
+// Core Characteristics
 #define MAX_CREW 6
 #define MAX_ENERGY 4
 #define ENERGY_REGENERATION 1
-#define ENERGY_WAIT 9
+#define ENERGY_WAIT 11
 #define MAX_THRUST 35
 #define THRUST_INCREMENT 5
 #define TURN_WAIT 1
@@ -39,8 +39,8 @@
 #define WEAPON_ENERGY_COST 1
 #define SHOFIXTI_OFFSET 15
 #define MISSILE_OFFSET 1
-#define MISSILE_SPEED 92
-#define MISSILE_LIFE 9
+#define MISSILE_SPEED 84
+#define MISSILE_LIFE 10
 #define MISSILE_HITS 1
 #define MISSILE_DAMAGE 1
 
@@ -48,14 +48,15 @@
 #define SPECIAL_ENERGY_COST 0
 #define DESTRUCT_RANGE 180 // DISPLAY_TO_WORLD is applied to this elsewhere.
 #define DESTRUCTION (DESTRUCT_RANGE / 20)
-#define MAX_DESTRUCTION 8 // Glory Device damage cap.
-#define CLOSE_ENOUGH 6 // At 6 or 7 damage, inflict 8 damage instead.
+#define GD_DAMAGE_CAP 8 // Glory Device damage cap.
+/* Glory Device damage is rather hacky in its current state. Read self_destruct
+  carefully if you want to change it */
 
 static RACE_DESC shofixti_desc =
 {
 	{ /* SHIP_INFO */
 		FIRES_FORE,
-		6, /* Super Melee cost */
+		5, /* Super Melee cost */
 		MAX_CREW, MAX_CREW,
 		MAX_ENERGY, MAX_ENERGY,
 		SHOFIXTI_RACE_STRINGS,
@@ -155,7 +156,7 @@ initialize_standard_missile (ELEMENT *ShipPtr, HELEMENT MissileArray[])
 		dx = dx * 3/4;
 		dy = dy * 3/4;
 
-		// Add some of the Scout's velocity to its projectiles.
+		// Add some of the Scout's velocity to its projectiles
 		DeltaVelocityComponents (&MissilePtr->velocity, dx, dy);
 		MissilePtr->current.location.x -= VELOCITY_TO_WORLD (dx);
 		MissilePtr->current.location.y -= VELOCITY_TO_WORLD (dy);
@@ -344,23 +345,23 @@ self_destruct (ELEMENT *ElementPtr)
 			
 					GetElementStarShip (ObjPtr, &EnemyStarShipPtr);
 
-					destruction = ((MAX_DESTRUCTION
-							* (DESTRUCT_RANGE - square_root (dist)))
-							/ DESTRUCT_RANGE) + 1;
+					destruction = 1 + DESTRUCTION * (DESTRUCT_RANGE - square_root (dist)) / DESTRUCT_RANGE;
 
-					// Glory Device damage cap.
-					if (destruction >= CLOSE_ENOUGH)
-						destruction = MAX_DESTRUCTION;
+					// Apply damage cap to blast
+					if ((BYTE)destruction >= GD_DAMAGE_CAP)
+						destruction = GD_DAMAGE_CAP;
+					// Inflict 1 extra damage to the enemy ship when it won't destroy them
+					else if (ObjPtr->state_flags & PLAYER_SHIP
+							&& (BYTE)destruction < ObjPtr->crew_level - 1)
+						destruction += 1;
 					
 					// Utwig shield will absorb damage. Yehat shield will prevent it.
 					if (ObjPtr->state_flags & PLAYER_SHIP
-						&& (ObjPtr->life_span > NORMAL_LIFE))
-					{			
-						if (EnemyStarShipPtr && EnemyStarShipPtr->SpeciesID == UTWIG_ID
-							&& (ObjPtr->state_flags & PLAYER_SHIP)
-							&& (ObjPtr->life_span > NORMAL_LIFE))
+						&& ObjPtr->life_span > NORMAL_LIFE)
+					{
+						if (EnemyStarShipPtr && EnemyStarShipPtr->SpeciesID == UTWIG_ID)
 						{
-							DeltaEnergy (ObjPtr, +destruction);
+							ObjPtr->life_span += destruction;
 						}
 
 						destruction = 0;
@@ -373,6 +374,9 @@ self_destruct (ELEMENT *ElementPtr)
 					}
 					else if (!GRAVITY_MASS (ObjPtr->mass_points))
 					{
+						// Inflict bonus damage against non-ship objects such as Chmmr satellites.
+						destruction += (destruction >> 1);
+
 						if ((BYTE)destruction < ObjPtr->hit_points)
 							ObjPtr->hit_points -= (BYTE)destruction;
 						else
@@ -442,8 +446,7 @@ shofixti_intelligence (ELEMENT *ShipPtr, EVALUATE_DESC *ObjectsOfConcern,
 				&& (((lpWeaponEvalDesc->ObjectPtr->state_flags & PLAYER_SHIP)
 				&& ShipPtr->crew_level == 1)
 				|| (PlotIntercept (lpWeaponEvalDesc->ObjectPtr, ShipPtr, 2, 0)
-				&& lpWeaponEvalDesc->ObjectPtr->mass_points >=
-				ShipPtr->crew_level
+				&& lpWeaponEvalDesc->ObjectPtr->mass_points >= ShipPtr->crew_level
 				&& (TFB_Random () & 1))))))
 			StarShipPtr->ship_input_state |= SPECIAL;
 	}

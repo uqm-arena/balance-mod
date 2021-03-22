@@ -31,6 +31,15 @@
 
 #include <stdio.h>
 
+// A wrapper function for weapon_collision that discards the return value.
+// This makes its signature match ElementCollisionFunc.
+static void
+weapon_collision_cb (ELEMENT *WeaponElementPtr, POINT *pWPt,
+		ELEMENT *HitElementPtr, POINT *pHPt)
+{
+	weapon_collision (WeaponElementPtr, pWPt, HitElementPtr, pHPt);
+}
+
 
 HELEMENT
 initialize_laser (LASER_BLOCK *pLaserBlock)
@@ -50,7 +59,7 @@ initialize_laser (LASER_BLOCK *pLaserBlock)
 		LaserElementPtr->state_flags = APPEARING | FINITE_LIFE
 				| pLaserBlock->flags;
 		LaserElementPtr->life_span = LASER_LIFE;
-		LaserElementPtr->collision_func = (CollisionFunc*)weapon_collision;
+		LaserElementPtr->collision_func = weapon_collision_cb;
 		LaserElementPtr->blast_offset = 1;
 
 		LaserElementPtr->current.location.x = pLaserBlock->cx
@@ -100,7 +109,7 @@ initialize_missile (MISSILE_BLOCK *pMissileBlock)
 				SetAbsFrameIndex (pMissileBlock->farray[0],
 				pMissileBlock->index);
 		MissileElementPtr->preprocess_func = pMissileBlock->preprocess_func;
-		MissileElementPtr->collision_func = (CollisionFunc*)weapon_collision;
+		MissileElementPtr->collision_func = weapon_collision_cb;
 		MissileElementPtr->blast_offset = (BYTE)pMissileBlock->blast_offs;
 
 		angle = FACING_TO_ANGLE (pMissileBlock->face);
@@ -312,6 +321,7 @@ TrackShip (ELEMENT *Tracker, COUNT *pfacing)
 	SIZE best_delta_facing, best_delta;
 	HELEMENT hShip, hNextShip;
 	ELEMENT *Trackee;
+	STARSHIP *StarShipPtr;
 
 	best_delta = 0;
 	best_delta_facing = -1;
@@ -321,25 +331,27 @@ TrackShip (ELEMENT *Tracker, COUNT *pfacing)
 	{
 		LockElement (hShip, &Trackee);
 		Tracker->hTarget = hNextShip = 0;
-
+		GetElementStarShip (Trackee, &StarShipPtr);
 		goto CheckTracking;
 	}
 
 	for (hShip = GetHeadElement (); hShip != 0; hShip = hNextShip)
 	{
 		LockElement (hShip, &Trackee);
+		GetElementStarShip (Trackee, &StarShipPtr);
 		hNextShip = GetSuccElement (Trackee);
+
+		// a & !b & (!c | (d & e) & !f)
 		if ((Trackee->state_flags & PLAYER_SHIP)
 				&& !elementsOfSamePlayer (Trackee, Tracker)
 				&& (!OBJECT_CLOAKED (Trackee)
-				|| ((Tracker->state_flags & PLAYER_SHIP)
-				&& (Tracker->state_flags & APPEARING))
-				))
+					|| ((Tracker->state_flags & PLAYER_SHIP)
+						&& (Tracker->state_flags & APPEARING)))
+				&& !(StarShipPtr && StarShipPtr->SpeciesID == SUPOX_ID
+					&& StarShipPtr->static_counter > 0))
 		{
-			STARSHIP *StarShipPtr;
 
 CheckTracking:
-			GetElementStarShip (Trackee, &StarShipPtr);
 			if (Trackee->life_span
 					&& StarShipPtr->RaceDescPtr->ship_info.crew_level)
 			{
@@ -403,13 +415,14 @@ CheckTracking:
 	return (best_delta_facing);
 }
 
-// This is nearly identical to TrackShip. It will track cloaked opponents.
+// Another TrackShip that works on everything
 SIZE
 TrackAnyShip (ELEMENT *Tracker, COUNT *pfacing)
 {
 	SIZE best_delta_facing, best_delta;
 	HELEMENT hShip, hNextShip;
 	ELEMENT *Trackee;
+	STARSHIP *StarShipPtr;
 
 	best_delta = 0;
 	best_delta_facing = -1;
@@ -419,26 +432,21 @@ TrackAnyShip (ELEMENT *Tracker, COUNT *pfacing)
 	{
 		LockElement (hShip, &Trackee);
 		Tracker->hTarget = hNextShip = 0;
-
-		goto CheckTracking;
+		GetElementStarShip (Trackee, &StarShipPtr);
+		goto CheckTrackingAny;
 	}
 
 	for (hShip = GetHeadElement (); hShip != 0; hShip = hNextShip)
 	{
 		LockElement (hShip, &Trackee);
+		GetElementStarShip (Trackee, &StarShipPtr);
 		hNextShip = GetSuccElement (Trackee);
-		// a & !b & (!c | (d & e))
-		if ((Trackee->state_flags & PLAYER_SHIP)
-				&& !elementsOfSamePlayer (Trackee, Tracker)
-				&& (1
-				|| ((Tracker->state_flags & PLAYER_SHIP)
-				&& (Tracker->state_flags & APPEARING))
-				))
-		{
-			STARSHIP *StarShipPtr;
 
-CheckTracking:
-			GetElementStarShip (Trackee, &StarShipPtr);
+		if ((Trackee->state_flags & PLAYER_SHIP)
+				&& !elementsOfSamePlayer (Trackee, Tracker))
+		{
+
+CheckTrackingAny:
 			if (Trackee->life_span
 					&& StarShipPtr->RaceDescPtr->ship_info.crew_level)
 			{
@@ -470,9 +478,6 @@ CheckTracking:
 				if (delta_y < 0)
 					delta_y = -delta_y;
 				delta_x += delta_y;
-						// 'delta_x + delta_y' is used as an approximation
-						// of the actual distance 'sqrt(sqr(delta_x) +
-						// sqr(delta_y))'.
 
 				if (best_delta == 0 || delta_x < best_delta)
 				{

@@ -20,7 +20,7 @@
 
 /*==============================================================================
 
-  $Id: mmerror.c 2412 2006-08-18 18:37:39Z avolkov $
+  $Id$
 
   Error handling functions.
   Register an error handler with _mm_RegisterErrorHandler() and you're all set.

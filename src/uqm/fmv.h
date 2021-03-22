@@ -14,12 +14,17 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef _FMV_H
-#define _FMV_H
+#ifndef UQM_FMV_H_
+#define UQM_FMV_H_
 
 #include "libs/compiler.h"
 #include "libs/sndlib.h"
 #include "libs/gfxlib.h"
+
+#if defined(__cplusplus)
+extern "C" {
+#endif
+
 #define WANT_SHIP_SPINS
 
 extern void SplashScreen (void (* DoProcessing)(DWORD TimeOut));
@@ -29,5 +34,8 @@ extern void DoShipSpin (COUNT index, MUSIC_REF hMusic);
 
 extern BOOLEAN ShowPresentation (RESOURCE presentation);
 
-#endif  /* _FMV_H */
+#if defined(__cplusplus)
+}
+#endif
 
+#endif  /* UQM_FMV_H_ */

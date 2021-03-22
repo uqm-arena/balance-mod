@@ -14,8 +14,8 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-#ifndef _UQM_SOUND_H // try avoiding collisions on id
-#define _UQM_SOUND_H
+#ifndef LIBS_SOUND_SOUND_H_ // try avoiding collisions on id
+#define LIBS_SOUND_SOUND_H_
 
 #include "types.h"
 #include "audiocore.h"
@@ -66,8 +66,8 @@ void SetSpeechVolume (float volume);
 TFB_SoundSample *TFB_CreateSoundSample (TFB_SoundDecoder*, uint32 num_buffers,
 		const TFB_SoundCallbacks* /* can be NULL */);
 void TFB_DestroySoundSample (TFB_SoundSample*);
-void TFB_SetSoundSampleData (TFB_SoundSample*, intptr_t data);
-intptr_t TFB_GetSoundSampleData (TFB_SoundSample*);
+void TFB_SetSoundSampleData (TFB_SoundSample*, void* data);
+void* TFB_GetSoundSampleData (TFB_SoundSample*);
 void TFB_SetSoundSampleCallbacks (TFB_SoundSample*,
 		const TFB_SoundCallbacks* /* can be NULL */);
 TFB_SoundDecoder* TFB_GetSoundSampleDecoder (TFB_SoundSample*);
@@ -78,4 +78,4 @@ bool TFB_TagBuffer (TFB_SoundSample*, audio_Object buffer, intptr_t data);
 
 #include "stream.h"
 
-#endif // _UQM_SOUND_H
+#endif // LIBS_SOUND_SOUND_H_

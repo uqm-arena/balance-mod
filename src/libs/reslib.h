@@ -16,14 +16,18 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-#ifndef _RESLIB_H
-#define _RESLIB_H
+#ifndef LIBS_RESLIB_H_
+#define LIBS_RESLIB_H_
 
 //#include <stdio.h>
 #include "libs/compiler.h"
 #include "port.h"
 #include "libs/memlib.h"
 #include "libs/uio.h"
+
+#if defined(__cplusplus)
+extern "C" {
+#endif
 
 typedef struct resource_index_desc RESOURCE_INDEX_DESC;
 typedef RESOURCE_INDEX_DESC *RESOURCE_INDEX;
@@ -33,6 +37,7 @@ typedef const char *RESOURCE;
 typedef union {
 	DWORD num;
 	void *ptr;
+	const char *str;
 } RESOURCE_DATA;
 
 #define NULL_RESOURCE NULL
@@ -78,8 +83,16 @@ void *GetResourceData (uio_Stream *fp, DWORD length);
 #define AllocResourceData HMalloc
 BOOLEAN FreeResourceData (void *);
 
+#if defined(__cplusplus)
+}
+#endif
+
 #include "libs/strlib.h"
 #include "libs/gfxlib.h"
+
+#if defined(__cplusplus)
+extern "C" {
+#endif
 		// For Color
 
 typedef STRING_TABLE DIRENTRY_REF;
@@ -120,4 +133,8 @@ void res_PutColor (const char *key, Color value);
 
 BOOLEAN res_Remove (const char *key);
 
-#endif /* _RESLIB_H */
+#if defined(__cplusplus)
+}
+#endif
+
+#endif /* LIBS_RESLIB_H_ */

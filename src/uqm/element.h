@@ -16,13 +16,17 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-#ifndef _ELEMENT_H
-#define _ELEMENT_H
+#ifndef UQM_ELEMENT_H_
+#define UQM_ELEMENT_H_
 
 #include "displist.h"
 #include "units.h"
 #include "velocity.h"
 #include "libs/gfxlib.h"
+
+#if defined(__cplusplus)
+extern "C" {
+#endif
 
 
 #define NORMAL_LIFE 1
@@ -92,7 +96,8 @@ typedef struct state
 
 typedef struct element ELEMENT;
 
-typedef void (CollisionFunc) (ELEMENT *ElementPtr0, POINT *pPt0,
+typedef void (ElementProcessFunc) (ELEMENT *ElementPtr);
+typedef void (ElementCollisionFunc) (ELEMENT *ElementPtr0, POINT *pPt0,
 			ELEMENT *ElementPtr1, POINT *pPt1);
 
 // Any physical object in the simulation.
@@ -101,10 +106,10 @@ struct element
 	// LINK elements; must be first
 	HELEMENT pred, succ;
 
-	void (*preprocess_func) (struct element *ElementPtr);
-	void (*postprocess_func) (struct element *ElementPtr);
-	CollisionFunc *collision_func;
-	void (*death_func) (struct element *ElementPtr);
+	ElementProcessFunc *preprocess_func;
+	ElementProcessFunc *postprocess_func;
+	ElementCollisionFunc *collision_func;
+	ElementProcessFunc *death_func;
 
 	// Player this element belongs to
 	// -1: neutral (planets, asteroids, crew, etc.)
@@ -233,7 +238,6 @@ extern void FreeElement (HELEMENT hElement);
 extern void RemoveElement (HLINK hLink);
 
 // XXX: The following functions should not really be here
-
 extern void spawn_planet (void);
 extern void spawn_asteroid (ELEMENT *ElementPtr);
 extern void do_damage (ELEMENT *ElementPtr, SIZE damage);
@@ -254,6 +258,9 @@ extern void MoveGalaxy (VIEW_STATE view_state, SIZE dx, SIZE dy);
 
 extern BOOLEAN CalculateGravity (ELEMENT *ElementPtr);
 
-#endif /* _ELEMENT_H */
 
+#if defined(__cplusplus)
+}
+#endif
 
+#endif /* UQM_ELEMENT_H_ */

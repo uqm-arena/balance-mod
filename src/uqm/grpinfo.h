@@ -14,8 +14,8 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-#ifndef _GRPINFO_H
-#define _GRPINFO_H
+#ifndef UQM_GRPINFO_H_
+#define UQM_GRPINFO_H_
 
 #include "port.h"
 #include "libs/compiler.h"
@@ -23,6 +23,10 @@
 #include "libs/gfxlib.h"
 		// for POINT
 #include <assert.h>
+
+#if defined(__cplusplus)
+extern "C" {
+#endif
 
 // XXX: Needed to maintain savegame compatibility
 #define NUM_SAVED_BATTLE_GROUPS 64
@@ -82,4 +86,8 @@ LockIpGroup (const QUEUE *pq, HIPGROUP h)
 
 extern HIPGROUP BuildGroup (QUEUE *pDstQueue, BYTE race_id);
 
-#endif /* _GRPINFO_H */
+#if defined(__cplusplus)
+}
+#endif
+
+#endif /* UQM_GRPINFO_H_ */

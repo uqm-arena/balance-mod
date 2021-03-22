@@ -22,11 +22,11 @@
 #include "uqm/init.h"
 #include "libs/mathlib.h"
 
-// Core characteristics
+// Core Characteristics
 #define MAX_CREW 12
 #define MAX_ENERGY 12
 #define ENERGY_REGENERATION 1
-#define ENERGY_WAIT 5
+#define ENERGY_WAIT 4
 #define MAX_THRUST 40
 #define THRUST_INCREMENT 8
 #define THRUST_WAIT 0
@@ -43,9 +43,12 @@
 #define MISSILE_HITS 1
 #define MISSILE_DAMAGE 1
 
-// Alternate Thrust
-#define SPECIAL_ENERGY_COST 0
-#define SPECIAL_WAIT 0
+// Directional Booster
+#define SPECIAL_WAIT 8
+#define SPECIAL_ENERGY_COST 6
+#define DODGE_INCREMENT 28
+#define DODGE_MAX_THRUST 80
+#define DODGE_DURATION 12
 
 static RACE_DESC supox_desc =
 {
@@ -148,10 +151,10 @@ initialize_gob (ELEMENT *ShipPtr, HELEMENT GobArray[])
 		LockElement (GobArray[0], &MissilePtr);
 
 		GetCurrentVelocityComponents (&ShipPtr->velocity, &dx, &dy);
-		dx = dx * 1/2;
-		dy = dy * 1/2;
+		dx = dx >> 1;
+		dy = dy >> 1;
 
-		// Add some of the Blade's velocity to its projectiles.
+		// Add some of the Blade's velocity to its projectiles
 		DeltaVelocityComponents (&MissilePtr->velocity, dx, dy);
 		MissilePtr->current.location.x -= VELOCITY_TO_WORLD (dx);
 		MissilePtr->current.location.y -= VELOCITY_TO_WORLD (dy);
@@ -162,13 +165,12 @@ initialize_gob (ELEMENT *ShipPtr, HELEMENT GobArray[])
 	return (1);
 }
 
-// spawn_ion_trail is a replacement for Supox exhaust particles.
-// A special exception in ship.c has been made to disable default exhaust for Supox.
+// Spawn exhaust particles at the front of the ship while active
 static void
-spawn_ion_trail (ELEMENT *ElementPtr)
+reverse_ion_trail (ELEMENT *ElementPtr)
 {
 #define START_ION_COLOR BUILD_COLOR (MAKE_RGB15 (0x1F, 0x17, 0x00), 0x7a)
-
+	
 	if (ElementPtr->state_flags & PLAYER_SHIP)
 	{
 		HELEMENT hIonElement;
@@ -176,10 +178,15 @@ spawn_ion_trail (ELEMENT *ElementPtr)
 		hIonElement = AllocElement ();
 		if (hIonElement)
 		{
+			COUNT angle;
+			RECT r;
 			ELEMENT *IonElementPtr;
 			STARSHIP *StarShipPtr;
 
 			GetElementStarShip (ElementPtr, &StarShipPtr);
+			angle = FACING_TO_ANGLE (StarShipPtr->ShipFacing);
+			GetFrameRect (StarShipPtr->RaceDescPtr->ship_data.ship[0], &r);
+			r.extent.height = DISPLAY_TO_WORLD (r.extent.height + r.corner.y);
 
 			InsertElement (hIonElement, GetHeadElement ());
 			LockElement (hIonElement, &IonElementPtr);
@@ -190,7 +197,9 @@ spawn_ion_trail (ELEMENT *ElementPtr)
 			IonElementPtr->current.image.frame = DecFrameIndex (stars_in_space);
 			IonElementPtr->current.image.farray = &stars_in_space;
 			IonElementPtr->current.location = ElementPtr->current.location;
-			IonElementPtr->death_func = spawn_ion_trail;
+			IonElementPtr->current.location.x += (COORD)COSINE (angle, r.extent.height);
+			IonElementPtr->current.location.y += (COORD)SINE (angle, r.extent.height);
+			IonElementPtr->death_func = reverse_ion_trail;
 			IonElementPtr->turn_wait = 0;
 
 			SetElementStarShip (IonElementPtr, StarShipPtr);
@@ -225,6 +234,7 @@ spawn_ion_trail (ELEMENT *ElementPtr)
 			BUILD_COLOR (MAKE_RGB15_INIT (0x0F, 0x00, 0x00), 0x2e),
 			BUILD_COLOR (MAKE_RGB15_INIT (0x0B, 0x00, 0x00), 0x2f),
 		};
+
 		const size_t colorTabCount = sizeof colorTab / sizeof colorTab[0];
 		
 		assert (!(ElementPtr->state_flags & PLAYER_SHIP));
@@ -247,67 +257,228 @@ spawn_ion_trail (ELEMENT *ElementPtr)
 	}
 }
 
+// After-image effect for dodge ability
+static void
+dodge_trail (ELEMENT *ElementPtr)
+{
+#define START_DODGE_COLOR BUILD_COLOR (MAKE_RGB15 (0x1F, 0x11, 0x00), 0x7a)
+
+	if (ElementPtr->state_flags & PLAYER_SHIP)
+	{
+		HELEMENT hTrailElement;
+
+		hTrailElement = AllocElement ();
+		if (hTrailElement)
+		{
+			HELEMENT hHeadElement;
+			ELEMENT *TrailElementPtr, *HeadElementPtr;
+			STARSHIP *StarShipPtr;
+
+			GetElementStarShip (ElementPtr, &StarShipPtr);
+
+			hHeadElement = GetHeadElement();
+			LockElement (hHeadElement, &HeadElementPtr);
+			if (HeadElementPtr == ElementPtr)
+				InsertElement (hTrailElement, GetHeadElement ());
+			else
+				InsertElement (hTrailElement, GetPredElement (ElementPtr));
+			UnlockElement(hHeadElement);
+
+			LockElement (hTrailElement, &TrailElementPtr);
+			TrailElementPtr->state_flags = APPEARING | FINITE_LIFE | NONSOLID;
+			TrailElementPtr->life_span = TrailElementPtr->thrust_wait = 1;
+			SetPrimType (&DisplayArray[TrailElementPtr->PrimIndex], STAMPFILL_PRIM);
+			SetPrimColor (&DisplayArray[TrailElementPtr->PrimIndex], START_DODGE_COLOR);
+			TrailElementPtr->current.image.frame = ElementPtr->current.image.frame;
+			TrailElementPtr->current.image.farray = ElementPtr->current.image.farray;
+			TrailElementPtr->current.location = ElementPtr->current.location;
+			TrailElementPtr->death_func = dodge_trail;
+			TrailElementPtr->turn_wait = 0;
+
+			SetElementStarShip (TrailElementPtr, StarShipPtr);
+
+			{
+				/* normally done during preprocess, but because
+				 * object is being inserted at head rather than
+				 * appended after tail it may never get preprocessed.
+				 */
+				TrailElementPtr->next = TrailElementPtr->current;
+				--TrailElementPtr->life_span;
+				TrailElementPtr->state_flags |= PRE_PROCESS;
+			}
+
+			UnlockElement (hTrailElement);
+		}
+	}
+	else
+	{
+		static const Color colorTab[] =
+		{
+			BUILD_COLOR (MAKE_RGB15_INIT (0x1D, 0x0A, 0x00), 0x7c),
+			BUILD_COLOR (MAKE_RGB15_INIT (0x1A, 0x06, 0x00), 0x7c),
+			BUILD_COLOR (MAKE_RGB15_INIT (0x17, 0x03, 0x00), 0x2c),
+			BUILD_COLOR (MAKE_RGB15_INIT (0x11, 0x02, 0x00), 0x2c),
+			BUILD_COLOR (MAKE_RGB15_INIT (0x09, 0x01, 0x00), 0x2f),
+		};
+
+		const size_t colorTabCount = sizeof colorTab / sizeof colorTab[0];
+		
+		assert (!(ElementPtr->state_flags & PLAYER_SHIP));
+		
+		if (ElementPtr->turn_wait != colorTabCount)
+		{
+			ElementPtr->life_span = ElementPtr->thrust_wait;
+				// Reset the life span
+		
+			++ElementPtr->turn_wait;
+			
+			SetPrimColor (&DisplayArray[ElementPtr->PrimIndex],
+					colorTab[ElementPtr->colorCycleIndex]);
+			
+			ElementPtr->state_flags &= ~DISAPPEARING;
+			ElementPtr->state_flags |= CHANGING;
+		} // else, the element disappears.
+		
+		ElementPtr->colorCycleIndex++;
+	}
+}
+
 static void
 supox_preprocess (ELEMENT *ElementPtr)
 {
 	STARSHIP *StarShipPtr;
-	SIZE add_facing;
+	COUNT facing, reverse_facing, add_facing, max_thrust, thrust_increment;
+	STATUS_FLAGS thrust_status;
+	HELEMENT hTrailElement;
 
 	GetElementStarShip (ElementPtr, &StarShipPtr);
 	
-	add_facing = 0;
+	facing = StarShipPtr->ShipFacing;
+	reverse_facing = 0;
 	
-	// "Down" key is the new reverse thrust.
-	if (StarShipPtr->cur_status_flags & DOWN)
-		add_facing = ANGLE_TO_FACING (HALF_CIRCLE);
-	
-	if ((StarShipPtr->cur_status_flags & SPECIAL))
-	{
-		if (StarShipPtr->cur_status_flags & LEFT)
-		{
-			if (ElementPtr->turn_wait == 0)
-				++ElementPtr->turn_wait;
+	// 'Down' key initiates reverse thrust
+	if (StarShipPtr->cur_status_flags & DOWN
+			&& !(StarShipPtr->cur_status_flags & SPECIAL)
+			&& StarShipPtr->static_counter == 0)
+		reverse_facing = ANGLE_TO_FACING (HALF_CIRCLE);
 
-			if (add_facing)
-				add_facing += ANGLE_TO_FACING (OCTANT);
-			else
-				add_facing = -ANGLE_TO_FACING (QUADRANT);
-		}
-		else if (StarShipPtr->cur_status_flags & RIGHT)
-		{
-			if (ElementPtr->turn_wait == 0)
-				++ElementPtr->turn_wait;
-
-			if (add_facing)
-				add_facing -= ANGLE_TO_FACING (OCTANT);
-			else
-				add_facing = ANGLE_TO_FACING (QUADRANT);
-		}
-	}
-		
-	// Exhaust trail for Supox.
-	if ((StarShipPtr->cur_status_flags & (THRUST | DOWN)
-			|| (StarShipPtr->cur_status_flags & SPECIAL
-				&& StarShipPtr->cur_status_flags & (LEFT | RIGHT)))
-			&& ElementPtr->thrust_wait == 0
+	// End dodge
+	if (StarShipPtr->static_counter > 0
 			&& StarShipPtr->special_counter == 0)
 	{
-		spawn_ion_trail(ElementPtr);
+		StarShipPtr->static_counter = 0;
 		
-		StarShipPtr->special_counter += 2;
-		// Why do this? Because 0 delay exhaust looks ugly during lateral thrust.
+		facing = NORMALIZE_FACING (ANGLE_TO_FACING (GetVelocityTravelAngle (&ElementPtr->velocity)));
+		
+		// Reduce speed back down to normal limit
+		if (!(StarShipPtr->cur_status_flags & SHIP_IN_GRAVITY_WELL))
+			SetVelocityVector (&ElementPtr->velocity, MAX_THRUST, NORMALIZE_FACING (facing));
+		else
+			SetVelocityVector (&ElementPtr->velocity, 72, NORMALIZE_FACING (facing));
+
+		StarShipPtr->special_counter = SPECIAL_WAIT;
 	}
 
-	// Apply alternate thrust.
-	if (add_facing && ElementPtr->thrust_wait == 0)
+	// Start dodge
+	if (StarShipPtr->cur_status_flags & SPECIAL)
 	{
-		COUNT facing;
-		STATUS_FLAGS thrust_status;
+		++ElementPtr->turn_wait; // Stall turning
 
-		facing = StarShipPtr->ShipFacing;
-		StarShipPtr->ShipFacing = NORMALIZE_FACING (
-				facing + add_facing
-				);
+		if (StarShipPtr->cur_status_flags & (THRUST | DOWN | LEFT | RIGHT)
+				&& StarShipPtr->RaceDescPtr->ship_info.energy_level >= SPECIAL_ENERGY_COST			
+				&& StarShipPtr->special_counter == 0)
+		{
+			// Set direction of dodge using this very inelegant solution
+			if (StarShipPtr->cur_status_flags & THRUST)
+				if (StarShipPtr->cur_status_flags & LEFT)
+					StarShipPtr->static_counter = 5;
+				else if (StarShipPtr->cur_status_flags & RIGHT)
+					StarShipPtr->static_counter = 6;
+				else
+					StarShipPtr->static_counter = 1;
+			else if (StarShipPtr->cur_status_flags & DOWN)
+				if (StarShipPtr->cur_status_flags & LEFT)
+					StarShipPtr->static_counter = 7;
+				else if (StarShipPtr->cur_status_flags & RIGHT)
+					StarShipPtr->static_counter = 8;
+				else
+					StarShipPtr->static_counter = 2;
+			else if (StarShipPtr->cur_status_flags & LEFT)
+			{
+				StarShipPtr->static_counter = 3;
+
+				if (ElementPtr->turn_wait == 0)
+					++ElementPtr->turn_wait;
+			}
+			else if (StarShipPtr->cur_status_flags & RIGHT)
+			{
+				StarShipPtr->static_counter = 4;
+
+				if (ElementPtr->turn_wait == 0)
+					++ElementPtr->turn_wait;
+			}
+
+			ElementPtr->thrust_wait += DODGE_DURATION + 1;
+			StarShipPtr->special_counter = DODGE_DURATION + 1;
+
+			DeltaEnergy (ElementPtr, -SPECIAL_ENERGY_COST);
+		
+			ProcessSound (SetAbsSoundIndex (
+				/* Boost */
+				StarShipPtr->RaceDescPtr->ship_data.ship_sounds, 1), ElementPtr);
+		}
+	}
+
+	// Dodge is active
+	if (StarShipPtr->static_counter > 0)
+	{
+		if (StarShipPtr->static_counter == 1) // Forward
+			add_facing = 0;
+		else if (StarShipPtr->static_counter == 2) // Backward
+			add_facing = ANGLE_TO_FACING (HALF_CIRCLE);
+		else if (StarShipPtr->static_counter == 3)  // Left
+			add_facing = -ANGLE_TO_FACING (QUADRANT);
+		else if (StarShipPtr->static_counter == 4) // Right
+			add_facing = ANGLE_TO_FACING (QUADRANT);
+		else if (StarShipPtr->static_counter == 5) // Up-Left
+			add_facing = -ANGLE_TO_FACING (OCTANT);
+		else if (StarShipPtr->static_counter == 6) // Up-Right
+			add_facing = ANGLE_TO_FACING (OCTANT);
+		else if (StarShipPtr->static_counter == 7) // Down-Left
+			add_facing = ANGLE_TO_FACING (HALF_CIRCLE + OCTANT);
+		else if (StarShipPtr->static_counter == 8) // Down-Right
+			add_facing = ANGLE_TO_FACING (HALF_CIRCLE - OCTANT);
+			
+		StarShipPtr->ShipFacing = NORMALIZE_FACING (facing + add_facing);
+
+		StarShipPtr->cur_status_flags &= ~(SHIP_AT_MAX_SPEED | SHIP_BEYOND_MAX_SPEED);
+
+		thrust_increment = StarShipPtr->RaceDescPtr->characteristics.thrust_increment;
+		max_thrust = StarShipPtr->RaceDescPtr->characteristics.max_thrust;
+		StarShipPtr->RaceDescPtr->characteristics.thrust_increment = DODGE_INCREMENT;
+		StarShipPtr->RaceDescPtr->characteristics.max_thrust = DODGE_MAX_THRUST;
+		
+		thrust_status = inertial_thrust (ElementPtr);
+		StarShipPtr->cur_status_flags &=
+				~(SHIP_AT_MAX_SPEED
+				| SHIP_BEYOND_MAX_SPEED
+				| SHIP_IN_GRAVITY_WELL);
+		StarShipPtr->cur_status_flags |= thrust_status;
+		
+		StarShipPtr->ShipFacing = facing;
+		StarShipPtr->RaceDescPtr->characteristics.thrust_increment = thrust_increment;
+		StarShipPtr->RaceDescPtr->characteristics.max_thrust = max_thrust;
+
+		++StarShipPtr->energy_counter; // Stall battery regen
+
+		Untarget (ElementPtr); // Shake off most forms of enemy tracking
+	}
+
+	// Conventional reverse thrust
+	if (reverse_facing
+		&& ElementPtr->thrust_wait == 0)
+	{
+		StarShipPtr->ShipFacing = NORMALIZE_FACING (facing + reverse_facing);
 		thrust_status = inertial_thrust (ElementPtr);
 		StarShipPtr->cur_status_flags &=
 				~(SHIP_AT_MAX_SPEED
@@ -315,7 +486,12 @@ supox_preprocess (ELEMENT *ElementPtr)
 				| SHIP_IN_GRAVITY_WELL);
 		StarShipPtr->cur_status_flags |= thrust_status;
 		StarShipPtr->ShipFacing = facing;
+
+		reverse_ion_trail(ElementPtr);
 	}
+
+	if (StarShipPtr->static_counter > 0)
+		dodge_trail(ElementPtr);
 }
 
 static void
@@ -327,8 +503,8 @@ supox_intelligence (ELEMENT *ShipPtr, EVALUATE_DESC *ObjectsOfConcern, COUNT Con
 	GetElementStarShip (ShipPtr, &StarShipPtr);
 
 	lpEvalDesc = &ObjectsOfConcern[ENEMY_SHIP_INDEX];
-	if (StarShipPtr->special_counter || lpEvalDesc->ObjectPtr == 0)
-		StarShipPtr->ship_input_state &= ~SPECIAL;
+	if (StarShipPtr->static_counter || lpEvalDesc->ObjectPtr == 0)
+		StarShipPtr->ship_input_state &= ~DOWN;
 	else
 	{
 		BOOLEAN LinedUp;
@@ -352,34 +528,62 @@ supox_intelligence (ELEMENT *ShipPtr, EVALUATE_DESC *ObjectsOfConcern, COUNT Con
 				- (FACING_TO_ANGLE (StarShipPtr->ShipFacing)
 				+ HALF_CIRCLE) + OCTANT
 				) > QUADRANT)
-			StarShipPtr->ship_input_state &= ~SPECIAL;
+			StarShipPtr->ship_input_state &= ~DOWN;
 		else if (LinedUp && lpEvalDesc->which_turn <= 12)
-			StarShipPtr->ship_input_state |= SPECIAL;
+			StarShipPtr->ship_input_state |= DOWN;
 
-		if (StarShipPtr->ship_input_state & SPECIAL)
+		if (StarShipPtr->ship_input_state & DOWN)
+		{
+			StarShipPtr->ship_input_state &= ~THRUST;
 			lpEvalDesc->MoveState = PURSUE;
+		}
 	}
 
-	ship_intelligence (ShipPtr,
-			ObjectsOfConcern, ConcernCounter);
+	ship_intelligence (ShipPtr,	ObjectsOfConcern, ConcernCounter);
 
-	if (StarShipPtr->ship_input_state & SPECIAL)
-		StarShipPtr->ship_input_state |= THRUST | WEAPON;
+	if (StarShipPtr->ship_input_state & DOWN)
+		StarShipPtr->ship_input_state |= WEAPON;
 
 	lpEvalDesc = &ObjectsOfConcern[ENEMY_WEAPON_INDEX];
-	if (StarShipPtr->special_counter == 0
-			&& lpEvalDesc->ObjectPtr
-			&& lpEvalDesc->MoveState == AVOID
-			&& ShipPtr->turn_wait == 0)
+	if (lpEvalDesc->ObjectPtr && lpEvalDesc->which_turn <= 6
+			&& StarShipPtr->special_counter == 0
+			&& StarShipPtr->RaceDescPtr->ship_info.energy_level >=
+				StarShipPtr->RaceDescPtr->ship_info.max_energy >> 1)
 	{
+		BOOLEAN IsTrackingWeapon;
+		STARSHIP *EnemyStarShipPtr;
+
+		GetElementStarShip (lpEvalDesc->ObjectPtr, &EnemyStarShipPtr);
+		if (((EnemyStarShipPtr->RaceDescPtr->ship_info.ship_flags
+				& SEEKING_WEAPON) &&
+				lpEvalDesc->ObjectPtr->next.image.farray ==
+				EnemyStarShipPtr->RaceDescPtr->ship_data.weapon) ||
+				((EnemyStarShipPtr->RaceDescPtr->ship_info.ship_flags
+				& SEEKING_SPECIAL) &&
+				lpEvalDesc->ObjectPtr->next.image.farray ==
+				EnemyStarShipPtr->RaceDescPtr->ship_data.special))
+			IsTrackingWeapon = TRUE;
+		else
+			IsTrackingWeapon = FALSE;
+
+		if (((lpEvalDesc->ObjectPtr->state_flags & PLAYER_SHIP) /* means IMMEDIATE WEAPON */
+			|| (IsTrackingWeapon
+				&& (lpEvalDesc->which_turn <= 2
+					|| (lpEvalDesc->ObjectPtr->state_flags & CREW_OBJECT))) /* FIGHTERS!!! */
+			|| PlotIntercept (lpEvalDesc->ObjectPtr, ShipPtr, 3, 0))
+			&& (TFB_Random () & 4))
+
 		StarShipPtr->ship_input_state &= ~THRUST;
 		StarShipPtr->ship_input_state |= SPECIAL;
+
 		if (!(StarShipPtr->cur_status_flags & (LEFT | RIGHT)))
 			StarShipPtr->ship_input_state |= 1 << ((BYTE)TFB_Random () & 1);
 		else
 			StarShipPtr->ship_input_state |=
 					StarShipPtr->cur_status_flags & (LEFT | RIGHT);
 	}
+	else if (StarShipPtr->ship_input_state & SPECIAL)
+		StarShipPtr->ship_input_state &= ~SPECIAL;
 }
 
 RACE_DESC*

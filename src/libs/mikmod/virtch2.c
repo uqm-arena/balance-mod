@@ -20,7 +20,7 @@
 
 /*==============================================================================
 
-  $Id: virtch2.c 2421 2006-08-19 00:36:21Z avolkov $
+  $Id$
 
   High-quality sample mixing routines, using a 32 bits mixing buffer,
   interpolation, and sample smoothing to improve sound quality and remove

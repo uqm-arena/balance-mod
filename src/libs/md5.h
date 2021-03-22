@@ -16,10 +16,17 @@
  *
  */
 
-#ifndef _LIB_MD5_H
-#define _LIB_MD5_H
+#ifndef LIBS_MD5_H_
+#define LIBS_MD5_H_
+
+#if defined(__cplusplus)
+extern "C" {
+#endif
 
 #include "md5/md5.h"
 
-#endif  /* _LIB_MD5_H */
+#if defined(__cplusplus)
+}
+#endif
 
+#endif  /* LIBS_MD5_H_ */

@@ -24,7 +24,7 @@
 #include "uqm/setup.h"
 #include "libs/mathlib.h"
 
-// Core characteristics
+// Core Characteristics
 #define MAX_CREW 22
 #define MAX_ENERGY 12
 #define ENERGY_REGENERATION 4
@@ -37,12 +37,13 @@
 
 // Hellfire Spout
 #define WEAPON_ENERGY_COST 1
-#define ALTWEAPON_ENERGY_COST 2
 #define WEAPON_WAIT 0
-#define ALTWEAPON_WAIT 1
-#define MISSILE_LIFE 8
+#define ALTFIRE_ENERGY_COST 2
+#define ALTFIRE_WAIT 1
+#define ALTFIRE_THRESHOLD 4
 #define ILWRATH_OFFSET 29
-#define MISSILE_SPEED 35
+#define MISSILE_SPEED 32
+#define MISSILE_LIFE 8
 #define MISSILE_HITS 1
 #define MISSILE_DAMAGE 1
 #define MISSILE_OFFSET 0
@@ -55,7 +56,7 @@ static RACE_DESC ilwrath_desc =
 {
 	{ /* SHIP_INFO */
 		FIRES_FORE,
-		10, /* Super Melee cost */
+		11, /* Super Melee cost */
 		MAX_CREW, MAX_CREW,
 		MAX_ENERGY, MAX_ENERGY,
 		ILWRATH_RACE_STRINGS,
@@ -261,12 +262,12 @@ ilwrath_postprocess (ELEMENT *ElementPtr)
 	
 	if ((StarShipPtr->cur_status_flags & WEAPON)
 			&& StarShipPtr->auxiliary_counter == 0
-			&& StarShipPtr->RaceDescPtr->ship_info.energy_level > ENERGY_REGENERATION)
+			&& StarShipPtr->RaceDescPtr->ship_info.energy_level >= ALTFIRE_THRESHOLD)
 	{
 		initialize_diagonal_flame (ElementPtr);
 		
-		DeltaEnergy (ElementPtr, -ALTWEAPON_ENERGY_COST);
-		StarShipPtr->auxiliary_counter += ALTWEAPON_WAIT + 1;
+		DeltaEnergy (ElementPtr, -ALTFIRE_ENERGY_COST);
+		StarShipPtr->auxiliary_counter += ALTFIRE_WAIT + 1;
 	}
 }
 
@@ -337,7 +338,7 @@ ilwrath_preprocess (ELEMENT *ElementPtr)
 		{
 			if (sameColor (color, BUILD_COLOR (MAKE_RGB15 (0x00, 0x00, 0x14), 0x01)))
 			{
-				if(PlayerControl[ElementPtr->playerNr] & HUMAN_CONTROL)
+				if (PlayerControl[ElementPtr->playerNr] & HUMAN_CONTROL)
 					SetPrimColor (lpPrim, INVIS_COLOR);
 				else
 					SetPrimColor (lpPrim, BLACK_COLOR);
