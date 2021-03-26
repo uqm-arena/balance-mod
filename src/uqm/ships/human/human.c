@@ -48,8 +48,8 @@
 #define TRACK_WAIT 3
 
 // Point-Defense Laser
-#define SPECIAL_ENERGY_COST 4
-#define SPECIAL_WAIT 9
+#define SPECIAL_ENERGY_COST 3
+#define SPECIAL_WAIT 13
 #define LASER_RANGE (UWORD)100
 
 static RACE_DESC human_desc =
