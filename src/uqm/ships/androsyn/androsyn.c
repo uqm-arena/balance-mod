@@ -290,7 +290,7 @@ initialize_bubble (ELEMENT *ShipPtr, HELEMENT BubbleArray[])
 	return (1);
 }
 
-// This is a new visual effect for the blazer.
+// This is a new visual effect for the blazer
 static void
 spawn_blazer_trail (ELEMENT *ElementPtr)
 {
@@ -366,7 +366,7 @@ spawn_blazer_trail (ELEMENT *ElementPtr)
 					
 			ElementPtr->state_flags &= ~DISAPPEARING;
 			ElementPtr->state_flags |= CHANGING;
-		} // else, the element disappears.
+		} // else, the element disappears
 		
 		ElementPtr->colorCycleIndex++;
 	}
@@ -403,9 +403,11 @@ androsynth_postprocess (ELEMENT *ElementPtr)
 				StarShipPtr->RaceDescPtr->ship_info.ship_flags |= IMMEDIATE_WEAPON;
 				/* Save the current collision func because we were not the
 				 * ones who set it */
-				StarShipPtr->RaceDescPtr->data = (intptr_t)
-						ElementPtr->collision_func;
-				ElementPtr->collision_func = blazer_collision;
+				{
+					const ANDROSYNTH_DATA shipData = { ElementPtr->collision_func };
+					SetCustomShipData (StarShipPtr->RaceDescPtr, &shipData);
+					ElementPtr->collision_func = blazer_collision;
+				}
 			}
 		}
 
