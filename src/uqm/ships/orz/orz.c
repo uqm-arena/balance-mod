@@ -976,8 +976,7 @@ orz_preprocess (ELEMENT *ElementPtr)
 				LockElement (hShip, &Them);
 				hNextShip = GetSuccElement (Them);
 				if(Them->preprocess_func == marine_preprocess
-						&& (((Them->state_flags | ElementPtr->state_flags)
-						& (GOOD_GUY | BAD_GUY)) != (GOOD_GUY | BAD_GUY)))
+						&& elementsOfSamePlayer (Them, ElementPtr))
 				{
 					Them->state_flags &= ~IGNORE_SIMILAR;
 					Them->hTarget = 0;

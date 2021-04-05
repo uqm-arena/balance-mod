@@ -47,18 +47,18 @@
 // Shrapnel
 #define FRAGMENT_OFFSET 2
 #define NUM_FRAGMENTS 8
-#define FRAGMENT_SPEED 96
+#define FRAGMENT_SPEED 92
 #define FRAGMENT_LIFE 15
 #define FRAGMENT_RANGE DISPLAY_TO_WORLD (110) // This bit is for the cyborg only
 #define FRAGMENT_HITS 1
-#define FRAGMENT_DAMAGE 1
+#define FRAGMENT_DAMAGE 0
 
 // Shockwave
 #define WAVE_LIFE 7
 #define WAVE_DAMAGE_DELAY 2
 #define WAVE_DAMAGE 1
 #define WAVE_OBJ_RANGE 52
-#define WAVE_SHIP_RANGE 76
+#define WAVE_SHIP_RANGE 74
 /* Shockwave has longer range against enemy ships because this effect checks its target's central point
    only; the extra range allows this effect to scathe the edge of a ship and still inflict damage */
 
