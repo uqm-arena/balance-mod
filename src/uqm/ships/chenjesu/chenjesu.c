@@ -51,7 +51,7 @@
 #define FRAGMENT_LIFE 15
 #define FRAGMENT_RANGE DISPLAY_TO_WORLD (110) // This bit is for the cyborg only
 #define FRAGMENT_HITS 1
-#define FRAGMENT_DAMAGE 0
+#define FRAGMENT_DAMAGE 1
 
 // Shockwave
 #define WAVE_LIFE 7
