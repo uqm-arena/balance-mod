@@ -20,6 +20,7 @@
 #include "shofixti.h"
 #include "resinst.h"
 #include "uqm/globdata.h"
+#include "uqm/tactrans.h"
 #include "libs/mathlib.h"
 
 // Core Characteristics
@@ -280,7 +281,6 @@ self_destruct_kill_objects (ELEMENT *ElementPtr)
 		ELEMENT *ObjPtr;
 		SIZE delta_x, delta_y;
 		DWORD dist;
-		STARSHIP *EnemyStarShipPtr;
 
 		LockElement (hElement, &ObjPtr);
 		hNextElement = GetSuccElement (ObjPtr);
@@ -303,6 +303,7 @@ self_destruct_kill_objects (ELEMENT *ElementPtr)
 		if (delta_x <= DESTRUCT_RANGE && delta_y <= DESTRUCT_RANGE
 				&& dist <= DESTRUCT_RANGE * DESTRUCT_RANGE)
 		{
+			STARSHIP *EnemyStarShipPtr;
 			int destruction = 1 + DESTRUCTION *	(DESTRUCT_RANGE - square_root (dist)) / DESTRUCT_RANGE;
 
 			GetElementStarShip (ObjPtr, &EnemyStarShipPtr);
