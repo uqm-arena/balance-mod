@@ -41,8 +41,6 @@
 #include "libs/log.h"
 #include "libs/mathlib.h"
 
-#include "../ships/orz/orz.h"
-
 
 #define NUM_PICKMELEE_ROWS 2
 #define NUM_PICKMELEE_COLUMNS 7
@@ -65,11 +63,6 @@
 static void reportShipSelected (GETMELEE_STATE *gms, COUNT index);
 #endif
 
-typedef enum
-{
-	SIMPLE_VALUE = 0,
-	ADJUSTED_VALUE = 1
-} VALUE_TYPE;
 
 FRAME PickMeleeFrame;
 
@@ -392,64 +385,9 @@ aborted:
 	return FALSE;
 }
 
-/*
- * Count CREW_OBJECTs that are on the same side as the STARSHIP
- * pointed to by StarShipPtr, or that are Syreen Song crew.
- *
- * Based on CountCrewElements in init.c.
- */
 static COUNT
-CountFriendlyCrewElements (STARSHIP *StarShipPtr)
-{
+GetRaceQueueValue (const QUEUE *queue) {
 	COUNT result;
-	HELEMENT hElement, hNextElement;
-
-	result = 0;
-	for (hElement = GetHeadElement ();
-			hElement != 0; hElement = hNextElement)
-	{
-		ELEMENT *ElementPtr;
-
-		LockElement (hElement, &ElementPtr);
-		hNextElement = GetSuccElement (ElementPtr);
-		if (ElementPtr->state_flags & CREW_OBJECT &&
-			((ElementPtr->playerNr == StarShipPtr->playerNr) ||
-				(ElementPtr->playerNr == -1))
-		)
-			++result;
-
-		UnlockElement (hElement);
-	}
-
-	return result;
-}
-
-/* 
- * This combines count_marines and CountFriendlyCrewElements to
- * produce a  full count of absent crew that should be counted
- * for scoring purposes.
- */
-static COUNT
-CountAbsenteeCrew (STARSHIP *StarShipPtr)
-{
-	BYTE marine_count, crew_object_count;
-
-	/*
-	 * Because of the way count_marines works, it shouldn't ever count
-	 * marines that don't belong to the STARSHIP given it, according to
-	 * both my inexpert reading of it and actual tests. Nonetheless, I
-	 * do suspect this is a possible source of bugs, scrutinize this
-	 * carefully if investigating an Orz-related scoring problem.
-	 */
-	marine_count = count_marines (StarShipPtr, 0);
-	crew_object_count = CountFriendlyCrewElements (StarShipPtr);
-
-	return ((marine_count > crew_object_count) ? marine_count : crew_object_count);
-}
-
-static double
-GetRaceQueueValue (const QUEUE *queue, VALUE_TYPE adjust_value) {
-	double result;
 	HSTARSHIP hBattleShip, hNextShip;
 
 	result = 0;
@@ -461,30 +399,6 @@ GetRaceQueueValue (const QUEUE *queue, VALUE_TYPE adjust_value) {
 		
 		if (StarShipPtr->SpeciesID == NO_ID)
 			continue;  // Not active any more.
-
-		if (adjust_value)
-		{
-			/* This can be called on un-spawned ships, and thus with RaceDescPtr uninitialized. */
-			if (StarShipPtr->RaceDescPtr != NULL)
-			{
-				if ((StarShipPtr->RaceDescPtr->ship_info.crew_level !=
-						(StarShipPtr->RaceDescPtr->ship_info.max_crew + CountAbsenteeCrew (StarShipPtr))) ||
-				((StarShipPtr->SpeciesID == SYREEN_ID) &&
-						(StarShipPtr->RaceDescPtr->ship_info.crew_level != 12)))
-				{ /* The ship is damaged, assign a partial value */
-					result += (StarShipPtr->ship_cost *
-						((double) calculate_crew_percentage (StarShipPtr, CountAbsenteeCrew (StarShipPtr)) / 100.0));
-					continue;
-				}
-			} else if ((StarShipPtr->flee_counter) && ((StarShipPtr->crew_level != StarShipPtr->max_crew) ||
-					((StarShipPtr->SpeciesID == SYREEN_ID) &&
-						(StarShipPtr->crew_level != 12))))
-			{ /* The ship is damaged, assign a partial value */
-				result += (StarShipPtr->ship_cost *
-						((double) calculate_crew_percentage (StarShipPtr, 0) / 100.0));
-				continue;
-			}
-		}
 
 		result += StarShipPtr->ship_cost;
 
@@ -583,14 +497,12 @@ static void
 UpdatePickMeleeFleetValue (FRAME frame, COUNT which_player)
 {
 	CONTEXT OldContext;
-	COUNT simple_value;
-	double adjusted_value;
+	COUNT value;
 	RECT r;
 	TEXT t;
 	UNICODE buf[40];
 	
-	simple_value   = GetRaceQueueValue (&race_q[which_player], SIMPLE_VALUE);
-	adjusted_value = GetRaceQueueValue (&race_q[which_player], ADJUSTED_VALUE);
+	value = GetRaceQueueValue (&race_q[which_player]);
 
 	OldContext = SetContext (OffScreenContext);
 	SetContextFGFrame (frame);
@@ -607,11 +519,7 @@ UpdatePickMeleeFleetValue (FRAME frame, COUNT which_player)
 	DrawFilledRectangle (&r);
 
 	// Draw the new value text.
-	// if (simple_value == adjusted_value)
-		sprintf (buf, "%d", simple_value);
-	// else
-	//	sprintf (buf, "%d (%.1f)", simple_value, adjusted_value);
-
+	sprintf (buf, "%d", value);
 	t.baseline.y = 7;
 	t.align = ALIGN_RIGHT;
 	t.pStr = buf;

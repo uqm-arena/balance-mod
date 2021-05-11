@@ -458,6 +458,7 @@ PacketHandler_SeedRandom(NetConnection *conn,
 int
 PacketHandler_InputDelay(NetConnection *conn,
 		const Packet_InputDelay *packet) {
+	BattleStateData *battleStateData;
 	uint32 delay;
 
 	if (conn->stateFlags.reset.localReset)
@@ -470,7 +471,7 @@ PacketHandler_InputDelay(NetConnection *conn,
 	if (!testNetState(conn->state == NetState_preBattle, PACKET_INPUTDELAY))
 		return -1;  // errno is set
 
-	NetConnection_getStateData(conn);
+	battleStateData = (BattleStateData *) NetConnection_getStateData(conn);
 	delay = ntoh32(packet->delay);
 	if (delay > BATTLE_FRAME_RATE) {
 		log_add(log_Error, "NETPLAY: [%d]     Received absurdly large "
