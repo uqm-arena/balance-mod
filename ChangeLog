@@ -1,9 +1,9 @@
 This changelog  contains changes made in upstream UQM only, for changes
-made by the Improved Netmelee Mod please see the detailed summary at:
+made by Balance Mod please see the detailed summary at:
 	http://wiki.uqm.stack.nl/User:Shiver/Balance_Mod/List_of_Changes
 
 as well as the Git revision history, accessible online at:
-	https://github.com/Roisack/Shiver-Balance-Mod/commits/master
+	https://github.com/uqm-arena/balance-mod/commits/master
 
 0.8:
 - Grouping ship properties together at the top of the ship .c files, from
