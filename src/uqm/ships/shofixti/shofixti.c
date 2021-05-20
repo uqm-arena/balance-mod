@@ -50,8 +50,6 @@
 #define DESTRUCT_RANGE 180 // DISPLAY_TO_WORLD is applied to this elsewhere.
 #define DESTRUCTION (DESTRUCT_RANGE / 20)
 #define GD_DAMAGE_CAP 8 // Glory Device damage cap.
-/* Glory Device damage is rather hacky in its current state. Read self_destruct
-  carefully if you want to change it */
 
 static RACE_DESC shofixti_desc =
 {
@@ -311,10 +309,10 @@ self_destruct_kill_objects (ELEMENT *ElementPtr)
 			// Apply damage cap to blast
 			if ((BYTE)destruction >= GD_DAMAGE_CAP)
 				destruction = GD_DAMAGE_CAP;
-			// Inflict 1 extra damage to the enemy ship when it won't destroy them
-			else if (ObjPtr->state_flags & PLAYER_SHIP
+			// Inflict 1 extra damage to the enemy ship when it won't destroy them - disabled for now
+			/* else if (ObjPtr->state_flags & PLAYER_SHIP
 					&& (BYTE)destruction < ObjPtr->crew_level - 1)
-				destruction += 1;
+				destruction += 1; */
 				
 			// Utwig shield will absorb damage. Yehat shield will prevent it.
 			if (ObjPtr->state_flags & PLAYER_SHIP
@@ -337,7 +335,7 @@ self_destruct_kill_objects (ELEMENT *ElementPtr)
 			}
 			else if (!GRAVITY_MASS (ObjPtr->mass_points))
 			{
-				// Damage objects, inflicting bonus damage against them
+				// Inflict bonus damage against objects
 				destruction += (destruction >> 1);
 
 				if ((BYTE)destruction < ObjPtr->hit_points)

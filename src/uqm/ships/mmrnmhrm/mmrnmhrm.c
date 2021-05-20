@@ -55,7 +55,7 @@
 #define YWING_WEAPON_WAIT 20
 #define LAUNCH_OFFS 16
 #define MISSILE_OFFSET 0
-#define MISSILE_SPEED 78
+#define MISSILE_SPEED 80
 #define MISSILE_LIFE 40
 #define MISSILE_HITS 1
 #define MISSILE_DAMAGE 1
@@ -71,7 +71,7 @@ static RACE_DESC mmrnmhrm_desc =
 {
 	{ /* SHIP_INFO */
 		FIRES_FORE | IMMEDIATE_WEAPON,
-		19, /* Super Melee cost */
+		20, /* Super Melee cost */
 		MAX_CREW, MAX_CREW,
 		MAX_ENERGY, MAX_ENERGY,
 		MMRNMHRM_RACE_STRINGS,

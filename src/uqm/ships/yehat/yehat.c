@@ -45,7 +45,7 @@
 
 // Shield
 #define SPECIAL_ENERGY_COST 2
-#define SPECIAL_WAIT 7
+#define SPECIAL_WAIT 7 // Shield duration
 #define SPECIAL_WAIT_BONUS 1 // Add this to the shield's duration at the start of a 'fresh' shield activation
 #define ENERGY_WAIT_EXTRA 8 // How long energy recovery stalls after shields drop
 
@@ -377,7 +377,7 @@ yehat_preprocess (ELEMENT *ElementPtr)
 					StarShipPtr->special_counter += SPECIAL_WAIT_BONUS;
 				}
 				
-				// Shield activation will slow battery recharge, effect is non-cumulative
+				// Shield activation will delay the next battery recharge. Effect is non-cumulative.
 				StarShipPtr->static_counter = ENERGY_WAIT_EXTRA;
 			}
 		}
