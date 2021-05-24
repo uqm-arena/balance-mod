@@ -16,8 +16,8 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-#ifndef _LANDER_H
-#define _LANDER_H
+#ifndef UQM_PLANETS_LANDER_H_
+#define UQM_PLANETS_LANDER_H_
 
 #include "elemdata.h"
 #include "libs/compiler.h"
@@ -26,6 +26,9 @@
 #include "libs/timelib.h"
 #include "../element.h"
 
+#if defined(__cplusplus)
+extern "C" {
+#endif
 
 // Surface magnification shift (x4)
 #define MAG_SHIFT 2
@@ -69,6 +72,8 @@ extern void object_animation (ELEMENT *ElementPtr);
 extern void SetLanderTakeoff (void);
 extern bool KillLanderCrewSeq (COUNT numKilled, DWORD period);
 
+extern unsigned GetThermalHazardRating (int temp);
+
 // ELEMENT.playerNr constants
 enum
 {
@@ -76,5 +81,8 @@ enum
 	PS_NON_PLAYER,
 };
 
-#endif /* _LANDER_H */
+#if defined(__cplusplus)
+}
+#endif
 
+#endif /* UQM_PLANETS_LANDER_H_ */

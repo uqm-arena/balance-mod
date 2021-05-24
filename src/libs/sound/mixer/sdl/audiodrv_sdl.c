@@ -24,6 +24,14 @@
 #include <stdlib.h>
 
 
+/* SDL2 wants to talk to a specific device. We'll let SDL1 use the same
+ * function names and just throw the device argument away. */
+#if SDL_MAJOR_VERSION > 1
+static SDL_AudioDeviceID dev;
+#else
+#define SDL_CloseAudioDevice(x) SDL_CloseAudio ()
+#define SDL_PauseAudioDevice(x, y) SDL_PauseAudio (y)
+#endif
 static const audio_Driver mixSDL_Driver =
 {
 	mixSDL_Uninit,
@@ -90,6 +98,8 @@ static const audio_Driver mixSDL_Driver =
 };
 
 
+static void audioCallback (void *userdata, Uint8 *stream, int len);
+
 /*
  * Initialization
  */
@@ -98,7 +108,6 @@ sint32
 mixSDL_Init (audio_Driver *driver, sint32 flags)
 {
 	int i;
-	char devicename[256];
 	SDL_AudioSpec desired, obtained;
 	mixer_Quality quality;
 	TFB_DecoderFormats formats =
@@ -143,10 +152,33 @@ mixSDL_Init (audio_Driver *driver, sint32 flags)
 
 	desired.format = AUDIO_S16SYS;
 	desired.channels = 2;
-	desired.callback = mixer_MixChannels;
+	desired.callback = audioCallback;
 	
 	log_add (log_Info, "Opening SDL audio device.");
+#if SDL_MAJOR_VERSION > 1
+	dev = SDL_OpenAudioDevice (NULL, 0, &desired, &obtained,
+			SDL_AUDIO_ALLOW_FREQUENCY_CHANGE | SDL_AUDIO_ALLOW_CHANNELS_CHANGE
+#ifdef SDL_AUDIO_ALLOW_SAMPLES_CHANGE
+			| SDL_AUDIO_ALLOW_SAMPLES_CHANGE
+#endif
+			);
+	if (dev != 0 && obtained.channels != 1 && obtained.channels != 2)
+	{
+		/* Try again without SDL_AUDIO_ALLOW_CHANNELS_CHANGE
+		 * in case the device only supports >2 channels for some
+		 * reason */
+		SDL_CloseAudioDevice (dev);
+		dev = SDL_OpenAudioDevice (NULL, 0, &desired, &obtained,
+				SDL_AUDIO_ALLOW_FREQUENCY_CHANGE
+#ifdef SDL_AUDIO_ALLOW_SAMPLES_CHANGE
+				| SDL_AUDIO_ALLOW_SAMPLES_CHANGE
+#endif
+				);
+	}
+	if (dev == 0)
+#else
 	if (SDL_OpenAudio (&desired, &obtained) < 0)
+#endif
 	{
 		log_add (log_Error, "Unable to open audio device: %s",
 				SDL_GetError ());
@@ -162,12 +194,19 @@ mixSDL_Init (audio_Driver *driver, sint32 flags)
 		return -1;
 	}
 
-	SDL_AudioDriverName (devicename, sizeof (devicename));
-	log_add (log_Info, "    using %s at %d Hz 16 bit %s, "
-			"%d samples audio buffer",
-			devicename, obtained.freq,
-			obtained.channels > 1 ? "stereo" : "mono",
-			obtained.samples);
+	{
+#if SDL_MAJOR_VERSION == 1
+		char devicename[256];
+		SDL_AudioDriverName (devicename, sizeof (devicename));
+#else
+		const char *devicename = SDL_GetCurrentAudioDriver ();
+#endif
+		log_add (log_Info, "    using %s at %d Hz 16 bit %s, "
+				"%d samples audio buffer",
+				devicename, obtained.freq,
+				obtained.channels > 1 ? "stereo" : "mono",
+				obtained.samples);
+	}
 
 	log_add (log_Info, "Initializing mixer.");
 	if (!mixer_Init (obtained.freq, MIX_FORMAT_MAKE (2, obtained.channels),
@@ -175,7 +214,7 @@ mixSDL_Init (audio_Driver *driver, sint32 flags)
 	{
 		log_add (log_Error, "Mixer initialization failed: %x",
 				mixer_GetError ());
-		SDL_CloseAudio ();
+		SDL_CloseAudioDevice (dev);
 		SDL_QuitSubSystem (SDL_INIT_AUDIO);
 		return -1;
 	}
@@ -185,7 +224,7 @@ mixSDL_Init (audio_Driver *driver, sint32 flags)
 	if (SoundDecoder_Init (flags, &formats))
 	{
 		log_add (log_Error, "Sound decoders initialization failed.");
-		SDL_CloseAudio ();
+		SDL_CloseAudioDevice (dev);
 		mixer_Uninit ();
 		SDL_QuitSubSystem (SDL_INIT_AUDIO);
 		return -1;
@@ -203,7 +242,7 @@ mixSDL_Init (audio_Driver *driver, sint32 flags)
 	{
 		log_add (log_Error, "Stream decoder initialization failed.");
 		// TODO: cleanup source mutexes [or is it "muti"? :) ]
-		SDL_CloseAudio ();
+		SDL_CloseAudioDevice (dev);
 		SoundDecoder_Uninit ();
 		mixer_Uninit ();
 		SDL_QuitSubSystem (SDL_INIT_AUDIO);
@@ -216,7 +255,7 @@ mixSDL_Init (audio_Driver *driver, sint32 flags)
 	SetSpeechVolume (speechVolumeScale);
 	SetMusicVolume ((COUNT)musicVolume);
 				
-	SDL_PauseAudio (0);
+	SDL_PauseAudioDevice (dev, 0);
 		
 	return 0;
 }
@@ -241,16 +280,22 @@ mixSDL_Uninit (void)
 			HFree (sbuffer);
 		}
 		DestroyMutex (soundSource[i].stream_mutex);
+		soundSource[i].stream_mutex = 0;
 
 		mixSDL_DeleteSources (1, &soundSource[i].handle);
 	}
 
-	SDL_CloseAudio ();
+	SDL_CloseAudioDevice (dev);
 	mixer_Uninit ();
 	SoundDecoder_Uninit ();
 	SDL_QuitSubSystem (SDL_INIT_AUDIO);
 }
 
+static void
+audioCallback (void *userdata, Uint8 *stream, int len)
+{
+	mixer_MixChannels (userdata, stream, len);
+}
 
 /*
  * General

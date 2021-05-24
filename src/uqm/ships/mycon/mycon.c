@@ -20,12 +20,12 @@
 #include "mycon.h"
 #include "resinst.h"
 
-// Core characteristics
+// Core Characteristics
 #define MAX_CREW 20
 #define MAX_ENERGY 40
 #define ENERGY_REGENERATION 1
 #define ENERGY_WAIT 4
-#define MAX_THRUST 26
+#define MAX_THRUST 27
 #define THRUST_INCREMENT 9
 #define THRUST_WAIT 6
 #define TURN_WAIT 6
@@ -53,7 +53,7 @@ static RACE_DESC mycon_desc =
 {
 	{ /* SHIP_INFO */
 		FIRES_FORE | SEEKING_WEAPON,
-		16, /* Super Melee cost */
+		15, /* Super Melee cost */
 		MAX_CREW, MAX_CREW,
 		MAX_ENERGY, MAX_ENERGY,
 		MYCON_RACE_STRINGS,

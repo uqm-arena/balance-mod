@@ -20,6 +20,9 @@
 #include "scalers.h"
 #include "libs/log.h"
 
+#if SDL_MAJOR_VERSION == 1
+
+static SDL_Surface *SDL_Video = NULL;
 static SDL_Surface *fade_color_surface = NULL;
 static SDL_Surface *fade_temp = NULL;
 static SDL_Surface *scaled_display = NULL;
@@ -32,44 +35,23 @@ static void TFB_Pure_Scaled_Preprocess (int force_full_redraw, int transition_am
 static void TFB_Pure_Scaled_Postprocess (void);
 static void TFB_Pure_Unscaled_Preprocess (int force_full_redraw, int transition_amount, int fade_amount);
 static void TFB_Pure_Unscaled_Postprocess (void);
+static void TFB_Pure_UploadTransitionScreen (void);
 static void TFB_Pure_ScreenLayer (SCREEN screen, Uint8 a, SDL_Rect *rect);
 static void TFB_Pure_ColorLayer (Uint8 r, Uint8 g, Uint8 b, Uint8 a, SDL_Rect *rect);
 
 static TFB_GRAPHICS_BACKEND pure_scaled_backend = {
 	TFB_Pure_Scaled_Preprocess,
 	TFB_Pure_Scaled_Postprocess,
+	TFB_Pure_UploadTransitionScreen,
 	TFB_Pure_ScreenLayer,
 	TFB_Pure_ColorLayer };
 
 static TFB_GRAPHICS_BACKEND pure_unscaled_backend = {
 	TFB_Pure_Unscaled_Preprocess,
 	TFB_Pure_Unscaled_Postprocess,
+	TFB_Pure_UploadTransitionScreen,
 	TFB_Pure_ScreenLayer,
 	TFB_Pure_ColorLayer };
-
-static SDL_Surface *
-Create_Screen (SDL_Surface *template, int w, int h)
-{
-	SDL_Surface *newsurf = SDL_CreateRGBSurface(SDL_SWSURFACE, w, h,
-			template->format->BitsPerPixel,
-			template->format->Rmask, template->format->Gmask,
-			template->format->Bmask, 0);
-	if (newsurf == 0) {
-		log_add (log_Error, "Couldn't create screen buffers: %s",
-				SDL_GetError());
-	}
-	return newsurf;
-}
-
-static int
-ReInit_Screen (SDL_Surface **screen, SDL_Surface *template, int w, int h)
-{
-	if (*screen)
-		SDL_FreeSurface (*screen);
-	*screen = Create_Screen (template, w, h);
-	
-	return *screen == 0 ? -1 : 0;
-}
 
 // We cannot rely on SDL_DisplayFormatAlpha() anymore. It can return
 // formats that we do not expect (SDL v1.2.14 on Mac OSX). Mac likes
@@ -220,7 +202,7 @@ TFB_Pure_ConfigureVideo (int driver, int flags, int width, int height, int toggl
 	
 	for (i = 0; i < TFB_GFX_NUMSCREENS; i++)
 	{
-		if (0 != ReInit_Screen (&SDL_Screens[i], format_conv_surf,
+		if (0 != SDL1_ReInit_Screen (&SDL_Screens[i], format_conv_surf,
 				ScreenWidth, ScreenHeight))
 			return -1;
 	}
@@ -228,19 +210,19 @@ TFB_Pure_ConfigureVideo (int driver, int flags, int width, int height, int toggl
 	SDL_Screen = SDL_Screens[0];
 	TransitionScreen = SDL_Screens[2];
 
-	if (0 != ReInit_Screen (&fade_color_surface, format_conv_surf,
+	if (0 != SDL1_ReInit_Screen (&fade_color_surface, format_conv_surf,
 			ScreenWidth, ScreenHeight))
 		return -1;
 	fade_color = SDL_MapRGB (fade_color_surface->format, 0, 0, 0);
 	SDL_FillRect (fade_color_surface, NULL, fade_color);
 	
-	if (0 != ReInit_Screen (&fade_temp, format_conv_surf,
+	if (0 != SDL1_ReInit_Screen (&fade_temp, format_conv_surf,
 			ScreenWidth, ScreenHeight))
 		return -1;
 
 	if (ScreenWidthActual > ScreenWidth || ScreenHeightActual > ScreenHeight)
 	{
-		if (0 != ReInit_Screen (&scaled_display, format_conv_surf,
+		if (0 != SDL1_ReInit_Screen (&scaled_display, format_conv_surf,
 				ScreenWidthActual, ScreenHeightActual))
 			return -1;
 
@@ -255,7 +237,7 @@ TFB_Pure_ConfigureVideo (int driver, int flags, int width, int height, int toggl
 }
 
 int
-TFB_Pure_InitGraphics (int driver, int flags, int width, int height)
+TFB_Pure_InitGraphics (int driver, int flags, const char *renderer, int width, int height)
 {
 	char VideoName[256];
 
@@ -263,10 +245,12 @@ TFB_Pure_InitGraphics (int driver, int flags, int width, int height)
 
 	SDL_VideoDriverName (VideoName, sizeof (VideoName));
 	log_add (log_Info, "SDL driver used: %s", VideoName);
-			// Set the environment variable SDL_VIDEODRIVER to override
-			// For Linux: x11 (default), dga, fbcon, directfb, svgalib,
-			//            ggi, aalib
-			// For Windows: directx (default), windib
+	(void) renderer;
+	// The "renderer" argument is ignored by SDL1. To control how SDL1
+	// gets its pixmap, set the environment variable SDL_VIDEODRIVER.
+	// For Linux:   x11 (default), dga, fbcon, directfb, svgalib,
+	//              ggi, aalib
+	// For Windows: directx (default), windib
 
 	log_add (log_Info, "SDL initialized.");
 	log_add (log_Info, "Initializing Screen.");
@@ -285,6 +269,14 @@ TFB_Pure_InitGraphics (int driver, int flags, int width, int height)
 	Scale_Init ();
 
 	return 0;
+}
+
+void
+TFB_Pure_UninitGraphics (void)
+{
+	UnInit_Screen (&scaled_display);
+	UnInit_Screen (&fade_color_surface);
+	UnInit_Screen (&fade_temp);
 }
 
 static void
@@ -403,6 +395,12 @@ TFB_Pure_Unscaled_Postprocess (void)
 }
 
 static void
+TFB_Pure_UploadTransitionScreen (void)
+{
+	/* This is a no-op in SDL1 Pure mode */
+}
+
+static void
 TFB_Pure_ScreenLayer (SCREEN screen, Uint8 a, SDL_Rect *rect)
 {
 	if (SDL_Screens[screen] == backbuffer)
@@ -473,3 +471,4 @@ Scale_PerfTest (void)
 	SDL_UnlockSurface (SDL_Screen);
 }
 
+#endif

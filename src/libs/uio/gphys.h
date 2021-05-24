@@ -18,8 +18,8 @@
  *
  */
 
-#ifndef _GPHYS_H
-#define _GPHYS_H
+#ifndef LIBS_UIO_GPHYS_H_
+#define LIBS_UIO_GPHYS_H_
 
 #include "uioport.h"
 
@@ -33,7 +33,7 @@ typedef struct CharHashTable_HashTable uio_GPDirEntries;
 
 #define uio_GPDirEntries_new() \
 		((uio_GPDirEntries *) CharHashTable_newHashTable(NULL, NULL, NULL, \
-		NULL, 0, 0.85, 0.9))
+		NULL, NULL, 0, 0.85, 0.9))
 #define uio_GPDirEntries_add(hashTable, name, item) \
 		CharHashTable_add((CharHashTable_HashTable *) hashTable, name, \
 		(void *) item)
@@ -309,5 +309,5 @@ uio_GPFile_unref(uio_GPFile *gPFile) {
 }
 
 
-#endif  /* _GPHYS_H */
+#endif  /* LIBS_UIO_GPHYS_H_ */
 

@@ -17,8 +17,8 @@
 /* By Serge van den Boom, 2002-09-12
  */
 
-#ifndef _THREADLIB_H
-#define _THREADLIB_H
+#ifndef LIBS_THREADLIB_H_
+#define LIBS_THREADLIB_H_
 
 #define NAMED_SYNCHRO           /* Should synchronizable objects have names? */
 #define TRACK_CONTENTION       /* Should we report when a thread sleeps on synchronize? */
@@ -44,6 +44,10 @@
 
 #include <sys/types.h>
 #include "libs/timelib.h"
+
+#if defined(__cplusplus)
+extern "C" {
+#endif
 
 #if defined (PROFILE_THREADS) || defined (DEBUG_THREADS)
 #define THREAD_NAMES
@@ -141,6 +145,8 @@ ThreadLocal *CreateThreadLocal (void);
 void DestroyThreadLocal (ThreadLocal *tl);
 ThreadLocal *GetMyThreadLocal (void);
 
+void HibernateThread (TimePeriod timePeriod);
+void HibernateThreadUntil (TimeCount wakeTime);
 void SleepThread (TimePeriod timePeriod);
 void SleepThreadUntil (TimeCount wakeTime);
 void DestroyThread (Thread);
@@ -173,5 +179,8 @@ void WaitCondVar (CondVar);
 void SignalCondVar (CondVar);
 void BroadcastCondVar (CondVar);
 
-#endif  /* _THREADLIB_H */
+#if defined(__cplusplus)
+}
+#endif
 
+#endif  /* LIBS_THREADLIB_H_ */

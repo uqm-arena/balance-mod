@@ -22,6 +22,10 @@
 #include "element.h"
 #include "ships/ship.h"
 
+#if defined(__cplusplus)
+extern "C" {
+#endif
+
 extern BOOLEAN GetNextStarShip (STARSHIP *LastStarShipPtr, COUNT which_side);
 extern BOOLEAN GetInitialStarShips (void);
 
@@ -32,5 +36,9 @@ extern void collision (ELEMENT *ElementPtr0, POINT *pPt0,
 		ELEMENT *ElementPtr1, POINT *pPt1);
 
 extern STATUS_FLAGS inertial_thrust (ELEMENT *ElementPtr);
+
+#if defined(__cplusplus)
+}
+#endif
 
 #endif  /* UQM_SHIP_H_INCL_ */

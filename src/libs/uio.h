@@ -18,10 +18,17 @@
  *
  */
 
-#ifndef _UIO_H
-#define _UIO_H
+#ifndef LIBS_UIO_H_
+#define LIBS_UIO_H_
+
+#if defined(__cplusplus)
+extern "C" {
+#endif
 
 #include "uio/io.h"
 
-#endif  /* _UIO_H */
+#if defined(__cplusplus)
+}
+#endif
 
+#endif  /* LIBS_UIO_H_ */

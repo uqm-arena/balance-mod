@@ -19,8 +19,8 @@
  * Compiled from various sources
  */
 
-#ifndef _TYPES_H
-#define _TYPES_H
+#ifndef TYPES_H_
+#define TYPES_H_
 
 #include "config.h"
 
@@ -48,6 +48,10 @@
 #			define PRIxPTR "x"
 #		endif
 #	endif  /* defined(PRIxPTR) */
+#endif
+
+#if defined(__cplusplus)
+extern "C" {
 #endif
 
 #if defined(__arch64__) || defined(__alpha) || defined(__x86_64) \
@@ -80,6 +84,12 @@
 #		define UQM_INT64    __int64
 #	endif
 #endif /* !__STRICT_ANSI__ */
+
+#ifdef _MSC_VER
+#	if (_MSC_VER >= 1800)
+#		include <stdbool.h>
+#	endif
+#endif
 
 // ISO C99 compatible boolean types. The ISO C99 standard defines:
 // - An object declared as type _Bool, large enough to store the values 0
@@ -177,4 +187,8 @@ UQM_COMPILE_TIME_ASSERT(uint64, sizeof(uint64) == 8);
 #define UINT16_MAX 0xffff /* 65535U */
 #define UINT32_MAX 0xffffffff /* 4294967295U */
 
-#endif /* _TYPES_H */
+#if defined(__cplusplus)
+}
+#endif
+
+#endif /* TYPES_H_ */

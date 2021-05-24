@@ -25,7 +25,7 @@
 #include "sounds.h"
 #include "weapon.h"
 #include "libs/mathlib.h"
-#include "libs/log.h"
+
 
 void
 spawn_planet (void)
@@ -460,7 +460,7 @@ draw_reticle (ELEMENT* ElementPtr)
 			ELEMENT *ReticlePtr;
 			extern FRAME reticle[];
 			SIZE dx, dy;
-
+			
 			LockElement (hReticleElement, &ReticlePtr);
 			ReticlePtr->playerNr = NEUTRAL_PLAYER_NUM;
 			ReticlePtr->state_flags = APPEARING | FINITE_LIFE | NONSOLID | BACKGROUND_OBJECT;

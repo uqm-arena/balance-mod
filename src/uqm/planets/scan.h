@@ -16,8 +16,8 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-#ifndef _SCAN_H
-#define _SCAN_H
+#ifndef UQM_PLANETS_SCAN_H_
+#define UQM_PLANETS_SCAN_H_
 
 typedef struct scan_desc SCAN_DESC;
 typedef struct scan_block SCAN_BLOCK;
@@ -26,6 +26,9 @@ typedef struct scan_block SCAN_BLOCK;
 #include "libs/gfxlib.h"
 #include "planets.h"
 
+#if defined(__cplusplus)
+extern "C" {
+#endif
 
 struct scan_desc
 {
@@ -47,8 +50,8 @@ extern void ScanSystem (void);
 
 extern void RepairBackRect (RECT *pRect);
 extern void GeneratePlanetSide (void);
-extern COUNT callGenerateForScanType (SOLARSYS_STATE *solarSys,
-		PLANET_DESC *world, COUNT node, BYTE scanType);
+extern COUNT callGenerateForScanType (const SOLARSYS_STATE *,
+		const PLANET_DESC *world, COUNT node, BYTE scanType, NODE_INFO *);
 // Returns true if the node should be removed from the surface
 extern bool callPickupForScanType (SOLARSYS_STATE *solarSys,
 		PLANET_DESC *world, COUNT node, BYTE scanType);
@@ -62,5 +65,8 @@ COUNT countNodesRetrieved (PLANET_INFO *planetInfo, BYTE scanType);
 void setNodeRetrieved (PLANET_INFO *planetInfo, BYTE scanType, BYTE nodeNr);
 void setNodeNotRetrieved (PLANET_INFO *planetInfo, BYTE scanType, BYTE nodeNr);
 
-#endif /* _SCAN_H */
+#if defined(__cplusplus)
+}
+#endif
 
+#endif /* UQM_PLANETS_SCAN_H_ */

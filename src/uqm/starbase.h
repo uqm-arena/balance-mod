@@ -16,10 +16,14 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-#ifndef _STARBASE_H
-#define _STARBASE_H
+#ifndef UQM_STARBASE_H_
+#define UQM_STARBASE_H_
 
 #include "menustat.h"
+
+#if defined(__cplusplus)
+extern "C" {
+#endif
 
 enum
 {
@@ -44,5 +48,8 @@ extern COUNT WrapText (const UNICODE *pStr, COUNT len, TEXT *tarray, SIZE
 		field_width);
 		// XXX: Doesn't really belong in this file.
 
-#endif /* _STARBASE_H */
+#if defined(__cplusplus)
+}
+#endif
 
+#endif /* UQM_STARBASE_H_ */

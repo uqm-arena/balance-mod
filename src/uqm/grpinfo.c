@@ -17,13 +17,13 @@
  */
 
 #include "build.h"
-// XXX: for CurStarDescPtr and XXX_DEFINED constants
-#include "encount.h"
+#include "starmap.h"
+#include "gendef.h"
 #include "libs/file.h"
 #include "globdata.h"
 #include "intel.h"
 #include "state.h"
-#include "grpinfo.h"
+#include "grpintrn.h"
 
 #include "libs/mathlib.h"
 #include "libs/log.h"
@@ -35,43 +35,8 @@
 static BYTE LastEncGroup;
 		// Last encountered group, saved into state files
 
-//#define DEBUG_GROUPS
-
-// A group header describes battle groups present in a star system. There is
-//    at most 1 group header per system.
-// 'Random' group info file (RANDGRPINFO_FILE) always contains only one
-//    group header record, which describes the last-visited star system,
-//    (which may be the current system). Thus the randomly generated groups
-//    are valid for 7 days (set in PutGroupInfo) after the player leaves 
-//    the system, or until the player enters another star system.
-typedef struct
-{
-	BYTE NumGroups;
-	BYTE day_index, month_index;
-	COUNT star_index, year_index;
-			// day_index, month_index, year_index specify when
-			//   random groups expire (if you were to leave the system
-			//   by going to HSpace and stay there till such time)
-			// star_index is the index of a star this group header
-			//   applies to; ~0 means uninited
-	DWORD GroupOffset[NUM_SAVED_BATTLE_GROUPS + 1];
-			// Absolute offsets of group definitions in a state file
-			// Group 0 is a list of groups present in solarsys
-			//    (RANDGRPINFO_FILE only)
-			// Groups 1..max are definitions of actual battle groups
-			//    containing ship makeup and status
-
-	// Each group has the following format:
-	// 1 byte, RaceType (LastEncGroup in Group 0)
-	// 1 byte, NumShips (NumGroups in Group 0)
-	// Ships follow:
-	// 1 byte, RaceType
-	// 16 bytes, part of SHIP_FRAGMENT struct
-
-} GROUP_HEADER;
-
-static void
-ReadGroupHeader (void *fp, GROUP_HEADER *pGH)
+void
+ReadGroupHeader (GAME_STATE_FILE *fp, GROUP_HEADER *pGH)
 {
 	sread_8   (fp, &pGH->NumGroups);
 	sread_8   (fp, &pGH->day_index);
@@ -82,8 +47,8 @@ ReadGroupHeader (void *fp, GROUP_HEADER *pGH)
 	sread_a32 (fp, pGH->GroupOffset, NUM_SAVED_BATTLE_GROUPS + 1);
 }
 
-static void
-WriteGroupHeader (void *fp, const GROUP_HEADER *pGH)
+void
+WriteGroupHeader (GAME_STATE_FILE *fp, const GROUP_HEADER *pGH)
 {
 	swrite_8   (fp, pGH->NumGroups);
 	swrite_8   (fp, pGH->day_index);
@@ -94,8 +59,8 @@ WriteGroupHeader (void *fp, const GROUP_HEADER *pGH)
 	swrite_a32 (fp, pGH->GroupOffset, NUM_SAVED_BATTLE_GROUPS + 1);
 }
 
-static void
-ReadShipFragment (void *fp, SHIP_FRAGMENT *FragPtr)
+void
+ReadShipFragment (GAME_STATE_FILE *fp, SHIP_FRAGMENT *FragPtr)
 {
 	BYTE tmpb;
 
@@ -116,8 +81,8 @@ ReadShipFragment (void *fp, SHIP_FRAGMENT *FragPtr)
 	sread_16 (fp, NULL); /* unused; was loc.y */
 }
 
-static void
-WriteShipFragment (void *fp, const SHIP_FRAGMENT *FragPtr)
+void
+WriteShipFragment (GAME_STATE_FILE *fp, const SHIP_FRAGMENT *FragPtr)
 {
 	swrite_16 (fp, 0); /* unused: was which_side */
 	swrite_8  (fp, FragPtr->captains_name_index);
@@ -134,8 +99,8 @@ WriteShipFragment (void *fp, const SHIP_FRAGMENT *FragPtr)
 	swrite_16 (fp, 0); /* unused; was loc.y */
 }
 
-static void
-ReadIpGroup (void *fp, IP_GROUP *GroupPtr)
+void
+ReadIpGroup (GAME_STATE_FILE *fp, IP_GROUP *GroupPtr)
 {
 	BYTE tmpb;
 
@@ -157,8 +122,8 @@ ReadIpGroup (void *fp, IP_GROUP *GroupPtr)
 	sread_16s(fp, &GroupPtr->loc.y);
 }
 
-static void
-WriteIpGroup (void *fp, const IP_GROUP *GroupPtr)
+void
+WriteIpGroup (GAME_STATE_FILE *fp, const IP_GROUP *GroupPtr)
 {
 	swrite_16 (fp, 0); /* unused; was which_side */
 	swrite_8  (fp, 0); /* unused; was captains_name_index */
@@ -181,7 +146,7 @@ WriteIpGroup (void *fp, const IP_GROUP *GroupPtr)
 void
 InitGroupInfo (BOOLEAN FirstTime)
 {
-	void *fp;
+	GAME_STATE_FILE *fp;
 
 	assert (NUM_SAVED_BATTLE_GROUPS >= MAX_BATTLE_GROUPS);
 
@@ -413,7 +378,7 @@ FoundHome:
 }
 
 static void
-FlushGroupInfo (GROUP_HEADER* pGH, DWORD offset, BYTE which_group, void *fp)
+FlushGroupInfo (GROUP_HEADER* pGH, DWORD offset, BYTE which_group, GAME_STATE_FILE *fp)
 {
 	if (which_group == GROUP_LIST)
 	{
@@ -549,7 +514,7 @@ FlushGroupInfo (GROUP_HEADER* pGH, DWORD offset, BYTE which_group, void *fp)
 BOOLEAN
 GetGroupInfo (DWORD offset, BYTE which_group)
 {
-	void *fp;
+	GAME_STATE_FILE *fp;
 	GROUP_HEADER GH;
 
 	if (offset != GROUPS_RANDOM && which_group != GROUP_LIST)
@@ -828,7 +793,7 @@ GetGroupInfo (DWORD offset, BYTE which_group)
 DWORD
 PutGroupInfo (DWORD offset, BYTE which_group)
 {
-	void *fp;
+	GAME_STATE_FILE *fp;
 	GROUP_HEADER GH;
 
 	if (offset != GROUPS_RANDOM && which_group != GROUP_LIST)

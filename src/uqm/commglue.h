@@ -16,12 +16,17 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-#ifndef _COMMGLUE_H
-#define _COMMGLUE_H
+#ifndef UQM_COMMGLUE_H_
+#define UQM_COMMGLUE_H_
 
 #include "globdata.h"
 #include "resinst.h"
 #include "libs/sound/trackplayer.h"
+#include "libs/callback.h"
+
+#if defined(__cplusplus)
+extern "C" {
+#endif
 
 typedef enum {
 	ARILOU_CONVERSATION,
@@ -65,7 +70,6 @@ extern UNICODE shared_phrase_buf[2048];
 		(*(UNICODE *)GetStringAddress ( \
 				SetAbsStringTableIndex (CommData.ConversationPhrases, (p)-1) \
 				) = '\0')
-#define RESPONSE_TO_REF(R) (R)
 
 #define Response(i,a) \
 		DoResponsePhrase(i,(RESPONSE_FUNC)a,0)
@@ -85,7 +89,9 @@ extern void DoResponsePhrase (RESPONSE_REF R, RESPONSE_FUNC
 		response_func, UNICODE *ContstructStr);
 extern void DoNPCPhrase (UNICODE *pStr);
 
-extern void NPCPhrase_cb (int index, TFB_TrackCB cb);
+// The CallbackFunction is queued and executes synchronously
+// on the Starcon2Main thread
+extern void NPCPhrase_cb (int index, CallbackFunction cb);
 #define NPCPhrase(index) NPCPhrase_cb ((index), NULL)
 extern void NPCPhrase_splice (int index);
 extern void NPCNumber (int number, const char *fmt);
@@ -95,6 +101,22 @@ extern void GetAllianceName (UNICODE *buf, RESPONSE_REF name_1);
 
 extern void construct_response (UNICODE *buf, int R /* promoted from
 		RESPONSE_REF */, ...);
+
+typedef enum {
+	Segue_peace,
+			// When initiating a conversation, open comms directly.
+			// When terminating a conversation, depart in peace.
+	Segue_hostile,
+			// When initiating a conversation, offer the choice to attack.
+			// When terminating a conversation, go into battle.
+	Segue_victory,
+			// (when terminating a conversation) instant victory
+	Segue_defeat,
+			// (when terminating a conversation) game over
+} Segue;
+
+void setSegue (Segue segue);
+Segue getSegue (void);
 
 extern LOCDATA* init_race (CONVERSATION comm_id);
 
@@ -154,5 +176,8 @@ extern LOCDATA* init_zoqfot_comm (void);
 
 extern LOCDATA* init_umgah_comm (void);
 
-#endif /* _COMMGLUE_H */
+#if defined(__cplusplus)
+}
+#endif
 
+#endif /* UQM_COMMGLUE_H_ */

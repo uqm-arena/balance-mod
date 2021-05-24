@@ -16,10 +16,14 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-#ifndef _UNITS_H
-#define _UNITS_H
+#ifndef UQM_UNITS_H_
+#define UQM_UNITS_H_
 
 #include "libs/gfxlib.h"
+
+#if defined(__cplusplus)
+extern "C" {
+#endif
 
 extern int ScreenWidth;
 extern int ScreenHeight;
@@ -216,5 +220,8 @@ extern COUNT ARCTAN (SIZE delta_x, SIZE delta_y);
 #define WRAP_DELTA_Y(dy) ((dy)<0 ? \
 				((-(dy)<=LOG_SPACE_HEIGHT>>1)?(dy):(LOG_SPACE_HEIGHT+(dy))) : \
 				(((dy)<=LOG_SPACE_HEIGHT>>1)?(dy):((dy)-LOG_SPACE_HEIGHT)))
-#endif /* _UNITS_H */
+#if defined(__cplusplus)
+}
+#endif
 
+#endif /* UQM_UNITS_H_ */

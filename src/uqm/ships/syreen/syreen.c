@@ -21,8 +21,8 @@
 #include "resinst.h"
 #include "libs/mathlib.h"
 
-// Core characteristics
-#define SYREEN_MAX_CREW_SIZE MAX_CREW_SIZE
+// Core Characteristics
+#define SYREEN_MAX_CREW_SIZE 32
 #define MAX_CREW 12
 #define MAX_ENERGY 16
 #define ENERGY_REGENERATION 1
@@ -33,7 +33,7 @@
 #define TURN_WAIT 1
 #define SHIP_MASS 2
 
-// Particle blaster
+// Particle Blaster
 #define WEAPON_ENERGY_COST 1
 #define WEAPON_WAIT 8
 #define SYREEN_OFFSET 30
@@ -43,12 +43,12 @@
 #define MISSILE_DAMAGE 2
 #define MISSILE_OFFSET 3
 
-// Siren song
+// Siren Song
 #define SPECIAL_ENERGY_COST 8
-#define SPECIAL_WAIT 24
+#define SPECIAL_WAIT 22
 #define ABANDONER_RANGE 208
 #define MAX_ABANDONERS 6
-#define LIMITED_MAX_ABANDONERS 2
+#define LIMITED_ABANDONERS 2
 
 static RACE_DESC syreen_desc =
 {
@@ -154,7 +154,7 @@ initialize_dagger (ELEMENT *ShipPtr, HELEMENT DaggerArray[])
 		dx = dx * 1/2;
 		dy = dy * 1/2;
 
-		// Add some of the Penetrator's velocity to its projectiles.
+		// Add some of the Penetrator's velocity to its projectiles
 		DeltaVelocityComponents (&MissilePtr->velocity, dx, dy);
 		MissilePtr->current.location.x -= VELOCITY_TO_WORLD (dx);
 		MissilePtr->current.location.y -= VELOCITY_TO_WORLD (dy);
@@ -230,7 +230,7 @@ spawn_crew (ELEMENT *ElementPtr)
 
 					if (EnemyStarShipPtr && EnemyStarShipPtr->SpeciesID == SYREEN_ID)
 					{
-						crew_loss = ((LIMITED_MAX_ABANDONERS
+						crew_loss = ((LIMITED_ABANDONERS
 							* (ABANDONER_RANGE - square_root (d_squared)))
 							/ ABANDONER_RANGE) + 1;
 					}

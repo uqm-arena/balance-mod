@@ -14,11 +14,15 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef _INIT_H
-#define _INIT_H
+#ifndef UQM_INIT_H_
+#define UQM_INIT_H_
 
 #include "libs/gfxlib.h"
 #include "libs/reslib.h"
+
+#if defined(__cplusplus)
+extern "C" {
+#endif
 
 #define NUM_PLAYERS 2
 #define NUM_SIDES 2
@@ -35,5 +39,8 @@ extern BOOLEAN load_animation (FRAME *pixarray, RESOURCE big_res,
 		RESOURCE med_res, RESOURCE sml_res);
 extern BOOLEAN free_image (FRAME *pixarray);
 
-#endif  /* _INIT_H */
+#if defined(__cplusplus)
+}
+#endif
 
+#endif  /* UQM_INIT_H_ */

@@ -14,11 +14,15 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef _MASTER_H
-#define _MASTER_H
+#ifndef UQM_MASTER_H_
+#define UQM_MASTER_H_
 
 #include "races.h"
 #include "libs/compiler.h"
+
+#if defined(__cplusplus)
+extern "C" {
+#endif
 
 typedef HLINK HMASTERSHIP;
 
@@ -58,5 +62,8 @@ COUNT GetShipCostFromIndex (unsigned Index);
 FRAME GetShipIconsFromIndex (unsigned Index);
 FRAME GetShipMeleeIconsFromIndex (unsigned Index);
 
-#endif  /* _MASTER_H */
+#if defined(__cplusplus)
+}
+#endif
 
+#endif  /* UQM_MASTER_H_ */

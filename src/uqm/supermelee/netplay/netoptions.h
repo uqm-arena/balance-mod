@@ -16,12 +16,16 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef _NETOPTIONS_H
-#define _NETOPTIONS_H
+#ifndef UQM_SUPERMELEE_NETPLAY_NETOPTIONS_H_
+#define UQM_SUPERMELEE_NETPLAY_NETOPTIONS_H_
 
 #include "types.h"
 
 #include <stddef.h>
+
+#if defined(__cplusplus)
+extern "C" {
+#endif
 
 #define NETPLAY_NUM_PLAYERS 2
 		// Not using NUM_PLAYERS because that would mean we'd have
@@ -45,7 +49,8 @@ typedef struct {
 extern NetplayOptions netplayOptions;
 
 
-#endif  /* _NETOPTIONS_H */
+#if defined(__cplusplus)
+}
+#endif
 
-
-
+#endif  /* UQM_SUPERMELEE_NETPLAY_NETOPTIONS_H_ */

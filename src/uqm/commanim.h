@@ -14,11 +14,15 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-#ifndef _COMMANIM_H
-#define _COMMANIM_H
+#ifndef UQM_COMMANIM_H_
+#define UQM_COMMANIM_H_
 
 #include "libs/compiler.h"
 #include "libs/gfxlib.h"
+
+#if defined(__cplusplus)
+extern "C" {
+#endif
 
 // Some background: every animation has a neutral frame which returns
 // the image to the state it was in before the animation began. Which
@@ -130,6 +134,8 @@ extern BOOLEAN DrawAlienFrame (SEQUENCE *pSeq, COUNT Num, BOOLEAN fullRedraw);
 extern void InitCommAnimations (void);
 extern BOOLEAN ProcessCommAnimations (BOOLEAN fullRedraw, BOOLEAN paused);
 
-#endif  /* _COMMANIM_H */
+#if defined(__cplusplus)
+}
+#endif
 
-
+#endif  /* UQM_COMMANIM_H_ */

@@ -13,8 +13,8 @@
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
-#ifndef _COLORS_H
-#define _COLORS_H
+#ifndef UQM_COLORS_H_
+#define UQM_COLORS_H_
 
 // To be used as an indicator that the actual value of the color does not
 // matter, for instance in structure initialisations for fields which
@@ -56,7 +56,8 @@
 #define DEFAULT_COLOR_0F \
 		BUILD_COLOR (MAKE_RGB15 (0x1F, 0x1F, 0x1F), 0x0F)
 #endif
-        
+
+
 #define BLACK_COLOR \
 		BUILD_COLOR (MAKE_RGB15 (0x00, 0x00, 0x00), 0x00)
 #define LTGRAY_COLOR \
@@ -73,9 +74,9 @@
 		BUILD_COLOR (MAKE_RGB15 (0x00, 0x1F, 0x00), 0x02)
 #define BRIGHT_BLUE_COLOR \
 		BUILD_COLOR (MAKE_RGB15 (0x00, 0x00, 0x1F), 0x01)
-        
+
 #define INVIS_COLOR \
-        BUILD_COLOR (MAKE_RGB15 (0x00, 0x03, 0x1B), 0x00)
+		BUILD_COLOR (MAKE_RGB15 (0x00, 0x03, 0x1B), 0x00)
 
 #define NORMAL_ILLUMINATED_COLOR \
 		WHITE_COLOR
@@ -438,5 +439,5 @@
 		BUILD_COLOR (MAKE_RGB15_INIT (0x00, 0x00, 0x00), 0x00)
 
 
-#endif  /* _COLORS_H */
+#endif  /* UQM_COLORS_H_ */
 

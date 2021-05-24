@@ -21,7 +21,7 @@
 #include "resinst.h"
 #include "libs/mathlib.h"
 
-// Core characteristics
+// Core Characteristics
 #define MAX_CREW 10
 #define MAX_ENERGY 10
 #define ENERGY_REGENERATION 1
@@ -37,7 +37,7 @@
 #define WEAPON_WAIT 0
 #define ZOQFOTPIK_OFFSET 13
 #define MISSILE_OFFSET 0
-#define MISSILE_SPEED 40 // Used by the cyborg only.
+#define MISSILE_SPEED 40 // Used by the cyborg only
 #define MISSILE_LIFE 10
 #define MISSILE_RANGE (MISSILE_SPEED * MISSILE_LIFE)
 #define MISSILE_DAMAGE 1
@@ -132,35 +132,31 @@ spit_preprocess (ELEMENT *ElementPtr)
 		--ElementPtr->turn_wait;
 	else
 	{
+		SIZE delta_speed;
 		COUNT index, angle;
 
 		ElementPtr->next.image.frame = IncFrameIndex (ElementPtr->next.image.frame);
 
 		angle = GetVelocityTravelAngle (&ElementPtr->velocity);
+		delta_speed = WORLD_TO_VELOCITY (MISSILE_DECELERATION);
 
 		if ((index = GetFrameIndex (ElementPtr->next.image.frame)) == 1)
 		{
 			SIZE current_speed, delta_x, delta_y;
 			
-			angle = angle + (((COUNT)TFB_Random () % 3) - 1);
-
 			GetCurrentVelocityComponents (&ElementPtr->velocity, &delta_x, &delta_y);
 			current_speed = square_root (VelocitySquared (delta_x, delta_y));
 
+			angle = angle + (((COUNT)TFB_Random () % 3) - 1);
+
 			SetVelocityComponents (&ElementPtr->velocity,
 				(SIZE)COSINE (angle, current_speed),
-				(SIZE)SINE (angle, current_speed));
+				(SIZE)SINE (angle, current_speed));			
 		}
-		else
-		{
-			SIZE delta_speed;
 
-			delta_speed = WORLD_TO_VELOCITY (MISSILE_DECELERATION);
-
-			DeltaVelocityComponents (&ElementPtr->velocity,
-				(SIZE)COSINE (angle, -delta_speed),
-				(SIZE)SINE (angle, -delta_speed));
-		}
+		DeltaVelocityComponents (&ElementPtr->velocity,
+			(SIZE)COSINE (angle, -delta_speed),
+			(SIZE)SINE (angle, -delta_speed));
 
 		ElementPtr->turn_wait = MISSILE_DECEL_WAIT;
 		ElementPtr->state_flags |= CHANGING;
@@ -198,10 +194,10 @@ initialize_spit (ELEMENT *ShipPtr, HELEMENT SpitArray[])
 		LockElement (SpitArray[0], &MissilePtr);
 
 		GetCurrentVelocityComponents (&ShipPtr->velocity, &dx, &dy);
-		dx = dx * 2/3;
-		dy = dy * 2/3;
+		dx = dx * 1/3;
+		dy = dy * 1/3;
 
-		// Add some of the Stinger's velocity to its projectiles.
+		// Add some of the Stinger's velocity to its projectiles
 		DeltaVelocityComponents (&MissilePtr->velocity, dx, dy);
 		MissilePtr->current.location.x -= VELOCITY_TO_WORLD (dx);
 		MissilePtr->current.location.y -= VELOCITY_TO_WORLD (dy);

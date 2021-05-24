@@ -14,13 +14,20 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef _RESTART_H
-#define _RESTART_H
+#ifndef UQM_RESTART_H_
+#define UQM_RESTART_H_
 
 #include "libs/compiler.h"
+
+#if defined(__cplusplus)
+extern "C" {
+#endif
 
 
 extern BOOLEAN StartGame (void);
 
-#endif  /* _RESTART_H */
+#if defined(__cplusplus)
+}
+#endif
 
+#endif  /* UQM_RESTART_H_ */

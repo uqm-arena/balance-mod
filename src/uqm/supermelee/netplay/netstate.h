@@ -16,11 +16,14 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef _NETSTATE_H
-#define _NETSTATE_H
+#ifndef UQM_SUPERMELEE_NETPLAY_NETSTATE_H_
+#define UQM_SUPERMELEE_NETPLAY_NETSTATE_H_
 
 #include "port.h"
 
+#if defined(__cplusplus)
+extern "C" {
+#endif
 
 typedef struct NetConnectionStateData NetConnectionStateData;
 
@@ -38,7 +41,15 @@ typedef enum {
 	NetState_endingBattle2,  /* Waiting for the final synchronisation */
 } NetState;
 
+#if defined(__cplusplus)
+}
+#endif
+
 #include "types.h"
+
+#if defined(__cplusplus)
+extern "C" {
+#endif
 
 typedef struct {
 	const char *name;
@@ -65,5 +76,8 @@ NetState_battleActive(NetState state) {
 }
 
 
-#endif  /* _NETSTATE_H */
+#if defined(__cplusplus)
+}
+#endif
 
+#endif  /* UQM_SUPERMELEE_NETPLAY_NETSTATE_H_ */

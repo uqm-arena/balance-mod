@@ -22,7 +22,7 @@
 #include "uqm/colors.h"
 #include "uqm/globdata.h"
 
-// Core characteristics
+// Core Characteristics
 #define MAX_CREW 18
 #define MAX_ENERGY 18
 #define ENERGY_REGENERATION 1
@@ -48,8 +48,8 @@
 #define TRACK_WAIT 3
 
 // Point-Defense Laser
-#define SPECIAL_ENERGY_COST 4
-#define SPECIAL_WAIT 9
+#define SPECIAL_ENERGY_COST 3
+#define SPECIAL_WAIT 13
 #define LASER_RANGE (UWORD)100
 
 static RACE_DESC human_desc =
@@ -198,14 +198,14 @@ spawn_point_defense (ELEMENT *ElementPtr)
 
 			LockElement (hObject, &ObjectPtr);
 			hNextObject = GetPredElement (ObjectPtr);
-			GetElementStarShip (ObjectPtr, &EnemyStarShipPtr); // Check for enemy starship.
+			GetElementStarShip (ObjectPtr, &EnemyStarShipPtr); // Check for enemy starship
 			if (ObjectPtr != ShipPtr
 				&& CollidingElement (ObjectPtr)
 				&& !OBJECT_CLOAKED (ObjectPtr)
-				// PDL will ignore planets.
+				// PDL will ignore planets
 				&& !GRAVITY_MASS (ObjectPtr->mass_points)
-				// Prevent PDL from inflicting double damage against Umgah.
-				&& !(EnemyStarShipPtr && EnemyStarShipPtr->SpeciesID == UMGAH_ID // old was: ->RaceResIndex == UMGAH_SHIP_INDEX
+				// Prevent PDL from inflicting double damage against Umgah
+				&& !(EnemyStarShipPtr && EnemyStarShipPtr->SpeciesID == UMGAH_ID
 					&& ObjectPtr->mass_points == 1))
 			{
 				SIZE delta_x, delta_y;

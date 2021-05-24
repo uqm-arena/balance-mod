@@ -18,10 +18,17 @@
  *
  */
 
-#ifndef _UIOUTILS_H
-#define _UIOUTILS_H
+#ifndef LIBS_UIOUTILS_H_
+#define LIBS_UIOUTILS_H_
+
+#if defined(__cplusplus)
+extern "C" {
+#endif
 
 #include "uio/utils.h"
 
-#endif  /* _UIOUTILS_H */
+#if defined(__cplusplus)
+}
+#endif
 
+#endif  /* LIBS_UIOUTILS_H_ */

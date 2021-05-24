@@ -16,11 +16,15 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-#ifndef _WEAPON_H
-#define _WEAPON_H
+#ifndef UQM_WEAPON_H_
+#define UQM_WEAPON_H_
 
 #include "element.h"
 #include "libs/gfxlib.h"
+
+#if defined(__cplusplus)
+extern "C" {
+#endif
 
 typedef struct
 {
@@ -58,5 +62,8 @@ extern void Untarget (ELEMENT *ElementPtr);
 extern FRAME ModifySilhouette (ELEMENT *ElementPtr, STAMP *modify_stamp,
 		BYTE modify_flags);
 
-#endif /* _WEAPON_H */
+#if defined(__cplusplus)
+}
+#endif
 
+#endif /* UQM_WEAPON_H_ */

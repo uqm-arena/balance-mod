@@ -14,8 +14,8 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-#ifndef _BATTLECONTROLS_H
-#define _BATTLECONTROLS_H
+#ifndef UQM_BATTLECONTROLS_H_
+#define UQM_BATTLECONTROLS_H_
 
 typedef struct BattleInputHandlers BattleInputHandlers;
 typedef struct InputContext InputContext;
@@ -29,6 +29,10 @@ typedef struct NetworkInputContext NetworkInputContext;
 #include "supermelee/pickmele.h"
 #include "races.h"
 #include "libs/compiler.h"
+
+#if defined(__cplusplus)
+extern "C" {
+#endif
 
 typedef BATTLE_INPUT_STATE (*BattleFrameInputFunction) (
 		InputContext *context, STARSHIP *StarShipPtr);
@@ -88,6 +92,8 @@ void InputContext_delete (InputContext *context);
 		// Call InputContext->handlers->freeContext() to release an
 		// InputContext.
 
-#endif  /* _BATTLECONTROLS_H */
+#if defined(__cplusplus)
+}
+#endif
 
-
+#endif  /* UQM_BATTLECONTROLS_H_ */

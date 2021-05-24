@@ -59,9 +59,13 @@ const char **optAddons;
 BOOLEAN opt_reticles;
 BOOLEAN opt3doMusic;
 BOOLEAN optRemixMusic;
+BOOLEAN optSpeech;
 BOOLEAN optSubtitles;
 BOOLEAN optStereoSFX;
 BOOLEAN optKeepAspectRatio;
+
+float optGamma;
+
 uio_DirHandle *contentDir;
 uio_DirHandle *configDir;
 uio_DirHandle *saveDir;
@@ -157,9 +161,16 @@ prepareContentDir (const char *contentDirName, const char* addonDirName, const c
 		if (loc == NULL)
 		{
 			char *tempDir = (char *) HMalloc (PATH_MAX);
+			char *execFileDup;
+
+			/* dirname can modify its argument, so we need a local
+			 * mutable copy of it. */
+			execFileDup = (char *) HMalloc (strlen (execFile) + 1);
+			strcpy (execFileDup, execFile);
 			snprintf (tempDir, PATH_MAX, "%s/../Resources/content",
-					dirname (execFile));
+					dirname (execFileDup));
 			loc = findFileInDirs ((const char **) &tempDir, 1, testFile);
+			HFree (execFileDup);
 			HFree (tempDir);
 		}
 #endif
@@ -421,7 +432,7 @@ mountAddonDir (uio_Repository *repository, uio_MountHandle *contentMountHandle,
 		count = 0;
 		for (i = 0; i < availableAddons->numNames; ++i)
 		{
-			static char mountname[128];
+			char mountname[128];
 			uio_DirHandle *addonDir;
 			const char *addon = availableAddons->names[i];
 			
@@ -431,8 +442,7 @@ mountAddonDir (uio_Repository *repository, uio_MountHandle *contentMountHandle,
 			++count;
 			log_add (log_Info, "    %d. %s", count, addon);
 		
-			snprintf(mountname, 128, "addons/%s", addon);
-			mountname[127]=0;
+			snprintf (mountname, sizeof mountname, "addons/%s", addon);
 
 			addonDir = uio_openDirRelative (addonsDir, addon, 0);
 			if (addonDir == NULL)
@@ -533,6 +543,11 @@ loadAddon (const char *addon)
 	}
 
 	numLoaded = loadIndices (addonDir);
+	if (!numLoaded)
+	{
+		log_add (log_Error, "No RMP index files were loaded for addon '%s'",
+				addon);
+	}
 
 	uio_closeDir (addonDir);
 	uio_closeDir (addonsDir);
@@ -568,6 +583,14 @@ prepareShadowAddons (const char **addons)
 		{
 			log_add (log_Debug, "Mounting shadow content of '%s' addon", addon);
 			mountDirZips (shadowDir, "/", uio_MOUNT_ABOVE, contentMountHandle);
+			// Mount non-zipped shadow content
+			if (uio_transplantDir ("/", shadowDir, uio_MOUNT_RDONLY |
+					uio_MOUNT_ABOVE, contentMountHandle) == NULL)
+			{
+				log_add (log_Warning, "Warning: Could not mount shadow content"
+						" of '%s': %s.", addon, strerror (errno));
+			}
+
 			uio_closeDir (shadowDir);
 		}
 		uio_closeDir (addonDir);
@@ -584,7 +607,46 @@ prepareAddons (const char **addons)
 		log_add (log_Info, "Loading addon '%s'", *addons);
 		if (!loadAddon (*addons))
 		{
+			// TODO: Should we do something like inform the user?
+			//   Why simply refuse to load other addons?
+			//   Maybe exit() to inform the user of the failure?
 			break;
 		}
 	}
+}
+
+void
+unprepareAllDirs (void)
+{
+	if (saveDir)
+	{
+		uio_closeDir (saveDir);
+		saveDir = 0;
+	}
+	if (meleeDir)
+	{
+		uio_closeDir (meleeDir);
+		meleeDir = 0;
+	}
+	if (contentDir)
+	{
+		uio_closeDir (contentDir);
+		contentDir = 0;
+	}
+	if (configDir)
+	{
+		uio_closeDir (configDir);
+		configDir = 0;
+	}
+}
+
+bool
+setGammaCorrection (float gamma)
+{
+	bool set = TFB_SetGamma (gamma);
+	if (set)
+		log_add (log_Info, "Gamma correction set to %.4f.", gamma);
+	else
+		log_add (log_Warning, "Unable to set gamma correction.");
+	return set;
 }

@@ -16,11 +16,15 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-#ifndef _VELOCITY_H
-#define _VELOCITY_H
+#ifndef UQM_VELOCITY_H_
+#define UQM_VELOCITY_H_
 
 #include <string.h> /* for memset */
 #include "libs/gfxlib.h"
+
+#if defined(__cplusplus)
+extern "C" {
+#endif
 
 typedef struct velocity_desc
 {
@@ -45,7 +49,7 @@ extern void SetVelocityComponents (VELOCITY_DESC *velocityptr, SIZE dx,
 extern void DeltaVelocityComponents (VELOCITY_DESC *velocityptr, SIZE dx,
 		SIZE dy);
 
-static inline BOOLEAN
+static inline bool
 IsVelocityZero (VELOCITY_DESC *vptr)
 {
 	return vptr->vector.width == 0 && vptr->vector.height == 0 &&
@@ -65,5 +69,8 @@ VelocitySquared (SIZE dx, SIZE dy)
 #define VELOCITY_TO_WORLD(v) ((v)>>VELOCITY_SHIFT)
 #define WORLD_TO_VELOCITY(l) ((l)<<VELOCITY_SHIFT)
 
-#endif /* _VELOCITY_H */
+#if defined(__cplusplus)
+}
+#endif
 
+#endif /* UQM_VELOCITY_H_ */

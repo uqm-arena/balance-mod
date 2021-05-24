@@ -25,8 +25,6 @@
 #include "options.h"
 #include "init.h"
 		// for NUM_PLAYERS
-#include "battle.h"
-		/* for battleFrameCount */
 
 #include <stdio.h>
 #include <string.h>
@@ -635,3 +633,4 @@ PostProcessStatus (ELEMENT *ShipPtr)
 		StarShipPtr->old_status_flags = cur_status_flags;
 	}
 }
+

@@ -20,6 +20,7 @@
 
 #include "coderes.h"
 #include "encount.h"
+#include "starmap.h"
 #include "master.h"
 #include "setup.h"
 #include "units.h"
@@ -31,6 +32,7 @@
 #include "grpinfo.h"
 #include "gamestr.h"
 
+#include <assert.h>
 #include <stdlib.h>
 #ifdef STATE_DEBUG
 #	include "libs/log.h"
@@ -44,35 +46,33 @@ FRAME PlayFrame;
 
 GLOBDATA GlobData;
 
-static BOOLEAN initedGameStructs = FALSE;
-
 
 BYTE
-getGameState (int startBit, int endBit)
+getGameState (BYTE *state, int startBit, int endBit)
 {
 	return (BYTE) (((startBit >> 3) == (endBit >> 3)
-			? (GLOBAL (GameState[startBit >> 3]) >> (startBit & 7))
-			: ((GLOBAL (GameState[startBit >> 3]) >> (startBit & 7))
-			  | (GLOBAL (GameState[endBit >> 3])
+			? (state[startBit >> 3] >> (startBit & 7))
+			: ((state[startBit >> 3] >> (startBit & 7))
+			  | (state[endBit >> 3]
 			  << (endBit - startBit - (endBit & 7)))))
 			& ((1 << (endBit - startBit + 1)) - 1));
 }
 
 void
-setGameState (int startBit, int endBit, BYTE val
+setGameState (BYTE *state, int startBit, int endBit, BYTE val
 #ifdef STATE_DEBUG
 		, const char *name
 #endif
 )
 {
-	GLOBAL (GameState[startBit >> 3]) =
-			(GLOBAL (GameState[startBit >> 3])
+	state[startBit >> 3] =
+			(state[startBit >> 3]
 			& (BYTE) ~(((1 << (endBit - startBit + 1)) - 1) << (startBit & 7)))
 			| (BYTE)((val) << (startBit & 7));
 
 	if ((startBit >> 3) < (endBit >> 3)) {
-		GLOBAL (GameState[endBit >> 3]) =
-				(GLOBAL (GameState[endBit >> 3])
+		state[endBit >> 3] =
+				(state[endBit >> 3]
 				& (BYTE)~((1 << ((endBit & 7) + 1)) - 1))
 				| (BYTE)((val) >> (endBit - startBit - (endBit & 7)));
 	}
@@ -82,21 +82,21 @@ setGameState (int startBit, int endBit, BYTE val
 }
 
 DWORD
-getGameState32 (int startBit)
+getGameState32 (BYTE *state, int startBit)
 {
 	DWORD v;
 	int shift;
 
 	for (v = 0, shift = 0; shift < 32; shift += 8, startBit += 8)
 	{
-		v |= getGameState (startBit, startBit + 7) << shift;
+		v |= getGameState (state, startBit, startBit + 7) << shift;
 	}
 
 	return v;
 }
 
 void
-setGameState32 (int startBit, DWORD val
+setGameState32 (BYTE *state, int startBit, DWORD val
 #ifdef STATE_DEBUG
 		, const char *name
 #endif
@@ -107,7 +107,7 @@ setGameState32 (int startBit, DWORD val
 
 	for (i = 0; i < 4; ++i, v >>= 8, startBit += 8)
 	{
-		setGameState (startBit, startBit + 7, v & 0xff
+		setGameState (state, startBit, startBit + 7, v & 0xff
 #ifdef STATE_DEBUG
 				, "(ignored)"
 #endif
@@ -117,6 +117,22 @@ setGameState32 (int startBit, DWORD val
 #ifdef STATE_DEBUG
 	log_add (log_Debug, "State '%s' set to %u.", name, (unsigned)val);
 #endif
+}
+
+void
+copyGameState (BYTE *dest, DWORD target, BYTE *src, DWORD begin, DWORD end)
+{
+	while (begin < end)
+	{
+		BYTE b;
+		DWORD delta = 7;
+		if (begin + delta > end)
+			delta = end - begin;
+		b = getGameState (src, begin, begin + delta);
+		setGameState (dest, target, target + delta, b);
+		begin += 8;
+		target += 8;
+	}
 }
 
 static void
@@ -336,7 +352,7 @@ InitGameStructures (void)
 			sizeof (GLOBAL_SIS (CommanderName)),
 			GAME_STRING (NAMING_STRING_BASE + 3));
 
-	ActivateStarShip (HUMAN_SHIP, SET_ALLIED);
+	SetRaceAllied (HUMAN_SHIP, TRUE);
 	CloneShipFragment (HUMAN_SHIP, &GLOBAL (built_ship_q), 0);
 
 	GLOBAL_SIS (log_x) = UNIVERSE_TO_LOGX (SOL_X);
@@ -344,17 +360,6 @@ InitGameStructures (void)
 	CurStarDescPtr = 0;
 	GLOBAL (autopilot.x) = ~0;
 	GLOBAL (autopilot.y) = ~0;
-
-	/* In case the program is exited before the full game is terminated,
-	 * make sure that the temporary files are deleted.
-	 * This can be removed if we make sure if the full game is terminated
-	 * before the game is exited.
-	 * The initedSIS variable is added so the uninit won't happen more
-	 * than once, as you can't remove the atexit function (when the full game
-	 * ends).
-	 */
-	initedGameStructs = TRUE;
-	atexit (UninitGameStructures);
 
 	return (TRUE);
 }
@@ -376,9 +381,6 @@ void
 UninitGameStructures (void)
 {
 	HFLEETINFO hStarShip;
-
-	if (!initedGameStructs)
-		return;
 
 	UninitQueue (&GLOBAL (encounter_q));
 	UninitQueue (&GLOBAL (ip_group_q));
@@ -407,7 +409,6 @@ UninitGameStructures (void)
 	
 	DestroyDrawable (ReleaseDrawable (PlayFrame));
 	PlayFrame = 0;
-	initedGameStructs = FALSE;
 }
 
 void
@@ -423,4 +424,88 @@ InitGlobData (void)
 }
 
 
+BOOLEAN
+inFullGame (void)
+{
+	ACTIVITY act = LOBYTE (GLOBAL (CurrentActivity));
+	return (act == IN_LAST_BATTLE || act == IN_ENCOUNTER ||
+			act == IN_HYPERSPACE || act == IN_INTERPLANETARY ||
+			act == WON_LAST_BATTLE);
+}
+
+BOOLEAN
+inSuperMelee (void)
+{
+	return (LOBYTE (GLOBAL (CurrentActivity)) == SUPER_MELEE);
+			// TODO: && !inMainMenu ()
+}
+
+#if 0
+BOOLEAN
+inBattle (void)
+{
+	// TODO: IN_BATTLE is also set while in HyperSpace/QuasiSpace.
+	return ((GLOBAL (CurrentActivity) & IN_BATTLE) != 0);
+}
+#endif
+
+#if 0
+// Disabled for now as there are similar functions in uqm/planets/planets.h
+// Pre: inFullGame()
+BOOLEAN
+inInterPlanetary (void)
+{
+	assert (inFullGame ());
+	return (pSolarSysState != NULL);
+}
+
+// Pre: inFullGame()
+BOOLEAN
+inSolarSystem (void)
+{
+	assert (inFullGame ());
+	return (LOBYTE (GLOBAL (CurrentActivity)) == IN_INTERPLANETARY);
+}
+
+// Pre: inFullGame()
+BOOLEAN
+inOrbit (void)
+{
+	assert (inFullGame ());
+	return (pSolarSysState != NULL) &&
+			(pSolarSysState->pOrbitalDesc != NULL);
+}
+#endif
+
+// In HyperSpace or QuasiSpace
+// Pre: inFullGame()
+BOOLEAN
+inHQSpace (void)
+{
+	//assert (inFullGame ());
+	return (LOBYTE (GLOBAL (CurrentActivity)) == IN_HYPERSPACE);
+			// IN_HYPERSPACE is also set for QuasiSpace
+}
+
+// In HyperSpace
+// Pre: inFullGame()
+BOOLEAN
+inHyperSpace (void)
+{
+	//assert (inFullGame ());
+	return (LOBYTE (GLOBAL (CurrentActivity)) == IN_HYPERSPACE) &&
+				(GET_GAME_STATE (ARILOU_SPACE_SIDE) <= 1);
+			// IN_HYPERSPACE is also set for QuasiSpace
+}
+
+// In QuasiSpace
+// Pre: inFullGame()
+BOOLEAN
+inQuasiSpace (void)
+{
+	//assert (inFullGame ());
+	return (LOBYTE (GLOBAL (CurrentActivity)) == IN_HYPERSPACE) &&
+				(GET_GAME_STATE (ARILOU_SPACE_SIDE) > 1);
+			// IN_HYPERSPACE is also set for QuasiSpace
+}
 

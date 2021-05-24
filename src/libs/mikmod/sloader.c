@@ -20,7 +20,7 @@
 
 /*==============================================================================
 
-  $Id: sloader.c 2412 2006-08-18 18:37:39Z avolkov $
+  $Id$
 
   Routines for loading samples. The sample loader utilizes the routines
   provided by the "registered" sample loader.

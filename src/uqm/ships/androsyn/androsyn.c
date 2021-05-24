@@ -21,7 +21,7 @@
 #include "resinst.h"
 #include "libs/mathlib.h"
 
-// Core characteristics
+// Core Characteristics
 #define MAX_CREW 20
 #define MAX_ENERGY 24
 #define ENERGY_REGENERATION 1
@@ -38,13 +38,13 @@
 #define ANDROSYNTH_OFFSET 14
 #define MISSILE_OFFSET 3
 #define MISSILE_SPEED 32
-#define MISSILE_LIFE 192
+#define MISSILE_LIFE 200
 #define MISSILE_HITS 3
 #define MISSILE_DAMAGE 2
 #define TRACK_WAIT 2
 
 // Blazer
-#define SPECIAL_ENERGY_COST 2
+#define SPECIAL_ENERGY_COST 3
 #define BLAZER_DEGENERATION (-1)
 #define BLAZER_ENERGY_WAIT 9
 #define SPECIAL_WAIT 0
@@ -126,6 +126,44 @@ static RACE_DESC androsynth_desc =
 	0, /* CodeRef */
 };
 
+// Private per-instance ship data
+typedef struct
+{
+	ElementCollisionFunc* collision_func;
+} ANDROSYNTH_DATA;
+
+// Local typedef
+typedef ANDROSYNTH_DATA CustomShipData_t;
+
+// Retrieve race-specific ship data from a race desc
+static CustomShipData_t*
+GetCustomShipData(RACE_DESC* pRaceDesc)
+{
+	return pRaceDesc->data;
+}
+
+// Set the race-specific data in a race desc
+// (Re)Allocates its own storage for the data.
+static void
+SetCustomShipData(RACE_DESC* pRaceDesc, const CustomShipData_t* data)
+{
+	if (pRaceDesc->data == data)
+		return;  // no-op
+
+	if (pRaceDesc->data) // Out with the old
+	{
+		HFree(pRaceDesc->data);
+		pRaceDesc->data = NULL;
+	}
+
+	if (data) // In with the new
+	{
+		CustomShipData_t* newData = HMalloc(sizeof(*data));
+		*newData = *data;
+		pRaceDesc->data = newData;
+	}
+}
+
 static void
 blazer_collision (ELEMENT *ElementPtr0, POINT *pPt0, ELEMENT *ElementPtr1, POINT *pPt1)
 {
@@ -140,7 +178,18 @@ blazer_collision (ELEMENT *ElementPtr0, POINT *pPt0, ELEMENT *ElementPtr1, POINT
 	old_life = ElementPtr0->life_span;
 	old_offs = ElementPtr0->blast_offset;
 	ElementPtr0->blast_offset = BLAZER_OFFSET;
-	ElementPtr0->mass_points = BLAZER_DAMAGE;
+	
+	// Slow the rate of damage inflicted by a blazer 'wedge'
+	if (StarShipPtr->auxiliary_counter > 0)
+		ElementPtr0->mass_points = 0;
+	else
+	{
+		ElementPtr0->mass_points = BLAZER_DAMAGE;
+
+		if (ElementPtr1->state_flags & PLAYER_SHIP)
+			StarShipPtr->auxiliary_counter = 2;
+	}
+
 	weapon_collision (ElementPtr0, pPt0, ElementPtr1, pPt1);
 	ElementPtr0->mass_points = BLAZER_MASS;
 	ElementPtr0->blast_offset = old_offs;
@@ -241,7 +290,7 @@ initialize_bubble (ELEMENT *ShipPtr, HELEMENT BubbleArray[])
 	return (1);
 }
 
-// This is a new visual effect for the blazer.
+// This is a new visual effect for the blazer
 static void
 spawn_blazer_trail (ELEMENT *ElementPtr)
 {
@@ -249,13 +298,13 @@ spawn_blazer_trail (ELEMENT *ElementPtr)
 
 	if (ElementPtr->state_flags & PLAYER_SHIP)
 	{
-		HELEMENT hIonElement;
+		HELEMENT hTrailElement;
 
-		hIonElement = AllocElement ();
-		if (hIonElement)
+		hTrailElement = AllocElement ();
+		if (hTrailElement)
 		{
 			HELEMENT hHeadElement;
-			ELEMENT *IonElementPtr, *HeadElementPtr;
+			ELEMENT *TrailElementPtr, *HeadElementPtr;
 			STARSHIP *StarShipPtr;
 
 			GetElementStarShip (ElementPtr, &StarShipPtr);
@@ -263,35 +312,35 @@ spawn_blazer_trail (ELEMENT *ElementPtr)
 			hHeadElement = GetHeadElement();
 			LockElement (hHeadElement, &HeadElementPtr);
 			if (HeadElementPtr == ElementPtr)
-				InsertElement (hIonElement, GetHeadElement ());
+				InsertElement (hTrailElement, GetHeadElement ());
 			else
-				InsertElement (hIonElement, GetPredElement (ElementPtr));
+				InsertElement (hTrailElement, GetPredElement (ElementPtr));
 			UnlockElement(hHeadElement);
 
-			LockElement (hIonElement, &IonElementPtr);
-			IonElementPtr->state_flags = APPEARING | FINITE_LIFE | NONSOLID;
-			IonElementPtr->life_span = IonElementPtr->thrust_wait = 1;
-			SetPrimType (&DisplayArray[IonElementPtr->PrimIndex], STAMPFILL_PRIM);
-			SetPrimColor (&DisplayArray[IonElementPtr->PrimIndex], START_BLAZER_COLOR);
-			IonElementPtr->current.image.frame = ElementPtr->current.image.frame;
-			IonElementPtr->current.image.farray = ElementPtr->current.image.farray;
-			IonElementPtr->current.location = ElementPtr->current.location;
-			IonElementPtr->death_func = spawn_blazer_trail;
-			IonElementPtr->turn_wait = 0;
+			LockElement (hTrailElement, &TrailElementPtr);
+			TrailElementPtr->state_flags = APPEARING | FINITE_LIFE | NONSOLID;
+			TrailElementPtr->life_span = TrailElementPtr->thrust_wait = 1;
+			SetPrimType (&DisplayArray[TrailElementPtr->PrimIndex], STAMPFILL_PRIM);
+			SetPrimColor (&DisplayArray[TrailElementPtr->PrimIndex], START_BLAZER_COLOR);
+			TrailElementPtr->current.image.frame = ElementPtr->current.image.frame;
+			TrailElementPtr->current.image.farray = ElementPtr->current.image.farray;
+			TrailElementPtr->current.location = ElementPtr->current.location;
+			TrailElementPtr->death_func = spawn_blazer_trail;
+			TrailElementPtr->turn_wait = 0;
 
-			SetElementStarShip (IonElementPtr, StarShipPtr);
+			SetElementStarShip (TrailElementPtr, StarShipPtr);
 
 			{
 				/* normally done during preprocess, but because
 				 * object is being inserted at head rather than
 				 * appended after tail it may never get preprocessed.
 				 */
-				IonElementPtr->next = IonElementPtr->current;
-				--IonElementPtr->life_span;
-				IonElementPtr->state_flags |= PRE_PROCESS;
+				TrailElementPtr->next = TrailElementPtr->current;
+				--TrailElementPtr->life_span;
+				TrailElementPtr->state_flags |= PRE_PROCESS;
 			}
 
-			UnlockElement (hIonElement);
+			UnlockElement (hTrailElement);
 		}
 	}
 	else
@@ -308,7 +357,7 @@ spawn_blazer_trail (ELEMENT *ElementPtr)
 		if (ElementPtr->turn_wait < colorTabCount)
 		{
 			ElementPtr->life_span = ElementPtr->thrust_wait;
-				// Reset the life span.
+				// Reset the life span
 			
 			++ElementPtr->turn_wait;
 			
@@ -317,7 +366,7 @@ spawn_blazer_trail (ELEMENT *ElementPtr)
 					
 			ElementPtr->state_flags &= ~DISAPPEARING;
 			ElementPtr->state_flags |= CHANGING;
-		} // else, the element disappears.
+		} // else, the element disappears
 		
 		ElementPtr->colorCycleIndex++;
 	}
@@ -351,11 +400,14 @@ androsynth_postprocess (ELEMENT *ElementPtr)
 				ElementPtr->mass_points = BLAZER_MASS;
 				StarShipPtr->RaceDescPtr->characteristics.turn_wait
 						= BLAZER_TURN_WAIT;
+				StarShipPtr->RaceDescPtr->ship_info.ship_flags |= IMMEDIATE_WEAPON;
 				/* Save the current collision func because we were not the
 				 * ones who set it */
-				StarShipPtr->RaceDescPtr->data = (intptr_t)
-						ElementPtr->collision_func;
-				ElementPtr->collision_func = blazer_collision;
+				{
+					const ANDROSYNTH_DATA shipData = { ElementPtr->collision_func };
+					SetCustomShipData (StarShipPtr->RaceDescPtr, &shipData);
+					ElementPtr->collision_func = blazer_collision;
+				}
 			}
 		}
 
@@ -423,7 +475,8 @@ androsynth_preprocess (ELEMENT *ElementPtr)
 			StarShipPtr->RaceDescPtr->characteristics.energy_wait = ENERGY_WAIT;
 			StarShipPtr->RaceDescPtr->characteristics.energy_regeneration = ENERGY_REGENERATION;
 			ElementPtr->mass_points = SHIP_MASS;
-			ElementPtr->collision_func = (CollisionFunc *) StarShipPtr->RaceDescPtr->data;
+			ElementPtr->collision_func = 
+					GetCustomShipData (StarShipPtr->RaceDescPtr)->collision_func;
 			ElementPtr->next.image.farray = StarShipPtr->RaceDescPtr->ship_data.ship;
 			ElementPtr->next.image.frame =
 					SetEquFrameIndex (StarShipPtr->RaceDescPtr->ship_data.ship[0],
@@ -456,8 +509,9 @@ androsynth_preprocess (ELEMENT *ElementPtr)
 				spawn_blazer_trail(ElementPtr);
 			}
 		}
+
+		StarShipPtr->cur_status_flags = cur_status_flags;
 	}
-	StarShipPtr->cur_status_flags = cur_status_flags;
 }
 
 static void

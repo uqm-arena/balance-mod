@@ -222,7 +222,7 @@ PacketHandler_Fleet(NetConnection *conn, const Packet_Fleet *packet) {
 		// the ships it says it contains.
 		log_add(log_Warning, "Invalid fleet size. Specified size is %d, "
 				"actual size = %lu",
-				numShips, (len - sizeof packet) / sizeof(packet->ships[0]));
+				numShips, (int) ((len - sizeof packet) / sizeof(packet->ships[0])));
 		errno = EBADMSG;
 		return -1;
 	}

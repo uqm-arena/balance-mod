@@ -16,11 +16,15 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-#ifndef _SNDLIB_H
-#define _SNDLIB_H
+#ifndef LIBS_SNDLIB_H_
+#define LIBS_SNDLIB_H_
 
 #include "port.h"
 #include "libs/strlib.h"
+
+#if defined(__cplusplus)
+extern "C" {
+#endif
 
 typedef STRING_TABLE SOUND_REF;
 typedef STRING SOUND;
@@ -95,5 +99,9 @@ extern void WaitForSoundEnd (COUNT Channel);
 
 extern DWORD FadeMusic (BYTE end_vol, SIZE TimeInterval);
 
-#endif /* _SNDLIB_H */
+#if defined(__cplusplus)
+}
+#endif
+
+#endif /* LIBS_SNDLIB_H_ */
 

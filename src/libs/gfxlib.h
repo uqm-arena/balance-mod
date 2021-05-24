@@ -16,8 +16,8 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-#ifndef _GFXLIB_H
-#define _GFXLIB_H
+#ifndef LIBS_GFXLIB_H_
+#define LIBS_GFXLIB_H_
 
 #include "port.h"
 #include "libs/compiler.h"
@@ -31,6 +31,10 @@ struct Color {
 };
 
 #include "libs/reslib.h"
+
+#if defined(__cplusplus)
+extern "C" {
+#endif
 
 typedef struct context_desc CONTEXT_DESC;
 typedef struct frame_desc FRAME_DESC;
@@ -227,7 +231,15 @@ typedef struct text
 	COUNT CharCount;
 } TEXT;
 
+#if defined(__cplusplus)
+}
+#endif
+
 #include "libs/strlib.h"
+
+#if defined(__cplusplus)
+extern "C" {
+#endif
 
 typedef STRING_TABLE COLORMAP_REF;
 typedef STRING COLORMAP;
@@ -236,6 +248,7 @@ typedef STRING COLORMAP;
 typedef void *COLORMAPPTR;
 
 #include "graphics/prim.h"
+
 
 typedef BYTE BATCH_FLAGS;
 // This flag is currently unused but it might make sense to restore it
@@ -454,4 +467,8 @@ extern COLORMAPPTR GetColorMapAddress (COLORMAP);
 void SetSystemRect (const RECT *pRect);
 void ClearSystemRect (void);
 
-#endif /* _GFXLIB_H */
+#if defined(__cplusplus)
+}
+#endif
+
+#endif /* LIBS_GFXLIB_H_ */

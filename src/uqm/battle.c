@@ -40,6 +40,7 @@
 #include "setup.h"
 #include "settings.h"
 #include "sounds.h"
+#include "libs/async.h"
 #include "libs/graphics/gfx_common.h"
 #include "libs/log.h"
 #include "libs/mathlib.h"
@@ -135,7 +136,6 @@ DoRunAway (STARSHIP *StarShipPtr)
 	
 		StarShipPtr->ship_input_state = 0;
 	}
-
 	UnlockElement (StarShipPtr->hShip);
 }
 
@@ -274,12 +274,12 @@ BattleSong (BOOLEAN DoPlay)
 {
 	if (BattleRef == 0)
 	{
-		if (LOBYTE (GLOBAL (CurrentActivity)) != IN_HYPERSPACE)
-			BattleRef = LoadMusic (BATTLE_MUSIC);
-		else if (GET_GAME_STATE (ARILOU_SPACE_SIDE) <= 1)
+		if (inHyperSpace ())
 			BattleRef = LoadMusic (HYPERSPACE_MUSIC);
-		else
+		else if (inQuasiSpace ())
 			BattleRef = LoadMusic (QUASISPACE_MUSIC);
+		else
+			BattleRef = LoadMusic (BATTLE_MUSIC);
 	}
 
 	if (DoPlay)
@@ -340,7 +340,6 @@ DoBattle (BATTLE_STATE *bs)
 	}
 #endif
 
-	LockMutex (GraphicsLock);
 	if (bs->first_time)
 	{
 		r.corner.x = SIS_ORG_X;
@@ -363,7 +362,6 @@ DoBattle (BATTLE_STATE *bs)
 		ScreenTransition (3, &r);
 	}
 	UnbatchGraphics ();
-	UnlockMutex (GraphicsLock);
 	if ((!(GLOBAL (CurrentActivity) & IN_BATTLE)) ||
 			(GLOBAL (CurrentActivity) & (CHECK_ABORT | CHECK_LOAD)))
 	{
@@ -373,6 +371,7 @@ DoBattle (BATTLE_STATE *bs)
 	battle_speed = HIBYTE (nth_frame);
 	if (battle_speed == (BYTE)~0)
 	{	// maximum speed, nothing rendered at all
+		Async_process ();
 		TaskSwitch ();
 	}
 	else
@@ -436,7 +435,6 @@ Battle (BattleFrameCallback *callback)
 {
 	SIZE num_ships;
 
-	LockMutex (GraphicsLock);
 
 #if !(DEMO_MODE || CREATE_JOURNAL)
 	if (LOBYTE (GLOBAL (CurrentActivity)) != SUPER_MELEE) {
@@ -503,12 +501,9 @@ Battle (BattleFrameCallback *callback)
 #endif  /* NETPLAY */
 		bs.InputFunc = DoBattle;
 		bs.frame_cb = callback;
-		bs.first_time = (BOOLEAN)(LOBYTE (GLOBAL (CurrentActivity)) ==
-				IN_HYPERSPACE);
+		bs.first_time = inHQSpace ();
 
-		UnlockMutex (GraphicsLock);
 		DoInput (&bs, FALSE);
-		LockMutex (GraphicsLock);
 
 AbortBattle:
 		if (LOBYTE (GLOBAL (CurrentActivity)) == SUPER_MELEE)
@@ -518,12 +513,10 @@ AbortBattle:
 				// Do not return to the main menu when a game is aborted,
 				// (just to the supermelee menu).
 #ifdef NETPLAY
-				UnlockMutex (GraphicsLock);
 				waitResetConnections(NetState_inSetup);
 						// A connection may already be in inSetup (set from
 						// GetMeleeStarship). This is not a problem, although
 						// it will generate a warning in debug mode.
-				LockMutex (GraphicsLock);
 #endif
 
 				GLOBAL (CurrentActivity) &= ~CHECK_ABORT;
@@ -551,7 +544,6 @@ AbortBattle:
 	UninitShips ();
 	FreeBattleSong ();
 
-	UnlockMutex (GraphicsLock);
 	
 	return (BOOLEAN) (num_ships < 0);
 }

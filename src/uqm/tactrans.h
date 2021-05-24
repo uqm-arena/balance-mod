@@ -16,13 +16,17 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-#ifndef _TACTRANS_H
-#define _TACTRANS_H
+#ifndef UQM_TACTRANS_H_
+#define UQM_TACTRANS_H_
 
 #include "libs/compiler.h"
 #include "races.h"
 #include "element.h"
 #include "battlecontrols.h"
+
+#if defined(__cplusplus)
+extern "C" {
+#endif
 
 bool battleEndReadyHuman (HumanInputContext *context);
 bool battleEndReadyComputer (ComputerInputContext *context);
@@ -39,7 +43,17 @@ extern void flee_preprocess (ELEMENT *ElementPtr);
 
 extern void StopDitty (void);
 extern void ResetWinnerStarShip (void);
+extern void StopAllBattleMusic (void);
+extern STARSHIP* FindAliveStarShip (ELEMENT *deadShip);
+extern STARSHIP* GetWinnerStarShip (void);
+extern void SetWinnerStarShip (STARSHIP *winner);
+extern void RecordShipDeath (ELEMENT *deadShip);
+extern void StartShipExplosion (ELEMENT *ShipPtr, bool playSound);
 
-#endif  /* _TACTRANS_H */
+#if defined(__cplusplus)
+}
+#endif
+
+#endif  /* UQM_TACTRANS_H_ */
 
 

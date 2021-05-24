@@ -16,10 +16,14 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-#ifndef _CODERES_H
-#define _CODERES_H
+#ifndef UQM_CODERES_H_
+#define UQM_CODERES_H_
 
 #include "libs/reslib.h"
+
+#if defined(__cplusplus)
+extern "C" {
+#endif
 
 extern BOOLEAN InstallCodeResType (void);
 extern void *LoadCodeResInstance (RESOURCE res);
@@ -32,5 +36,8 @@ typedef struct
 	UWORD size;
 } CODE_REF;
 
-#endif /* _CODERES_H */
+#if defined(__cplusplus)
+}
+#endif
 
+#endif /* UQM_CODERES_H_ */

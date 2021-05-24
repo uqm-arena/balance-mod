@@ -16,13 +16,17 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-#ifndef _INTEL_H
-#define _INTEL_H
+#ifndef UQM_INTEL_H_
+#define UQM_INTEL_H_
 
 #include "battlecontrols.h"
 #include "controls.h"
 #include "element.h"
 #include "races.h"
+
+#if defined(__cplusplus)
+extern "C" {
+#endif
 
 #define MANEUVERABILITY(pi) ((pi)->ManeuverabilityIndex)
 #define WEAPON_RANGE(pi) ((pi)->WeaponRange)
@@ -74,6 +78,8 @@ extern BOOLEAN ThrustShip (ELEMENT *ShipPtr, COUNT angle);
 #define AWESOME_RATING (BYTE)(1 << 6)
 
 
-#endif /* _INTEL_H */
+#if defined(__cplusplus)
+}
+#endif
 
-
+#endif /* UQM_INTEL_H_ */

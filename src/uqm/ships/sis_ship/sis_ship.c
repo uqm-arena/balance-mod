@@ -19,34 +19,80 @@
 #include "../ship.h"
 #include "sis_ship.h"
 #include "resinst.h"
+
 #include "uqm/colors.h"
 #include "uqm/controls.h"
 #include "uqm/globdata.h"
 #include "uqm/hyper.h"
 #include "libs/mathlib.h"
 
-// Core characteristics
+/* Core characteristics.
+ * All of these are changed at init time by some module, except for
+ * MAX_ENERGY, THRUST_INCREMENT, and SHIP_MASS. */
+
 #define MAX_CREW MAX_CREW_SIZE
+		/* This value gets thrown out - actual max crew is determined by the
+		 * number of crew pods. The minimum value is 1 (just the Captain). */
+
 #define MAX_ENERGY MAX_ENERGY_SIZE
 #define ENERGY_REGENERATION 1
+		/* Shiva furnaces increase this by 1 each. */
+#define SHIVA_ENERGY_REGEN_INC 1
+
 #define ENERGY_WAIT 10
+		/* Dynamos decrease this by 2 each, to a minimum of 4. */
+#define MIN_ENERGY_WAIT 4
+#define DYNAMO_UNIT_ENERGY_WAIT_DEC 2
+
 #define MAX_THRUST 10
+		/* Thrusters increase this and decrease THRUST_WAIT based on
+		 * THRUST_INCREMENT, see InitDriveSlots near the bottom of this file
+		 * for details. */
 #define THRUST_INCREMENT 4
 #define THRUST_WAIT 6
 #define TURN_WAIT 17
+		/* Turning jets decrease by 2 each */
 #define SHIP_MASS MAX_SHIP_MASS
 
-// Primary weapon
+
+/* Primary weapon - energy cost and damage change at init time based on
+ * the number and type of weapon modules installed. */
+
+#define BLASTER_DAMAGE 2
+		/* This is the damage value for the basic ion bolt guns. Fusion
+		 * blasters and hellbore cannons end up doing (BLASTER_DAMAGE * 2)
+		 * and (BLASTER_DAMAGE * 3) damage, respectively, but this depends
+		 * on enum values. */
+
+#define BLASTER_HITS 2 /* Hitpoints for ion bolt guns, see BLASTER_DAMAGE */
+
 #define WEAPON_ENERGY_COST 1
+		/* This value gets thrown out and reset in an ugly manner based on
+		 * the enum that is used for module IDs. Bigger gun = higher value.
+		 */
 #define WEAPON_WAIT 6
 #define BLASTER_SPEED DISPLAY_TO_WORLD (24)
 #define BLASTER_LIFE 12
+		/* This value is greatly increased, based in part on the enum used
+		 * for module IDs (bigger gun == longer life). See the first half of
+		 * InitWeaponSlots */
 #define MAX_TRACKING 3
+#define TRACKER_ENERGY_COST 3
+#define BLASTER_OFFSET 8
+#define SIS_VERT_OFFSET 28
+		/* Used for foward, spread, and rear slots */
+#define SIS_HORZ_OFFSET 20
+		/* Used for side slot */
 
-// Secondary weapon
+
+/* Secondary weapon */
 #define SPECIAL_ENERGY_COST 0
+		/* Increased by 1 for each point defense module */
+#define ANTIMISSILE_ENERGY_INC 1
 #define SPECIAL_WAIT 9
+#define LASER_RANGE (UWORD)100
 #define MAX_DEFENSE 8
+
 
 static RACE_DESC sis_desc =
 {
@@ -136,8 +182,40 @@ static void InitDriveSlots (RACE_DESC *RaceDescPtr,
 		const BYTE *DriveSlots);
 static void InitJetSlots (RACE_DESC *RaceDescPtr,
 		const BYTE *JetSlots);
-void uninit_sis (RACE_DESC *pRaceDesc);
+static void uninit_sis (RACE_DESC *pRaceDesc);
 
+
+// Local typedef
+typedef SIS_DATA CustomShipData_t;
+
+// Retrieve race-specific ship data from a race desc
+static CustomShipData_t *
+GetCustomShipData (RACE_DESC *pRaceDesc)
+{
+	return pRaceDesc->data;
+}
+
+// Set the race-specific data in a race desc
+// (Re)Allocates its own storage for the data.
+static void
+SetCustomShipData (RACE_DESC *pRaceDesc, const CustomShipData_t *data)
+{
+	if (pRaceDesc->data == data)
+		return;  // no-op
+
+	if (pRaceDesc->data) // Out with the old
+	{
+		HFree (pRaceDesc->data);
+		pRaceDesc->data = NULL;
+	}
+
+	if (data) // In with the new
+	{
+		CustomShipData_t* newData = HMalloc (sizeof (*data));
+		*newData = *data;
+		pRaceDesc->data = newData;
+	}
+}
 
 static void
 sis_hyper_preprocess (ELEMENT *ElementPtr)
@@ -372,7 +450,6 @@ spawn_point_defense (ELEMENT *ElementPtr)
 			if (ObjectPtr != ShipPtr && CollidingElement (ObjectPtr) &&
 					!OBJECT_CLOAKED (ObjectPtr))
 			{
-#define LASER_RANGE (UWORD)100
 				SIZE delta_x, delta_y;
 
 				delta_x = ObjectPtr->next.location.x -
@@ -475,8 +552,6 @@ sis_battle_postprocess (ELEMENT *ElementPtr)
 	}
 }
 
-#define BLASTER_DAMAGE 2
-
 static void
 blaster_collision (ELEMENT *ElementPtr0, POINT *pPt0,
 		ELEMENT *ElementPtr1, POINT *pPt1)
@@ -556,17 +631,13 @@ blaster_preprocess (ELEMENT *ElementPtr)
 static COUNT
 initialize_blasters (ELEMENT *ShipPtr, HELEMENT BlasterArray[])
 {
-#define SIS_VERT_OFFSET 28
-#define SIS_HORZ_OFFSET 20
-#define BLASTER_HITS 2
-#define BLASTER_OFFSET 8
 	BYTE nt;
 	COUNT i;
 	STARSHIP *StarShipPtr;
 	SIS_DATA *SisData;
 
 	GetElementStarShip (ShipPtr, &StarShipPtr);
-	SisData = (SIS_DATA *) StarShipPtr->RaceDescPtr->data;
+	SisData = GetCustomShipData (StarShipPtr->RaceDescPtr);
 
 	nt = (BYTE)((4 - SisData->num_trackers) & 3);
 
@@ -606,7 +677,7 @@ sis_intelligence (ELEMENT *ShipPtr, EVALUATE_DESC *ObjectsOfConcern,
 	SIS_DATA *SisData;
 
 	GetElementStarShip (ShipPtr, &StarShipPtr);
-	SisData = (SIS_DATA *) StarShipPtr->RaceDescPtr->data;
+	SisData = GetCustomShipData (StarShipPtr->RaceDescPtr);
 
 	lpEvalDesc = &ObjectsOfConcern[ENEMY_WEAPON_INDEX];
 	if (lpEvalDesc->ObjectPtr)
@@ -675,12 +746,8 @@ sis_intelligence (ELEMENT *ShipPtr, EVALUATE_DESC *ObjectsOfConcern,
 static void
 InitWeaponSlots (RACE_DESC *RaceDescPtr, const BYTE *ModuleSlots)
 {
-#define SIS_VERT_OFFSET 28
-#define SIS_HORZ_OFFSET 20
-#define BLASTER_HITS 2
-#define BLASTER_OFFSET 8
 	COUNT i;
-	SIS_DATA *SisData = (SIS_DATA *) RaceDescPtr->data;
+	SIS_DATA *SisData = GetCustomShipData (RaceDescPtr);
 	MISSILE_BLOCK *lpMB = SisData->MissileBlock;
 
 	SisData->num_blasters = 0;
@@ -760,7 +827,7 @@ InitModuleSlots (RACE_DESC *RaceDescPtr, const BYTE *ModuleSlots)
 {
 	COUNT i;
 	COUNT num_trackers;
-	SIS_DATA *SisData = (SIS_DATA *) RaceDescPtr->data;
+	SIS_DATA *SisData = GetCustomShipData (RaceDescPtr);
 
 	RaceDescPtr->ship_info.max_crew = 0;
 	num_trackers = 0;
@@ -778,22 +845,26 @@ InitModuleSlots (RACE_DESC *RaceDescPtr, const BYTE *ModuleSlots)
 				++num_trackers;
 				break;
 			case ANTIMISSILE_DEFENSE:
-				++RaceDescPtr->characteristics.special_energy_cost;
+				RaceDescPtr->characteristics.special_energy_cost +=
+						ANTIMISSILE_ENERGY_INC;
 				break;
 			case SHIVA_FURNACE:
-				++RaceDescPtr->characteristics.energy_regeneration;
+				RaceDescPtr->characteristics.energy_regeneration +=
+						SHIVA_ENERGY_REGEN_INC;
 				break;
 			case DYNAMO_UNIT:
-				RaceDescPtr->characteristics.energy_wait -= 2;
-				if (RaceDescPtr->characteristics.energy_wait < 4)
-					RaceDescPtr->characteristics.energy_wait = 4;
+				RaceDescPtr->characteristics.energy_wait -=
+						DYNAMO_UNIT_ENERGY_WAIT_DEC;
+				if (RaceDescPtr->characteristics.energy_wait < MIN_ENERGY_WAIT)
+					RaceDescPtr->characteristics.energy_wait = MIN_ENERGY_WAIT;
 				break;
 		}
 	}
 
 	if (num_trackers > MAX_TRACKING)
 		num_trackers = MAX_TRACKING;
-	RaceDescPtr->characteristics.weapon_energy_cost += num_trackers * 3;
+	RaceDescPtr->characteristics.weapon_energy_cost +=
+			num_trackers * TRACKER_ENERGY_COST;
 	SisData->num_trackers = num_trackers;
 	if (RaceDescPtr->characteristics.special_energy_cost)
 	{
@@ -848,16 +919,18 @@ RACE_DESC*
 init_sis (void)
 {
 	RACE_DESC *RaceDescPtr;
-
 	COUNT i;
+	// The caller of this func will copy the struct
 	static RACE_DESC new_sis_desc;
+	SIS_DATA empty_data;
+	memset (&empty_data, 0, sizeof (empty_data));
 
 	/* copy initial ship settings to new_sis_desc */
 	new_sis_desc = sis_desc;
 	
 	new_sis_desc.uninit_func = uninit_sis;
 
-	if (LOBYTE (GLOBAL (CurrentActivity)) == IN_HYPERSPACE)
+	if (inHQSpace ())
 	{
 		for (i = 0; i < NUM_VIEWS; ++i)
 		{
@@ -887,10 +960,8 @@ init_sis (void)
 		if (GET_GAME_STATE (CHMMR_BOMB_STATE) == 3)
 			SET_GAME_STATE (BOMB_CARRIER, 1);
 	}
-	{
-		void *ptr = HCalloc (sizeof (SIS_DATA));	// temporary variable to prevent gcc warning message
-		new_sis_desc.data = (intptr_t)ptr;
-	}
+
+	SetCustomShipData (&new_sis_desc, &empty_data);
 	InitModuleSlots (&new_sis_desc, GLOBAL_SIS (ModuleSlots));
 	InitWeaponSlots (&new_sis_desc, GLOBAL_SIS (ModuleSlots));
 	InitDriveSlots (&new_sis_desc, GLOBAL_SIS (DriveSlots));
@@ -915,18 +986,17 @@ init_sis (void)
 	return (RaceDescPtr);
 }
 
-void
+static void
 uninit_sis (RACE_DESC *pRaceDesc)
 {
-	if (LOBYTE (GLOBAL (CurrentActivity)) != IN_HYPERSPACE)
+	if (!inHQSpace ())
 	{
 		GLOBAL_SIS (CrewEnlisted) = pRaceDesc->ship_info.crew_level;
 		if (pRaceDesc->ship_info.ship_flags & PLAYER_CAPTAIN)
 			GLOBAL_SIS (CrewEnlisted)--;
 	}
 
-	HFree ((void *)pRaceDesc->data);
-	pRaceDesc->data = 0;
+	SetCustomShipData (pRaceDesc, NULL);
 }
 
 

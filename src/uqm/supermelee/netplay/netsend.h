@@ -16,13 +16,20 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef _NETSEND_H
-#define _NETSEND_H
+#ifndef UQM_SUPERMELEE_NETPLAY_NETSEND_H_
+#define UQM_SUPERMELEE_NETPLAY_NETSEND_H_
 
 #include "packet.h"
+
+#if defined(__cplusplus)
+extern "C" {
+#endif
 
 int sendPacket(NetConnection *conn, Packet *packet);
 
 
-#endif  /* _NETSEND_H */
+#if defined(__cplusplus)
+}
+#endif
 
+#endif  /* UQM_SUPERMELEE_NETPLAY_NETSEND_H_ */

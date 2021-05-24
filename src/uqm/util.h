@@ -14,11 +14,15 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-#ifndef _UTIL_H
-#define _UTIL_H
+#ifndef UQM_UTIL_H_
+#define UQM_UTIL_H_
 
 #include "libs/compiler.h"
 #include "libs/gfxlib.h"
+
+#if defined(__cplusplus)
+extern "C" {
+#endif
 
 extern void DrawStarConBox (RECT *pRect, SIZE BorderWidth,
 		Color TopLeftColor, Color BottomRightColor, BOOLEAN FillInterior,
@@ -28,5 +32,8 @@ extern DWORD SeedRandomNumbers (void);
 // saveRect can be NULL to save the entire context frame
 extern STAMP SaveContextFrame (const RECT *saveRect);
 
-#endif  /* _UTIL_H */
+#if defined(__cplusplus)
+}
+#endif
 
+#endif  /* UQM_UTIL_H_ */

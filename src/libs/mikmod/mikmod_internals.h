@@ -20,14 +20,14 @@
 
 /*==============================================================================
 
-  $Id: mikmod_internals.h 2412 2006-08-18 18:37:39Z avolkov $
+  $Id$
 
   MikMod sound library internal definitions
 
 ==============================================================================*/
 
-#ifndef _MIKMOD_INTERNALS_H
-#define _MIKMOD_INTERNALS_H
+#ifndef LIBS_MIKMOD_MIKMOD_INTERNALS_H_
+#define LIBS_MIKMOD_MIKMOD_INTERNALS_H_
 
 #ifdef __cplusplus
 extern "C" {

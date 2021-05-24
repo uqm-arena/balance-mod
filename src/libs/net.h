@@ -16,8 +16,12 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef _NET_H
-#define _NET_H
+#ifndef LIBS_NET_H_
+#define LIBS_NET_H_
+
+#if defined(__cplusplus)
+extern "C" {
+#endif
 
 #include "network/network.h"
 #include "network/netmanager/netmanager.h"
@@ -25,5 +29,8 @@
 #include "network/connect/listen.h"
 #include "network/connect/resolve.h"
 
-#endif  /* _NET_H */
+#if defined(__cplusplus)
+}
+#endif
 
+#endif  /* LIBS_NET_H_ */

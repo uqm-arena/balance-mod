@@ -16,10 +16,14 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-#ifndef _COMPILER_H
-#define _COMPILER_H
+#ifndef LIBS_COMPILER_H_
+#define LIBS_COMPILER_H_
 
 #include "types.h"
+
+#if defined(__cplusplus)
+extern "C" {
+#endif
 
 typedef uint8             BYTE;
 typedef uint8             UBYTE;
@@ -85,5 +89,8 @@ typedef DWORD    (*PDWORDFUNC) (void);
 #	define _ALIGNED_ON(bytes)
 #endif
 
-#endif /* _COMPILER_H */
+#if defined(__cplusplus)
+}
+#endif
 
+#endif /* LIBS_COMPILER_H_ */

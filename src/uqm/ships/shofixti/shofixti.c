@@ -20,13 +20,14 @@
 #include "shofixti.h"
 #include "resinst.h"
 #include "uqm/globdata.h"
+#include "uqm/tactrans.h"
 #include "libs/mathlib.h"
 
-// Core characteristics
+// Core Characteristics
 #define MAX_CREW 6
 #define MAX_ENERGY 4
 #define ENERGY_REGENERATION 1
-#define ENERGY_WAIT 9
+#define ENERGY_WAIT 11
 #define MAX_THRUST 35
 #define THRUST_INCREMENT 5
 #define TURN_WAIT 1
@@ -39,8 +40,8 @@
 #define WEAPON_ENERGY_COST 1
 #define SHOFIXTI_OFFSET 15
 #define MISSILE_OFFSET 1
-#define MISSILE_SPEED 92
-#define MISSILE_LIFE 9
+#define MISSILE_SPEED 84
+#define MISSILE_LIFE 10
 #define MISSILE_HITS 1
 #define MISSILE_DAMAGE 1
 
@@ -48,14 +49,13 @@
 #define SPECIAL_ENERGY_COST 0
 #define DESTRUCT_RANGE 180 // DISPLAY_TO_WORLD is applied to this elsewhere.
 #define DESTRUCTION (DESTRUCT_RANGE / 20)
-#define MAX_DESTRUCTION 8 // Glory Device damage cap.
-#define CLOSE_ENOUGH 6 // At 6 or 7 damage, inflict 8 damage instead.
+#define GD_DAMAGE_CAP 8 // Glory Device damage cap.
 
 static RACE_DESC shofixti_desc =
 {
 	{ /* SHIP_INFO */
 		FIRES_FORE,
-		6, /* Super Melee cost */
+		5, /* Super Melee cost */
 		MAX_CREW, MAX_CREW,
 		MAX_ENERGY, MAX_ENERGY,
 		SHOFIXTI_RACE_STRINGS,
@@ -155,7 +155,7 @@ initialize_standard_missile (ELEMENT *ShipPtr, HELEMENT MissileArray[])
 		dx = dx * 3/4;
 		dy = dy * 3/4;
 
-		// Add some of the Scout's velocity to its projectiles.
+		// Add some of the Scout's velocity to its projectiles
 		DeltaVelocityComponents (&MissilePtr->velocity, dx, dy);
 		MissilePtr->current.location.x -= VELOCITY_TO_WORLD (dx);
 		MissilePtr->current.location.y -= VELOCITY_TO_WORLD (dy);
@@ -236,10 +236,10 @@ destruct_preprocess (ELEMENT *ElementPtr)
 			PutElement (hDestruct);
 			LockElement (hDestruct, &DestructPtr);
 			SetElementStarShip (DestructPtr, StarShipPtr);
-			DestructPtr->hit_points = DestructPtr->mass_points = 0;
+			DestructPtr->hit_points = 0;
+			DestructPtr->mass_points = 0;
 			DestructPtr->playerNr = NEUTRAL_PLAYER_NUM;
 			DestructPtr->state_flags = APPEARING | FINITE_LIFE | NONSOLID;
-			DestructPtr->life_span = (NUM_EXPLOSION_FRAMES - 3) - 1;
 			SetPrimType (&(GLOBAL (DisplayArray))[DestructPtr->PrimIndex],
 					STAMPFILL_PRIM);
 			SetPrimColor (&(GLOBAL (DisplayArray))[DestructPtr->PrimIndex],
@@ -248,6 +248,8 @@ destruct_preprocess (ELEMENT *ElementPtr)
 					StarShipPtr->RaceDescPtr->ship_data.special;
 			DestructPtr->current.image.frame =
 					StarShipPtr->RaceDescPtr->ship_data.special[0];
+			DestructPtr->life_span = GetFrameCount (
+					DestructPtr->current.image.frame);
 			DestructPtr->current.location = ElementPtr->current.location;
 			DestructPtr->preprocess_func = destruct_preprocess;
 			DestructPtr->postprocess_func = NULL;
@@ -264,129 +266,171 @@ destruct_preprocess (ELEMENT *ElementPtr)
 #define ORZ_MARINE(ptr) (ptr->preprocess_func == intruder_preprocess && \
 		ptr->collision_func == marine_collision)
 
-// XXX: This function should be split into two
+static void
+self_destruct_kill_objects (ELEMENT *ElementPtr)
+{
+	// This is called during PostProcessQueue(), close to or at the end,
+	// for the temporary destruct element to apply the effects of glory
+	// explosion. The effects are not seen until the next frame.
+	HELEMENT hElement, hNextElement;
+
+	for (hElement = GetHeadElement (); hElement != 0; hElement = hNextElement)
+	{
+		ELEMENT *ObjPtr;
+		SIZE delta_x, delta_y;
+		DWORD dist;
+
+		LockElement (hElement, &ObjPtr);
+		hNextElement = GetSuccElement (ObjPtr);
+
+		if (!CollidingElement (ObjPtr) && !ORZ_MARINE (ObjPtr))
+		{
+			UnlockElement (hElement);
+			continue;
+		}
+
+		delta_x = ObjPtr->next.location.x - ElementPtr->next.location.x;
+		if (delta_x < 0)
+			delta_x = -delta_x;
+		delta_y = ObjPtr->next.location.y - ElementPtr->next.location.y;
+		if (delta_y < 0)
+			delta_y = -delta_y;
+		delta_x = WORLD_TO_DISPLAY (delta_x);
+		delta_y = WORLD_TO_DISPLAY (delta_y);
+		dist = delta_x * delta_x + delta_y * delta_y;
+		if (delta_x <= DESTRUCT_RANGE && delta_y <= DESTRUCT_RANGE
+				&& dist <= DESTRUCT_RANGE * DESTRUCT_RANGE)
+		{
+			STARSHIP *EnemyStarShipPtr;
+			int destruction = 1 + DESTRUCTION *	(DESTRUCT_RANGE - square_root (dist)) / DESTRUCT_RANGE;
+
+			GetElementStarShip (ObjPtr, &EnemyStarShipPtr);
+
+			// Apply damage cap to blast
+			if ((BYTE)destruction >= GD_DAMAGE_CAP)
+				destruction = GD_DAMAGE_CAP;
+			// Inflict 1 extra damage to the enemy ship when it won't destroy them - disabled for now
+			/* else if (ObjPtr->state_flags & PLAYER_SHIP
+					&& (BYTE)destruction < ObjPtr->crew_level - 1)
+				destruction += 1; */
+				
+			// Utwig shield will absorb damage. Yehat shield will prevent it.
+			if (ObjPtr->state_flags & PLAYER_SHIP
+					&& ObjPtr->life_span > NORMAL_LIFE)
+			{
+				if (EnemyStarShipPtr && EnemyStarShipPtr->SpeciesID == UTWIG_ID)
+				{
+					ObjPtr->life_span += destruction;
+				}
+
+				destruction = 0;
+			}
+
+			// XXX: Why not simply call do_damage()?
+			if (ObjPtr->state_flags & PLAYER_SHIP)
+			{
+				// Damage enemy ship
+				if (!DeltaCrew (ObjPtr, -destruction))
+					ObjPtr->life_span = 0;
+			}
+			else if (!GRAVITY_MASS (ObjPtr->mass_points))
+			{
+				// Inflict bonus damage against objects
+				destruction += (destruction >> 1);
+
+				if ((BYTE)destruction < ObjPtr->hit_points)
+						ObjPtr->hit_points -= (BYTE)destruction;
+				else
+				{
+					ObjPtr->hit_points = 0;
+					ObjPtr->life_span = 0;
+				}
+			}
+		}
+
+		UnlockElement (hElement);
+	}
+}
+
+// This function is called when the ship dies via Glory Device.
+// The generic ship_death() function is not called for the ship in this case.
+static void
+shofixti_destruct_death (ELEMENT *ShipPtr)
+{
+	STARSHIP *StarShip;
+	STARSHIP *winner;
+
+	GetElementStarShip (ShipPtr, &StarShip);
+
+	StopAllBattleMusic ();
+
+	StartShipExplosion (ShipPtr, false);
+	// We process the explosion ourselves because it is different
+	ShipPtr->preprocess_func = destruct_preprocess;
+	
+	PlaySound (SetAbsSoundIndex (StarShip->RaceDescPtr->ship_data.ship_sounds,
+			1), CalcSoundPosition (ShipPtr), ShipPtr, GAME_SOUND_PRIORITY + 1);
+
+	winner = GetWinnerStarShip ();
+	if (winner == NULL)
+	{	// No winner determined yet
+		winner = FindAliveStarShip (ShipPtr);
+		if (winner == NULL)
+		{	// No ships left alive after the Glory Device thus Shofixti wins
+			winner = StarShip;
+		}
+		SetWinnerStarShip (winner);
+	}
+	else if (winner == StarShip)
+	{	// This ship is the winner
+		// It may have self-destructed before the ditty started playing,
+		// and in that case, there should be no ditty
+		StarShip->cur_status_flags &= ~PLAY_VICTORY_DITTY;
+	}
+	RecordShipDeath (ShipPtr);
+}
+
 static void
 self_destruct (ELEMENT *ElementPtr)
 {
 	STARSHIP *StarShipPtr;
+	HELEMENT hDestruct;
 
 	GetElementStarShip (ElementPtr, &StarShipPtr);
-	if (ElementPtr->state_flags & PLAYER_SHIP)
-	{
-		HELEMENT hDestruct;
 		
-		// Spawn a temporary element, which dies in this same frame, in order
-		// to defer the effects of the glory explosion.
-		// It will be the last element (or one of the last) for which the
-		// death_func will be called from PostProcessQueue() in this frame.
-		hDestruct = AllocElement ();
-		if (hDestruct)
-		{
-			ELEMENT *DestructPtr;
-
-			LockElement (hDestruct, &DestructPtr);
-			DestructPtr->playerNr = ElementPtr->playerNr;
-			DestructPtr->state_flags = APPEARING | NONSOLID | FINITE_LIFE;
-			DestructPtr->next.location = ElementPtr->next.location;
-			DestructPtr->life_span = 0;
-			DestructPtr->pParent = ElementPtr->pParent;
-			DestructPtr->hTarget = 0;
-
-			DestructPtr->death_func = self_destruct;
-
-			UnlockElement (hDestruct);
-
-			PutElement (hDestruct);
-		}
-
-		ElementPtr->state_flags |= NONSOLID;
-		// The ship is now dead. Its death_func, i.e. ship_death(), will be
-		// called the next frame.
-		ElementPtr->life_span = 0;
-
-		ElementPtr->preprocess_func = destruct_preprocess;
-	}
-	else
+	// Spawn a temporary element, which dies in this same frame, in order
+	// to defer the effects of the glory explosion.
+	// It will be the last element (or one of the last) for which the
+	// death_func() will be called from PostProcessQueue() in this frame.
+	// XXX: Why at the end? Why not just do it now?
+	hDestruct = AllocElement ();
+	if (hDestruct)
 	{
-		// This is called during PostProcessQueue(), close to or at the end,
-		// for the temporary destruct element to apply the effects of glory
-		// explosion. The effects are not seen until the next frame.
-		HELEMENT hElement, hNextElement;
+		ELEMENT *DestructPtr;
 
-		for (hElement = GetHeadElement ();
-				hElement != 0; hElement = hNextElement)
-		{
-			ELEMENT *ObjPtr;
+		LockElement (hDestruct, &DestructPtr);
+		DestructPtr->playerNr = ElementPtr->playerNr;
+		DestructPtr->state_flags = APPEARING | NONSOLID | FINITE_LIFE;
+		DestructPtr->next.location = ElementPtr->next.location;
+		DestructPtr->life_span = 0;
+		DestructPtr->pParent = ElementPtr->pParent;
+		DestructPtr->hTarget = 0;
 
-			LockElement (hElement, &ObjPtr);
-			hNextElement = GetSuccElement (ObjPtr);
+		DestructPtr->death_func = self_destruct_kill_objects;
 
-			if (CollidingElement (ObjPtr) || ORZ_MARINE (ObjPtr))
-			{
-				SIZE delta_x, delta_y;
-				DWORD dist;
+		UnlockElement (hDestruct);
 
-				if ((delta_x = ObjPtr->next.location.x
-						- ElementPtr->next.location.x) < 0)
-					delta_x = -delta_x;
-				if ((delta_y = ObjPtr->next.location.y
-						- ElementPtr->next.location.y) < 0)
-					delta_y = -delta_y;
-				delta_x = WORLD_TO_DISPLAY (delta_x);
-				delta_y = WORLD_TO_DISPLAY (delta_y);
-				if (delta_x <= DESTRUCT_RANGE && delta_y <= DESTRUCT_RANGE
-						&& (dist = (DWORD)(delta_x * delta_x)
-						+ (DWORD)(delta_y * delta_y)) <=
-						(DWORD)(DESTRUCT_RANGE * DESTRUCT_RANGE))
-				{
-					SIZE destruction;
-					STARSHIP *EnemyStarShipPtr;
-			
-					GetElementStarShip (ObjPtr, &EnemyStarShipPtr);
-
-					destruction = ((MAX_DESTRUCTION
-							* (DESTRUCT_RANGE - square_root (dist)))
-							/ DESTRUCT_RANGE) + 1;
-
-					// Glory Device damage cap.
-					if (destruction >= CLOSE_ENOUGH)
-						destruction = MAX_DESTRUCTION;
-					
-					// Utwig shield will absorb damage. Yehat shield will prevent it.
-					if (ObjPtr->state_flags & PLAYER_SHIP
-						&& (ObjPtr->life_span > NORMAL_LIFE))
-					{			
-						if (EnemyStarShipPtr && EnemyStarShipPtr->SpeciesID == UTWIG_ID
-							&& (ObjPtr->state_flags & PLAYER_SHIP)
-							&& (ObjPtr->life_span > NORMAL_LIFE))
-						{
-							DeltaEnergy (ObjPtr, +destruction);
-						}
-
-						destruction = 0;
-					}
-					
-					if (ObjPtr->state_flags & PLAYER_SHIP)
-					{
-						if (!DeltaCrew (ObjPtr, -destruction))
-							ObjPtr->life_span = 0;
-					}
-					else if (!GRAVITY_MASS (ObjPtr->mass_points))
-					{
-						if ((BYTE)destruction < ObjPtr->hit_points)
-							ObjPtr->hit_points -= (BYTE)destruction;
-						else
-						{
-							ObjPtr->hit_points = 0;
-							ObjPtr->life_span = 0;
-						}
-					}
-				}
-			}
-
-			UnlockElement (hElement);
-		}
+		PutElement (hDestruct);
 	}
+
+	// Must kill off the remaining crew ourselves
+	DeltaCrew (ElementPtr, -(int)ElementPtr->crew_level);
+
+	ElementPtr->state_flags |= NONSOLID;
+	ElementPtr->life_span = 0;
+	// The ship is now dead. It's death_func, i.e. shofixti_destruct_death(),
+	// will be called the next frame.
+	ElementPtr->death_func = shofixti_destruct_death;
 }
 
 static void
@@ -442,8 +486,7 @@ shofixti_intelligence (ELEMENT *ShipPtr, EVALUATE_DESC *ObjectsOfConcern,
 				&& (((lpWeaponEvalDesc->ObjectPtr->state_flags & PLAYER_SHIP)
 				&& ShipPtr->crew_level == 1)
 				|| (PlotIntercept (lpWeaponEvalDesc->ObjectPtr, ShipPtr, 2, 0)
-				&& lpWeaponEvalDesc->ObjectPtr->mass_points >=
-				ShipPtr->crew_level
+				&& lpWeaponEvalDesc->ObjectPtr->mass_points >= ShipPtr->crew_level
 				&& (TFB_Random () & 1))))))
 			StarShipPtr->ship_input_state |= SPECIAL;
 	}

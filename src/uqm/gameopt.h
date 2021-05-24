@@ -13,11 +13,15 @@
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
-#ifndef _GAMEOPT_H
-#define _GAMEOPT_H
+#ifndef UQM_GAMEOPT_H_
+#define UQM_GAMEOPT_H_
 
 #include "libs/compiler.h"
 #include "libs/gfxlib.h"
+
+#if defined(__cplusplus)
+extern "C" {
+#endif
 
 extern void ConfirmSaveLoad (STAMP *MsgStamp);
 extern BOOLEAN GameOptions (void);
@@ -25,5 +29,8 @@ extern BOOLEAN GameOptions (void);
 typedef void (NamingCallback) (void);
 extern void SetNamingCallback (NamingCallback *);
 
-#endif  /* _GAMEOPT_H */
+#if defined(__cplusplus)
+}
+#endif
 
+#endif  /* UQM_GAMEOPT_H_ */

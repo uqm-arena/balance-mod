@@ -37,6 +37,7 @@
 #include "../races.h"
 #include "../setup.h"
 #include "../sounds.h"
+#include "libs/async.h"
 #include "libs/log.h"
 #include "libs/mathlib.h"
 
@@ -457,6 +458,7 @@ GetRaceQueueValue (const QUEUE *queue, VALUE_TYPE adjust_value) {
 	{
 		STARSHIP *StarShipPtr = LockStarShip (queue, hBattleShip);
 		hNextShip = _GetSuccLink (StarShipPtr);
+		
 		if (StarShipPtr->SpeciesID == NO_ID)
 			continue;  // Not active any more.
 
@@ -605,10 +607,10 @@ UpdatePickMeleeFleetValue (FRAME frame, COUNT which_player)
 	DrawFilledRectangle (&r);
 
 	// Draw the new value text.
-	if (simple_value == adjusted_value)
+	// if (simple_value == adjusted_value)
 		sprintf (buf, "%d", simple_value);
-	else
-		sprintf (buf, "%d (%.1f)", simple_value, adjusted_value);
+	// else
+	//	sprintf (buf, "%d (%.1f)", simple_value, adjusted_value);
 
 	t.baseline.y = 7;
 	t.align = ALIGN_RIGHT;
@@ -808,7 +810,6 @@ MeleeGameOver (void)
 	for (playerI = 0; playerI < NUM_PLAYERS; playerI++)
 		DrawPickMeleeFrame (playerI);
 	
-	UnlockMutex (GraphicsLock);
 
 #ifdef NETPLAY
 	negotiateReadyConnections(true, NetState_inSetup);
@@ -829,12 +830,12 @@ MeleeGameOver (void)
 			ButtonState = FALSE;
 		}
 
+		Async_process ();
 		TaskSwitch ();
 	} while (!(GLOBAL (CurrentActivity) & CHECK_ABORT) && (!ButtonState
 			&& (!(PlayerControl[0] & PlayerControl[1] & PSYTRON_CONTROL)
 			|| GetTimeCounter () < TimeOut)));
 
-	LockMutex (GraphicsLock);
 }
 
 void
@@ -951,12 +952,10 @@ GetMeleeStarShips (COUNT playerMask, HSTARSHIP *ships)
 	
 	SetContext (OffScreenContext);
 
-	UnlockMutex (GraphicsLock);
 
 	DoInput (&gmstate, FALSE);
 	WaitForSoundEnd (0);
 
-	LockMutex (GraphicsLock);
 
 	for (playerI = 0; playerI < NUM_PLAYERS; playerI++)
 	{

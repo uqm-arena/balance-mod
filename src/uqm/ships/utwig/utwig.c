@@ -22,8 +22,8 @@
 #include "uqm/globdata.h"
 #include "libs/mathlib.h"
 
-// Core characteristics
-#define MAX_CREW 20
+// Core Characteristics
+#define MAX_CREW 22
 #define MAX_ENERGY 24
 #define STARTING_ENERGY 10
 #define ENERGY_REGENERATION 0
@@ -58,9 +58,9 @@ static RACE_DESC utwig_desc =
 {
 	{ /* SHIP_INFO */
 		FIRES_FORE | SHIELD_DEFENSE,
-		24, /* Super Melee cost */
+		23, /* Super Melee cost */
 		MAX_CREW, MAX_CREW,
-		MAX_ENERGY >> 1, MAX_ENERGY,
+		STARTING_ENERGY, MAX_ENERGY,
 		UTWIG_RACE_STRINGS,
 		UTWIG_ICON_MASK_PMAP_ANIM,
 		UTWIG_MICON_MASK_PMAP_ANIM,
@@ -190,7 +190,7 @@ initialize_lance (ELEMENT *ShipPtr, HELEMENT WeaponArray[])
 			dx = dx / 2;
 			dy = dy / 2;
 
-			// Add some of the Jugger's velocity to its projectiles.
+			// Add some of the Jugger's velocity to its projectiles
 			DeltaVelocityComponents (&WeaponPtr->velocity, dx, dy);
 			WeaponPtr->current.location.x -= VELOCITY_TO_WORLD (dx);
 			WeaponPtr->current.location.y -= VELOCITY_TO_WORLD (dy);
@@ -236,10 +236,7 @@ utwig_collision (ELEMENT *ElementPtr0, POINT *pPt0,
 			&& ElementPtr1->mass_points
 			// Chmmr satellites no longer charge Utwig's energy by 10 during direct collision.
 			&& !((StarShipPtr && StarShipPtr->SpeciesID == CHMMR_ID)
-				&& ElementPtr1->mass_points == 10)
-			// Ur-Quan fighter beams and fighter collisions no longer charge up Utwig's energy at all.
-			&& !((StarShipPtr && StarShipPtr->SpeciesID == UR_QUAN_ID)
-				&& ElementPtr1->mass_points == 1))
+				&& ElementPtr1->mass_points == 10))
 	{
 		ElementPtr0->life_span += ElementPtr1->mass_points;
 	}
@@ -297,7 +294,7 @@ utwig_preprocess (ELEMENT *ElementPtr)
 	lpPrim = &(GLOBAL (DisplayArray))[ElementPtr->PrimIndex];
 	if (StarShipPtr->special_counter == 0)
 	{
-		// The shield is off.
+		// The shield is off
 		SetPrimColor (lpPrim,
 				BUILD_COLOR (MAKE_RGB15 (0x1F, 0x1C, 0x00), 0x78));
 		ElementPtr->colorCycleIndex = 0;

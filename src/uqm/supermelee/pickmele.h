@@ -14,8 +14,8 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef _PICKMELE_H
-#define _PICKMELE_H
+#ifndef UQM_SUPERMELEE_PICKMELE_H_
+#define UQM_SUPERMELEE_PICKMELE_H_
 
 typedef struct getmelee_struct GETMELEE_STATE;
 
@@ -23,6 +23,10 @@ typedef struct getmelee_struct GETMELEE_STATE;
 #include "../battlecontrols.h"
 #include "meleesetup.h"
 #include "libs/compiler.h"
+
+#if defined(__cplusplus)
+extern "C" {
+#endif
 
 void mark_retreated_ship (FRAME frame, STARSHIP* shipNr);
 
@@ -43,11 +47,19 @@ BOOLEAN selectShipComputer (ComputerInputContext *context,
 BOOLEAN selectShipNetwork (NetworkInputContext *context, GETMELEE_STATE *gms);
 #endif  /* NETPLAY */
 
+#if defined(__cplusplus)
+}
+#endif
+
 #ifdef PICKMELE_INTERNAL
 
 #include "../flash.h"
 #include "libs/timelib.h"
 #include "../init.h"
+
+#if defined(__cplusplus)
+extern "C" {
+#endif
 
 struct getmelee_struct {
 	BOOLEAN (*InputFunc) (struct getmelee_struct *pInputState);
@@ -82,7 +94,11 @@ struct getmelee_struct {
 bool setShipSelected(GETMELEE_STATE *gms, COUNT playerI, COUNT choice,
 		bool reportNetwork);
 
+#if defined(__cplusplus)
+}
+#endif
+
 #endif  /* PICKMELE_INTERNAL */
 
-#endif  /* _PICKMELE_H */
+#endif  /* UQM_SUPERMELEE_PICKMELE_H_ */
 
