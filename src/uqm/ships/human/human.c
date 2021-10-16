@@ -49,7 +49,8 @@
 
 // Point-Defense Laser
 #define SPECIAL_ENERGY_COST 3
-#define SPECIAL_WAIT 13
+#define SPECIAL_WAIT 10
+#define ENERGY_WAIT_EXTRA 4
 #define LASER_RANGE (UWORD)100
 
 static RACE_DESC human_desc =
@@ -202,8 +203,11 @@ spawn_point_defense (ELEMENT *ElementPtr)
 			if (ObjectPtr != ShipPtr
 				&& CollidingElement (ObjectPtr)
 				&& !OBJECT_CLOAKED (ObjectPtr)
-				// PDL will ignore planets
+				// PDL ignores planets
 				&& !GRAVITY_MASS (ObjectPtr->mass_points)
+				// PDL ignores the ship's own outgoing missiles
+				&& !(elementsOfSamePlayer (ObjectPtr, ElementPtr)
+					&& ObjectPtr->life_span > MISSILE_LIFE - 10)
 				// Prevent PDL from inflicting double damage against Umgah
 				&& !(EnemyStarShipPtr && EnemyStarShipPtr->SpeciesID == UMGAH_ID
 					&& ObjectPtr->mass_points == 1))
@@ -231,6 +235,11 @@ spawn_point_defense (ELEMENT *ElementPtr)
 
 					if (!PaidFor)
 					{
+						// If there's any energy_wait sitting around, hold on to it to apply later
+						if (StarShipPtr->RaceDescPtr->ship_info.energy_level >= SPECIAL_ENERGY_COST
+								&& StarShipPtr->energy_counter)
+							StarShipPtr->static_counter += StarShipPtr->energy_counter;
+
 						if (!DeltaEnergy (ShipPtr, -SPECIAL_ENERGY_COST))
 							break;
 
@@ -239,6 +248,10 @@ spawn_point_defense (ELEMENT *ElementPtr)
 								StarShipPtr->RaceDescPtr->ship_data.ship_sounds, 1), ElementPtr);
 						StarShipPtr->special_counter =
 								StarShipPtr->RaceDescPtr->characteristics.special_wait;
+						
+						// Each laser strike will slow battery recharge, effect is cumulative
+						StarShipPtr->static_counter += ENERGY_WAIT_EXTRA;
+
 						PaidFor = TRUE;
 					}
 
@@ -317,6 +330,14 @@ human_postprocess (ELEMENT *ElementPtr)
 			&& StarShipPtr->special_counter == 0)
 	{
 		spawn_point_defense (ElementPtr);
+	}
+
+	// Dump static_counter into energy_counter when the normal delay elapses
+	if (StarShipPtr->energy_counter == 0
+			&& StarShipPtr->static_counter)
+	{
+		StarShipPtr->energy_counter += StarShipPtr->static_counter + 1;
+		StarShipPtr->static_counter = 0;
 	}
 }
 

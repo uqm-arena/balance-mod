@@ -58,7 +58,7 @@
 #define FIGHTER_RETURN_TIME (FIGHTER_LIFE - (FIGHTER_LAUNCH_TIME + FIGHTER_PURSUIT_TIME))
 #define FIGHTER_HITS 1
 #define FIGHTER_MASS 0
-#define FIGHTER_WEAPON_WAIT 14
+#define FIGHTER_WEAPON_WAIT 13
 #define FIGHTER_LASER_RANGE (48 + FIGHTER_OFFSET)
 #define FAN_OUT_MULTIPLIER 11
 
@@ -117,9 +117,9 @@ static RACE_DESC urquan_desc =
 			FUSION_SML_MASK_PMAP_ANIM,
 		},
 		{
-			FIGHTER_BIG_MASK_PMAP_ANIM,
-			FIGHTER_MED_MASK_PMAP_ANIM,
-			FIGHTER_SML_MASK_PMAP_ANIM,
+			SPECIAL_BIG_MASK_PMAP_ANIM,
+			SPECIAL_MED_MASK_PMAP_ANIM,
+			SPECIAL_SML_MASK_PMAP_ANIM,
 		},
 		{
 			URQUAN_CAPTAIN_MASK_PMAP_ANIM,
@@ -318,9 +318,7 @@ fighter_postprocess (ELEMENT *ElementPtr)
 	// Decrement weapon cooldown
 	if (ElementPtr->thrust_wait > 0)
 		--ElementPtr->thrust_wait;
-	
-	// Spawn_fighter_laser if the laser is ready
-	if (ElementPtr->thrust_wait == 0)
+	else // Spawn_fighter_laser if the laser is ready
 	{
 		HELEMENT hPew;
 
@@ -332,8 +330,9 @@ fighter_postprocess (ELEMENT *ElementPtr)
 			PutElement (hPew);
 
 			LockElement (hPew, &PewPtr);
-			PewPtr->state_flags = APPEARING | NONSOLID | FINITE_LIFE
-					| (ElementPtr->state_flags & (GOOD_GUY | BAD_GUY));
+			PewPtr->playerNr = ElementPtr->playerNr;
+			PewPtr->state_flags = APPEARING | NONSOLID | FINITE_LIFE;
+
 			{
 				ELEMENT *SuccPtr;
 
@@ -362,7 +361,7 @@ fighter_preprocess (ELEMENT *ElementPtr)
 	// Get a count of how many fighters are deployed
 	++StarShipPtr->RaceDescPtr->characteristics.special_wait;
 	
-	if ((FIGHTER_LIFE - ElementPtr->life_span) > FIGHTER_LAUNCH_TIME
+	if (FIGHTER_LIFE - ElementPtr->life_span > FIGHTER_LAUNCH_TIME
 		&& !(ElementPtr->state_flags & CHANGING))
 	{
 		BOOLEAN Enroute;
@@ -497,46 +496,46 @@ fighter_preprocess (ELEMENT *ElementPtr)
 		
 		SetVelocityVector (&ElementPtr->velocity, fighter_speed, fighter_facing);
 
-		// Fighters fan out while in close proximity to each other, shooting fighters are exempt
-		if (ElementPtr->thrust_wait == 0)
+		// Fighters fan out while in close proximity to each other
+		if (ElementPtr->thrust_wait == 0) // Only fan out while not attacking
 		{
-			COUNT target_facing;
+			COUNT target_facing = 0;
 			long dist, best_dist;
 			SIZE best_delta_x, best_delta_y;
 			HELEMENT hObject, hNextObject;
 			ELEMENT *ObjectPtr;
 
+			// Is an enemy ship in the arena?
 			if (TrackAnyShip (ElementPtr, &target_facing) >= 0)
+				// Use default fan-out distance
 				best_dist = (FIGHTER_SPEED * FIGHTER_SPEED << 1) * FAN_OUT_MULTIPLIER;
 			else
-			{
 				// Fan out less during victory sequence
 				best_dist = FIGHTER_SPEED * FIGHTER_SPEED << 1;
-			}
 
 			best_delta_x = 0;
 
-			// Check for nearby squadmates
-			for (hObject = GetHeadElement (); hObject; hObject = hNextObject)
+			// Search everything in the arena for nearby squadmates
+			for (hObject = GetPredElement (ElementPtr); hObject; hObject = hNextObject)
 			{
 				LockElement (hObject, &ObjectPtr);
-				hNextObject = GetSuccElement (ObjectPtr);
+				hNextObject = GetPredElement (ObjectPtr);
 			
-				// Is ObjectPtr a friendly fighter? Are its weapons offline?
+				// Is ObjectPtr a friendly fighter? Is it currently not attacking?
 				if (ObjectPtr->life_span
+						&& ObjectPtr != ElementPtr
 						&& elementsOfSamePlayer (ObjectPtr, ElementPtr)
-						&& ObjectPtr->current.image.farray
-								== StarShipPtr->RaceDescPtr->ship_data.special
-						&& ObjectPtr->thrust_wait == 0
+						&& ObjectPtr->preprocess_func == fighter_preprocess
 						&& !(ObjectPtr->state_flags & DISAPPEARING)
-						&& ObjectPtr != ElementPtr)
+						&& ObjectPtr->thrust_wait == 0)
 				{
+					// Check distance between self and squadmate
 					delta_x = WRAP_DELTA_X (ObjectPtr->current.location.x - ElementPtr->next.location.x);
 					delta_y = WRAP_DELTA_Y (ObjectPtr->current.location.y - ElementPtr->next.location.y);
 					
 					dist = (long)delta_x * delta_x + (long)delta_y * delta_y;
 
-					// Distance check
+					// If any squadmates are nearby, remember the closest
 					if (dist < best_dist)
 					{
 						best_dist = dist;
@@ -835,8 +834,6 @@ turret_missile_collision (ELEMENT *ElementPtr0, POINT *pPt0, ELEMENT *ElementPtr
 		{
 			RemoveElement (hBlastElement);
 			FreeElement (hBlastElement);
-
-			ElementPtr0->state_flags &= ~DISAPPEARING;
 		}
 
 		ElementPtr0->state_flags |= DISAPPEARING | COLLISION;
@@ -896,7 +893,7 @@ initialize_turret (ELEMENT *ElementPtr)
 			if (delta_y < 0)
 				delta_y = -delta_y;
 
-			// Range check.
+			// Range check
 			if (delta_x <= TURRET_RANGE
 				&& delta_y <= TURRET_RANGE
 				&& (dist = (long)delta_x * delta_x + (long)delta_y * delta_y)
@@ -904,7 +901,7 @@ initialize_turret (ELEMENT *ElementPtr)
 			{
 				dist = square_root(dist);
 
-				// Prioritize lower HP and closer proximity targets.
+				// Prioritize lower HP and closer proximity targets
 				if (ObjectPtr->hit_points < weakest
 					|| (ObjectPtr->hit_points == weakest
 						&& dist < best_dist))

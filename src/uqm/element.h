@@ -246,7 +246,7 @@ extern void crew_collision (ELEMENT *ElementPtr0, POINT *pPt0,
 		ELEMENT *ElementPtr1, POINT *pPt1);
 extern void AbandonShip (ELEMENT *ShipPtr, ELEMENT *TargetPtr,
 		COUNT crew_loss);
-extern void draw_reticle (ELEMENT* ElementPtr);
+extern void draw_reticle (ELEMENT *ElementPtr);
 
 extern BOOLEAN Overlap (ELEMENT *ElementPtr); // Possibly *ElementPtr instead
 //extern BOOLEAN TimeSpaceMatterConflict (ELEMENT *ElementPtr);

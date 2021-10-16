@@ -48,7 +48,7 @@ BEGIN
 #else
             VALUE "OriginalFilename", "uqm-balance-mod.exe\0"
 #endif
-            VALUE "ProductName", "The Ur-Quan Masters + Shiver's Balance Mod\0"
+            VALUE "ProductName", "The Ur-Quan Masters + Balance Mod\0"
             VALUE "ProductVersion", UQM_STRING_VERSION "\0"
             VALUE "SpecialBuild", "Alpha\0"
         END

@@ -2,12 +2,12 @@
    should not be edited directly.  Modify the master resource list
    instead and regenerate. */
 
-#define FIGHTER_BIG_MASK_PMAP_ANIM "ship.urquan.graphics.special.large"
-#define FIGHTER_MED_MASK_PMAP_ANIM "ship.urquan.graphics.special.medium"
-#define FIGHTER_SML_MASK_PMAP_ANIM "ship.urquan.graphics.special.small"
 #define FUSION_BIG_MASK_PMAP_ANIM "ship.urquan.graphics.fusion.large"
 #define FUSION_MED_MASK_PMAP_ANIM "ship.urquan.graphics.fusion.medium"
 #define FUSION_SML_MASK_PMAP_ANIM "ship.urquan.graphics.fusion.small"
+#define SPECIAL_BIG_MASK_PMAP_ANIM "ship.urquan.graphics.special.large"
+#define SPECIAL_MED_MASK_PMAP_ANIM "ship.urquan.graphics.special.medium"
+#define SPECIAL_SML_MASK_PMAP_ANIM "ship.urquan.graphics.special.small"
 #define URQUAN_BIG_MASK_PMAP_ANIM "ship.urquan.graphics.dreadnought.large"
 #define URQUAN_CAPTAIN_MASK_PMAP_ANIM "ship.urquan.graphics.captain"
 #define URQUAN_ICON_MASK_PMAP_ANIM "ship.urquan.icons"

@@ -46,7 +46,7 @@
 // Shield
 #define SPECIAL_ENERGY_COST 2
 #define SPECIAL_WAIT 7 // Shield duration
-#define SPECIAL_WAIT_BONUS 1 // Add this to the shield's duration at the start of a 'fresh' shield activation
+#define SPECIAL_WAIT_BONUS 0 // Add this to the shield's duration at the start of a 'fresh' shield activation
 #define ENERGY_WAIT_EXTRA 8 // How long energy recovery stalls after shields drop
 
 static RACE_DESC yehat_desc =

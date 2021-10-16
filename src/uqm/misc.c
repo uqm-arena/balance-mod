@@ -471,7 +471,9 @@ draw_reticle (ELEMENT* ElementPtr)
 			GetCurrentVelocityComponents (&ElementPtr->velocity, &dx, &dy);
 			SetVelocityComponents (&ReticlePtr->velocity, dx, dy);
 
-			if ((PlayerControl[ElementPtr->playerNr] & HUMAN_CONTROL) && (PlayerControl[EnemyPtr->playerNr] & HUMAN_CONTROL))
+			// When two people at the same computer OR two cyborgs are playing, differentiate the colors between each player
+			if ((PlayerControl[ElementPtr->playerNr] & HUMAN_CONTROL) && (PlayerControl[EnemyPtr->playerNr] & HUMAN_CONTROL)
+					|| ((PlayerControl[ElementPtr->playerNr] & CYBORG_CONTROL) && (PlayerControl[EnemyPtr->playerNr] & CYBORG_CONTROL)))
 				ReticlePtr->current.image.frame = SetAbsFrameIndex (reticle[0], ElementPtr->playerNr > EnemyPtr->playerNr);
 			else 
 				ReticlePtr->current.image.frame = SetAbsFrameIndex (reticle[0], !(PlayerControl[ElementPtr->playerNr] & HUMAN_CONTROL));
@@ -510,7 +512,7 @@ calculate_crew_percentage (STARSHIP* StarShipPtr, BYTE delta)
 		{
 			if (StarShipPtr->SpeciesID == SYREEN_ID)
 			{
-				                                                                           /* 12 == Syreen starting crew */
+				/* 12 == Syreen starting crew */
 				return (UWORD) (((double)(StarShipPtr->RaceDescPtr->ship_info.crew_level + delta)) / (12.0) * (100));
 			} else if (StarShipPtr->RaceDescPtr->ship_info.crew_level + delta <= 0)
 			{

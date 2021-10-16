@@ -30,7 +30,7 @@
 #define THRUST_INCREMENT 6
 #define THRUST_WAIT 3
 #define TURN_WAIT 4
-#define TURN_WAIT_EXTRA 6
+#define TURN_WAIT_EXTRA 5
 #define SHIP_MASS 2
 
 // Antimatter Cone

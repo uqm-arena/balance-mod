@@ -582,6 +582,7 @@ new_ship (ELEMENT *DeadShipPtr)
 			if(!DeadStarShipPtr->state_flee || (opt_retreat==OPTVAL_DENY) ||
 			   (LOBYTE (GLOBAL (CurrentActivity)) != SUPER_MELEE))
 			{
+				// Deactivate the ship (cannot be selected)
 				DeadStarShipPtr->SpeciesID = NO_ID;
 			}
 		}
@@ -778,7 +779,7 @@ RecordShipDeath (ELEMENT *deadShip)
 		if (GetPrimType (&DisplayArray[deadShip->PrimIndex]) == STAMPFILL_PRIM)
 		{
 #ifdef DEBUG
-			fprintf(stderr, "fixing Ilwarth %d\n", deadStarShip->SpeciesID);
+			fprintf(stderr, "fixing Ilwrath %d\n", deadStarShip->SpeciesID);
 #endif
 			lpPrim = & (DisplayArray)[deadShip->PrimIndex];
 			SetPrimType(lpPrim, STAMP_PRIM);

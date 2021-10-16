@@ -35,7 +35,6 @@
 #include "sounds.h"
 #include "libs/mathlib.h"
 #include "ships/vux/vux.h" /* For vux_drawlimpet_onicon */
-// #include "ires_ind.h" <- not used, see rev 2958
 #include <libs/log.h>
 
 
@@ -265,7 +264,7 @@ ship_preprocess (ELEMENT *ElementPtr)
 		(*RDPtr->preprocess_func) (ElementPtr);
 		cur_status_flags = StarShipPtr->cur_status_flags;
 	}
-	                                  /* Don't stomp on the one retreat rule, if active */
+	    /* Don't stomp on the one retreat rule, if active */
 	if ((!StarShipPtr->CanRunAway) && ((opt_retreat==OPTVAL_ALLOW) || (StarShipPtr->flee_counter == 0)) &&
 	    ((battleFrameCount) >= (StarShipPtr->entrance_time + opt_retreat_wait)))
 	{
