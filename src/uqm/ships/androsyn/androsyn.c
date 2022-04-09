@@ -53,6 +53,7 @@
 #define BLAZER_TURN_WAIT 1
 #define BLAZER_DAMAGE 3
 #define BLAZER_MASS 1
+#define BLAZER_BOUNCE 68
 
 static RACE_DESC androsynth_desc =
 {
@@ -196,20 +197,32 @@ blazer_collision (ELEMENT *ElementPtr0, POINT *pPt0, ELEMENT *ElementPtr1, POINT
 	ElementPtr0->life_span = old_life;
 	ElementPtr0->crew_level = old_crew_level;
 	ElementPtr0->state_flags &= ~(DISAPPEARING | NONSOLID);
-	
-	// The comet will bounce off shields and planets.
+
+	// The blazer will bounce off shields and planets
 	if ((ElementPtr1->state_flags & PLAYER_SHIP
 			&& ElementPtr1->life_span > NORMAL_LIFE)
 		|| GRAVITY_MASS (ElementPtr1->mass_points))
 	{
-		StarShipPtr->ShipFacing =
+		COUNT angle;
+
+		/* Not sure why applying velocity at the blazer's current travel angle launches the blazer away from its collision target.
+		   Reversing this angle shoves the blazer toward the target. Seems backward. */
+		angle = FACING_TO_ANGLE (StarShipPtr->ShipFacing);
+		SetVelocityComponents (&ElementPtr0->velocity,
+				COSINE (angle, WORLD_TO_VELOCITY (BLAZER_BOUNCE)),
+				SINE (angle, WORLD_TO_VELOCITY (BLAZER_BOUNCE)));
+
+		ElementPtr0->thrust_wait = 10;
+		
+		// Reverse ship facing
+		/*StarShipPtr->ShipFacing =
 				NORMALIZE_FACING(StarShipPtr->ShipFacing + (ANGLE_TO_FACING(HALF_CIRCLE)));
 				
 		ElementPtr0->next.image.frame =
 				SetAbsFrameIndex (ElementPtr0->next.image.frame,
-				StarShipPtr->ShipFacing);
+				StarShipPtr->ShipFacing); */
 	}
-	
+
 	collision (ElementPtr0, pPt0, ElementPtr1, pPt1);
 }
 
@@ -455,7 +468,7 @@ androsynth_preprocess (ELEMENT *ElementPtr)
 	{
 		cur_status_flags &= ~(THRUST | WEAPON | SPECIAL);
 
-		// Ignore attached VUX limpets during blazer mode.
+		// Ignore attached VUX limpets during blazer mode
 		if (StarShipPtr->RaceDescPtr->characteristics.turn_wait > BLAZER_TURN_WAIT)
 		{
 			StarShipPtr->RaceDescPtr->characteristics.special_wait +=
@@ -466,7 +479,16 @@ androsynth_preprocess (ELEMENT *ElementPtr)
 
 		if (StarShipPtr->RaceDescPtr->ship_info.energy_level == 0)
 		{
-			ZeroVelocityComponents (&ElementPtr->velocity);
+			COUNT angle;
+
+			angle = FACING_TO_ANGLE (StarShipPtr->ShipFacing);
+
+			SetVelocityComponents (&ElementPtr->velocity,
+					COSINE (angle, WORLD_TO_VELOCITY (MAX_THRUST)),
+					SINE (angle, WORLD_TO_VELOCITY (MAX_THRUST)));
+
+			// ZeroVelocityComponents (&ElementPtr->velocity);
+
 			cur_status_flags &= ~(LEFT | RIGHT
 					| SHIP_AT_MAX_SPEED | SHIP_BEYOND_MAX_SPEED);
 

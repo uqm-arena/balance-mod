@@ -62,7 +62,7 @@ static RACE_DESC orz_desc =
 {
 	{ /* SHIP_INFO */
 		FIRES_FORE | SEEKING_SPECIAL,
-		22, /* Super Melee cost */
+		23, /* Super Melee cost */
 		MAX_CREW, MAX_CREW,
 		MAX_ENERGY, MAX_ENERGY,
 		ORZ_RACE_STRINGS,

@@ -23,7 +23,7 @@
 #include "libs/mathlib.h"
 
 // Core Characteristics
-#define MAX_CREW 12
+#define MAX_CREW 14
 #define MAX_ENERGY 12
 #define ENERGY_REGENERATION 1
 #define ENERGY_WAIT 4
@@ -47,14 +47,14 @@
 #define SPECIAL_WAIT 8
 #define SPECIAL_ENERGY_COST 6
 #define DODGE_INCREMENT 28
-#define DODGE_MAX_THRUST 80
+#define DODGE_MAX_THRUST 78
 #define DODGE_DURATION 12
 
 static RACE_DESC supox_desc =
 {
 	{ /* SHIP_INFO */
 		FIRES_FORE,
-		14, /* Super Melee cost */
+		15, /* Super Melee cost */
 		MAX_CREW, MAX_CREW,
 		MAX_ENERGY, MAX_ENERGY,
 		SUPOX_RACE_STRINGS,
@@ -376,6 +376,10 @@ supox_preprocess (ELEMENT *ElementPtr)
 		else
 			SetVelocityVector (&ElementPtr->velocity, 72, NORMALIZE_FACING (facing));
 
+		// Restore pre-boost trajectory (disabled)
+		/* SetVelocityVector (&ElementPtr->velocity, MAX_THRUST, NORMALIZE_FACING (StarShipPtr->auxiliary_counter));
+		StarShipPtr->auxiliary_counter = 0; */
+
 		StarShipPtr->special_counter = SPECIAL_WAIT;
 	}
 
@@ -388,6 +392,9 @@ supox_preprocess (ELEMENT *ElementPtr)
 				&& StarShipPtr->RaceDescPtr->ship_info.energy_level >= SPECIAL_ENERGY_COST			
 				&& StarShipPtr->special_counter == 0)
 		{
+			// Save pre-boost trajectory for later (disabled)
+			// StarShipPtr->auxiliary_counter = NORMALIZE_FACING (ANGLE_TO_FACING (GetVelocityTravelAngle (&ElementPtr->velocity)));
+			
 			// Set direction of dodge using this very inelegant solution
 			if (StarShipPtr->cur_status_flags & THRUST)
 				if (StarShipPtr->cur_status_flags & LEFT)
@@ -470,8 +477,6 @@ supox_preprocess (ELEMENT *ElementPtr)
 		StarShipPtr->RaceDescPtr->characteristics.max_thrust = max_thrust;
 
 		++StarShipPtr->energy_counter; // Stall battery regen
-
-		Untarget (ElementPtr); // Shake off most forms of enemy tracking
 	}
 
 	// Conventional reverse thrust
@@ -492,6 +497,9 @@ supox_preprocess (ELEMENT *ElementPtr)
 
 	if (StarShipPtr->static_counter > 0)
 		dodge_trail(ElementPtr);
+
+	// Prevent aux_counter from counting down (disabled)
+	// StarShipPtr->auxiliary_counter++;
 }
 
 static void

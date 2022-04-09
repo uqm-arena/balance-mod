@@ -341,14 +341,12 @@ TrackShip (ELEMENT *Tracker, COUNT *pfacing)
 		GetElementStarShip (Trackee, &StarShipPtr);
 		hNextShip = GetSuccElement (Trackee);
 
-		// a & !b & (!c | (d & e) & !f)
+		// a & !b & (!c | (d & e) )
 		if ((Trackee->state_flags & PLAYER_SHIP)
 				&& !elementsOfSamePlayer (Trackee, Tracker)
 				&& (!OBJECT_CLOAKED (Trackee)
 					|| ((Tracker->state_flags & PLAYER_SHIP)
-						&& (Tracker->state_flags & APPEARING)))
-				&& !(StarShipPtr && StarShipPtr->SpeciesID == SUPOX_ID
-					&& StarShipPtr->static_counter > 0))
+						&& (Tracker->state_flags & APPEARING))))
 		{
 
 CheckTracking:

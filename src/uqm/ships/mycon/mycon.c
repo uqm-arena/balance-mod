@@ -53,7 +53,7 @@ static RACE_DESC mycon_desc =
 {
 	{ /* SHIP_INFO */
 		FIRES_FORE | SEEKING_WEAPON,
-		15, /* Super Melee cost */
+		16, /* Super Melee cost */
 		MAX_CREW, MAX_CREW,
 		MAX_ENERGY, MAX_ENERGY,
 		MYCON_RACE_STRINGS,

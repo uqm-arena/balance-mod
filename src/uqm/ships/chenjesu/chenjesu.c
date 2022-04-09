@@ -76,7 +76,7 @@ static RACE_DESC chenjesu_desc =
 {
 	{ /* SHIP_INFO */
 		FIRES_FORE | SEEKING_SPECIAL | SEEKING_WEAPON,
-		25, /* Super Melee cost */
+		26, /* Super Melee cost */
 		MAX_CREW, MAX_CREW,
 		MAX_ENERGY, MAX_ENERGY,
 		CHENJESU_RACE_STRINGS,
