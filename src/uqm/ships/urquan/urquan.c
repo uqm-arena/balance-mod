@@ -19,9 +19,9 @@
 #include "../ship.h"
 #include "urquan.h"
 #include "resinst.h"
-#include "../../colors.h"
-#include "libs/mathlib.h"
+#include "uqm/colors.h"
 #include "uqm/globdata.h"
+#include "libs/mathlib.h"
 #include <stdlib.h>
 
 // Core Characteristics

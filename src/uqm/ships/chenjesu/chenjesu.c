@@ -57,8 +57,8 @@
 #define WAVE_LIFE 7
 #define WAVE_DAMAGE_DELAY 2
 #define WAVE_DAMAGE 1
-#define WAVE_OBJ_RANGE 52
-#define WAVE_SHIP_RANGE 74
+#define WAVE_OBJ_RANGE 48
+#define WAVE_SHIP_RANGE 68
 /* Shockwave has longer range against enemy ships because this effect checks its target's central point
    only; the extra range allows this effect to scathe the edge of a ship and still inflict damage */
 

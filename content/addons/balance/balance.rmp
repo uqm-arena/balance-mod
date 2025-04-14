@@ -15,7 +15,6 @@ ship.melnorme.graphics.pumpup.medium = GFXRES:addons/balance/ships/melnorme/pump
 ship.melnorme.graphics.pumpup.small = GFXRES:addons/balance/ships/melnorme/pumpup-sml.ani
 ship.pkunk.sounds = SNDRES:addons/balance/ships/pkunk/fury.snd
 ship.shofixti.graphics.scout.large = GFXRES:addons/balance/ships/shofixti/scout-big.ani
-ship.supox.graphics.glob.large = GFXRES:addons/balance/ships/supox/glob-big.ani
 ship.supox.sounds = SNDRES:addons/balance/ships/supox/blade.snd
 ship.thraddash.graphics.repulsor.large = GFXRES:addons/balance/ships/thraddash/repulsor-big.ani
 ship.thraddash.graphics.repulsor.medium = GFXRES:addons/balance/ships/thraddash/repulsor-med.ani

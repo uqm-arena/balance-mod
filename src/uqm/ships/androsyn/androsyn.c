@@ -44,7 +44,7 @@
 #define TRACK_WAIT 2
 
 // Blazer
-#define SPECIAL_ENERGY_COST 3
+#define SPECIAL_ENERGY_COST 2
 #define BLAZER_DEGENERATION (-1)
 #define BLAZER_ENERGY_WAIT 9
 #define SPECIAL_WAIT 0

@@ -594,14 +594,11 @@ marine_preprocess (ELEMENT *ElementPtr)
 				GetNextVelocityComponents (&ShipVelocity, &delta_x, &delta_y, num_frames);
 
 				// Lead the target by its current trajectory
-				delta_x = ObjectPtr->current.location.x + (delta_x * 3/2) - ElementPtr->current.location.x;
-				delta_y = ObjectPtr->current.location.y + (delta_y * 3/2) - ElementPtr->current.location.y;
+				delta_x = ObjectPtr->current.location.x + (delta_x * 29/20) - ElementPtr->current.location.x;
+				delta_y = ObjectPtr->current.location.y + (delta_y * 29/20) - ElementPtr->current.location.y;
                 
-				// 1) Re-route to the target ship itself if already on top of their projected destination
-				// 2) Don't lead Supox while it's boosting, be confused by that ability
-				if (dist <= DISPLAY_TO_WORLD (16)
-						|| TargetStarShipPtr && TargetStarShipPtr->SpeciesID == SUPOX_ID
-							&& TargetStarShipPtr->static_counter > 0)
+				// Re-route to the target ship itself if marine is already on top of their projected destination
+				if (dist <= DISPLAY_TO_WORLD (16))
 				{
 					delta_x = ObjectPtr->current.location.x - ElementPtr->current.location.x;
 					delta_y = ObjectPtr->current.location.y - ElementPtr->current.location.y;

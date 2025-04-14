@@ -45,7 +45,7 @@
 
 // Directional Booster
 #define SPECIAL_WAIT 8
-#define SPECIAL_ENERGY_COST 6
+#define SPECIAL_ENERGY_COST 7
 #define DODGE_INCREMENT 28
 #define DODGE_MAX_THRUST 78
 #define DODGE_DURATION 12
