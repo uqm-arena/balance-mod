@@ -47,7 +47,7 @@
 // Shrapnel
 #define FRAGMENT_OFFSET 2
 #define NUM_FRAGMENTS 8
-#define FRAGMENT_SPEED 92
+#define FRAGMENT_SPEED 96
 #define FRAGMENT_LIFE 15
 #define FRAGMENT_RANGE DISPLAY_TO_WORLD (110) // This bit is for the cyborg only
 #define FRAGMENT_HITS 1
@@ -57,10 +57,7 @@
 #define WAVE_LIFE 7
 #define WAVE_DAMAGE_DELAY 2
 #define WAVE_DAMAGE 1
-#define WAVE_OBJ_RANGE 48
-#define WAVE_SHIP_RANGE 68
-/* Shockwave has longer range against enemy ships because this effect checks its target's central point
-   only; the extra range allows this effect to scathe the edge of a ship and still inflict damage */
+#define WAVE_OBJ_RANGE 52
 
 // DOGI
 #define SPECIAL_ENERGY_COST MAX_ENERGY
@@ -76,7 +73,7 @@ static RACE_DESC chenjesu_desc =
 {
 	{ /* SHIP_INFO */
 		FIRES_FORE | SEEKING_SPECIAL | SEEKING_WEAPON,
-		26, /* Super Melee cost */
+		25, /* Super Melee cost */
 		MAX_CREW, MAX_CREW,
 		MAX_ENERGY, MAX_ENERGY,
 		CHENJESU_RACE_STRINGS,
@@ -213,30 +210,8 @@ shockwave_preprocess (ELEMENT *ElementPtr)
 				delta_x = WORLD_TO_DISPLAY (delta_x);
 				delta_y = WORLD_TO_DISPLAY (delta_y);
 				
-				// Is the enemy ship within range?
-				if (ObjPtr->state_flags & PLAYER_SHIP
-						&& !elementsOfSamePlayer(ElementPtr, ObjPtr)
-						&& delta_x <= WAVE_SHIP_RANGE && delta_y <= WAVE_SHIP_RANGE
-						&& ((long)(delta_x * delta_x) + (long)(delta_y * delta_y)) <=
-							(long)(WAVE_SHIP_RANGE * WAVE_SHIP_RANGE))
-				{
-					GetElementStarShip (ObjPtr, &EnemyStarShipPtr);
-
-					// Utwig shield absorbs energy
-					if (EnemyStarShipPtr && EnemyStarShipPtr->SpeciesID == UTWIG_ID
-							&& ObjPtr->life_span > NORMAL_LIFE)
-					{
-						ObjPtr->life_span += WAVE_DAMAGE;
-					}
-					else if (ObjPtr->life_span == NORMAL_LIFE)
-					{
-						// Damage or destroy enemy ship
-						if (!DeltaCrew (ObjPtr, -WAVE_DAMAGE))
-							ObjPtr->life_span = 0;
-					}
-				}
 				// Locate non-friendly objects within radius
-				else if (!(ObjPtr->state_flags & PLAYER_SHIP)
+				if (!(ObjPtr->state_flags & PLAYER_SHIP)
 						&& !elementsOfSamePlayer(ElementPtr, ObjPtr)
 						&& !GRAVITY_MASS (ObjPtr->mass_points)
 						&& delta_x <= WAVE_OBJ_RANGE && delta_y <= WAVE_OBJ_RANGE
