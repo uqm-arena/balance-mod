@@ -1,2 +1,9 @@
-
 *.bak
+*.swp
+build.vars
+config.state
+config_unix.h
+content/packages
+obj/
+uqm-balance-mod-debug
+uqm-wrapper
