@@ -1,23 +1,19 @@
-You're looking at the readme for 'The Ur-Quan Masters', a volunteer
-project that intends to bring the classic game 'Star Control II' to
-modern systems.
+This is a fork of [the Ur-Quan Masters](https://sc2.sourceforge.net/) with the balance mod built-in. 
 
-The program code that comprises 'The Ur-Quan Masters' was derived from code
-written by Toys for Bob, Inc. for the 3DO version of 'Star Control II', with
-their permission and encouragement.
+# Installation
 
-If you've got this file from the source tree, you can find everything
-you need to get started in INSTALL. Additionally and depending on your
-platform, please see:
-  INSTALL.mingw    for MinGW build instructions
-  INSTALL.msvc     for MSVC++ build instructions
-  INSTALL.macosx   for MacOS X build instructions
-  INSTALL.symbian  for Symbian build instructions
-  doc/users/unixinstall
+## Windows
 
-The home page of the project is located at http://sc2.sourceforge.net/
-You can find links to downloads, our bug database, and our forum there.
+* On the [releases page](https://github.com/uqm-arena/balance-mod/releases), download the Windows exe zip and extract it into UQM's main directory. The default install location is `C:\Program Files (x86)\The Ur-Quan Masters` on modern Windows systems.
 
-Have fun!
+* On the [releases page](https://github.com/uqm-arena/balance-mod/releases), download the latest effects package and place it in `UQM\content\addons`. Do not extract this zip file. Any older versions of this zip file should be replaced or deleted before playing.
 
-All trademarks and tradenames belong to their respective owners.
+* Run `uqm-balance-mod.exe` to play.
+
+## Mac
+
+We are looking for someone to build the Balance Mod on OS X. Please submit your build via a pull request in the [Balance Mod Github repository](https://github.com/uqm-arena/balance-mod/pulls).
+
+## Everything else
+
+Download the source code for the [latest release](https://github.com/uqm-arena/balance-mod/releases). The effects add-on package is included in the source code package. Compiling the game on Linux and Linux-like systems should be identical to compiling the original UQM code: Install the required dependencies and run `./build.sh uqm`
