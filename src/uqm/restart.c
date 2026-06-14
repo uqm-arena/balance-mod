@@ -83,6 +83,12 @@ DrawRestartMenuGraphic (MENU_STATE *pMS)
 	SetContextForeGroundColor (WHITE_COLOR);
 	font_DrawText (&t);
 
+	t.baseline.y -= 8;
+	sprintf (buf, "Effects pack: %s",
+			balanceEffectsLoaded ? "loaded" : "missing");
+	SetContextForeGroundColor (WHITE_COLOR);
+	font_DrawText (&t);
+
 	UnbatchGraphics ();
 }
 

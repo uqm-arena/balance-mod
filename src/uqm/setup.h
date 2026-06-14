@@ -68,6 +68,8 @@ extern BYTE PlayerControl[];
 extern BOOLEAN usingSpeech;
 		// Actual speech presence indicator which decouples reality from
 		// the user option, thus the user option remains as pure intent
+extern BOOLEAN balanceEffectsLoaded;
+		// TRUE when the Balance Mod effects addon loaded successfully.
 
 BOOLEAN InitContexts (void);
 void UninitPlayerInput (void);
