@@ -17,3 +17,7 @@ We are looking for someone to build the Balance Mod on OS X. Please submit your 
 ## Everything else
 
 Download the source code for the [latest release](https://github.com/uqm-arena/balance-mod/releases). The effects add-on package is included in the source code package. Compiling the game on Linux and Linux-like systems should be identical to compiling the original UQM code: Install the required dependencies and run `./build.sh uqm`
+
+# List of changes
+
+See [changes.md](./changes.md)
