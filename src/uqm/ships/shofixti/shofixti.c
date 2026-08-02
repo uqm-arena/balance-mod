@@ -27,7 +27,7 @@
 #define MAX_CREW 6
 #define MAX_ENERGY 4
 #define ENERGY_REGENERATION 1
-#define ENERGY_WAIT 11
+#define ENERGY_WAIT 10
 #define MAX_THRUST 35
 #define THRUST_INCREMENT 5
 #define TURN_WAIT 1

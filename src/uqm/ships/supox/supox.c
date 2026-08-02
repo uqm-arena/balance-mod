@@ -23,7 +23,7 @@
 #include "libs/mathlib.h"
 
 // Core Characteristics
-#define MAX_CREW 14
+#define MAX_CREW 12
 #define MAX_ENERGY 12
 #define ENERGY_REGENERATION 1
 #define ENERGY_WAIT 4
@@ -31,7 +31,7 @@
 #define THRUST_INCREMENT 8
 #define THRUST_WAIT 0
 #define TURN_WAIT 1
-#define SHIP_MASS 4
+#define SHIP_MASS 3
 
 // Gob Launcher
 #define WEAPON_ENERGY_COST 1
