@@ -78,6 +78,7 @@ uio_Repository *repository;
 uio_DirHandle *rootDir;
 
 BOOLEAN usingSpeech;
+BOOLEAN balanceEffectsLoaded;
 
 
 static void
@@ -142,11 +143,10 @@ LoadKernel (int argc, char *argv[])
 		loadAddon ("3dovideo");
 	}
 
-	// Never run Balance Mod without the effects package.
-	if (!loadAddon("balance"))
+	balanceEffectsLoaded = loadAddon ("balance");
+	if (!balanceEffectsLoaded)
 	{
-		log_add(log_Error, "The Balance Mod effects package is missing.");
-		return FALSE;
+		log_add (log_Error, "The Balance Mod effects package is missing.");
 	}
 
 	/* Now load the rest of the addons, in order. */
@@ -232,7 +232,7 @@ InitKernel (void)
 		return FALSE;
 
 	balance_strings = CaptureStringTable (LoadStringTable (BALANCE_STRINGS));
-	if (balance_strings == 0)
+	if (balanceEffectsLoaded && balance_strings == 0)
 		return FALSE;
 
 	MicroFont = LoadFont (MICRO_FONT);
