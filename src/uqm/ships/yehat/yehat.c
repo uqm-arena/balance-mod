@@ -165,10 +165,8 @@ initialize_standard_missiles (ELEMENT *ShipPtr, HELEMENT MissileArray[])
 			LockElement (MissileArray[i], &MissilePtr);
 
 			GetCurrentVelocityComponents (&ShipPtr->velocity, &dx, &dy);
-			dx = dx * 3/4;
-			dy = dy * 3/4;
 
-			// Add some of the Terminator's velocity to its projectiles
+			// Add the Terminator's velocity to its projectiles
 			DeltaVelocityComponents (&MissilePtr->velocity, dx, dy);
 			MissilePtr->current.location.x -= VELOCITY_TO_WORLD (dx);
 			MissilePtr->current.location.y -= VELOCITY_TO_WORLD (dy);

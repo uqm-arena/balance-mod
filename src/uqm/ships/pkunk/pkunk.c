@@ -50,7 +50,7 @@
 
 // Respawn
 #define INITIAL_RESPAWN_CHANCE 80
-#define RESPAWN_CHANCE_DECREMENT 18
+#define RESPAWN_CHANCE_DECREMENT 20
 
 static RACE_DESC pkunk_desc =
 {
@@ -421,8 +421,8 @@ pkunk_preprocess (ELEMENT *ElementPtr)
 	{
 		HELEMENT hPhoenix = 0;
         // TODO: Verify this
-		if ((signed)((TFB_Random () >> 10) % 100) < (INITIAL_RESPAWN_CHANCE - 1)
-				- (StarShipPtr->static_counter * RESPAWN_CHANCE_DECREMENT))
+		if ((signed)((TFB_Random () >> 10) % 100) < INITIAL_RESPAWN_CHANCE
+				- (RESPAWN_CHANCE_DECREMENT * StarShipPtr->static_counter))
 			hPhoenix = AllocElement ();
 
 		if (hPhoenix)
@@ -497,7 +497,7 @@ pkunk_preprocess (ELEMENT *ElementPtr)
 		}
 	}
 }
-		
+
 static COUNT LastSound = 0;
 
 static void

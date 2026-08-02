@@ -23,8 +23,8 @@
 #include "libs/mathlib.h"
 
 // Core Characteristics
-#define MAX_CREW 22
-#define MAX_ENERGY 24
+#define MAX_CREW 20
+#define MAX_ENERGY 26
 #define STARTING_ENERGY 10
 #define ENERGY_REGENERATION 0
 #define ENERGY_WAIT 255
@@ -187,8 +187,8 @@ initialize_lance (ELEMENT *ShipPtr, HELEMENT WeaponArray[])
 			LockElement (WeaponArray[(i << 1)], &WeaponPtr);
 
 			GetCurrentVelocityComponents (&ShipPtr->velocity, &dx, &dy);
-			dx = dx / 2;
-			dy = dy / 2;
+			dx = dx >> 1;
+			dy = dy >> 1;
 
 			// Add some of the Jugger's velocity to its projectiles
 			DeltaVelocityComponents (&WeaponPtr->velocity, dx, dy);
@@ -209,8 +209,8 @@ initialize_lance (ELEMENT *ShipPtr, HELEMENT WeaponArray[])
 			LockElement (WeaponArray[(i << 1) + 1], &WeaponPtr);
 
 			GetCurrentVelocityComponents (&ShipPtr->velocity, &dx, &dy);
-			dx = dx / 2;
-			dy = dy / 2;
+			dx = dx >> 1;
+			dy = dy >> 1;
 
 			DeltaVelocityComponents (&WeaponPtr->velocity, dx, dy);
 			WeaponPtr->current.location.x -= VELOCITY_TO_WORLD (dx);

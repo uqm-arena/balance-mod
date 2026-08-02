@@ -45,7 +45,7 @@
 // Limpet
 #define SPECIAL_ENERGY_COST 2
 #define SPECIAL_WAIT 7
-#define ENERGY_WAIT_EXTRA 2
+#define ENERGY_WAIT_EXTRA 3
 #define LIMPET_SPEED 25
 #define LIMPET_OFFSET 8
 #define LIMPET_LIFE 80

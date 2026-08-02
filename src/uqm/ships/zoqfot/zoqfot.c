@@ -49,6 +49,7 @@
 // Tongue
 #define SPECIAL_ENERGY_COST 7
 #define SPECIAL_WAIT 6
+#define COLLIDER_EXTEND 2
 #define TONGUE_SPEED 0
 #define TONGUE_HITS 1
 #define TONGUE_DAMAGE 12
@@ -224,9 +225,16 @@ tongue_collision (ELEMENT *ElementPtr0, POINT *pPt0,
 	STARSHIP *StarShipPtr;
 
 	GetElementStarShip (ElementPtr0, &StarShipPtr);
-	if (StarShipPtr->special_counter ==
-			StarShipPtr->RaceDescPtr->characteristics.special_wait)
+
+	if (StarShipPtr->special_counter >=
+			StarShipPtr->RaceDescPtr->characteristics.special_wait - COLLIDER_EXTEND
+		&& StarShipPtr->static_counter == 0)
+	{
 		weapon_collision (ElementPtr0, pPt0, ElementPtr1, pPt1);
+		
+		// if (ElementPtr1->state_flags & PLAYER_SHIP)
+		StarShipPtr->static_counter++; // Prevent tongue weapon from colliding more than once
+	}
 
 	StarShipPtr->special_counter -= ElementPtr0->turn_wait;
 	ElementPtr0->turn_wait = 0;
@@ -385,6 +393,8 @@ zoqfotpik_postprocess (ELEMENT *ElementPtr)
 
 	if (StarShipPtr->special_counter)
 		spawn_tongue (ElementPtr);
+	else if (StarShipPtr->static_counter)
+		StarShipPtr->static_counter = 0; // Tongue weapon may collide again
 }
 
 RACE_DESC*

@@ -184,8 +184,8 @@ initialize_turret_missile (ELEMENT *ShipPtr, HELEMENT MissileArray[])
 		LockElement (MissileArray[0], &HowitzerPtr);
 		HowitzerPtr->collision_func = howitzer_collision;
 		GetCurrentVelocityComponents (&ShipPtr->velocity, &dx, &dy);
-		dx = dx * 1/2;
-		dy = dy * 1/2;
+		dx = dx * 3/5;
+		dy = dy * 3/5;
         
 		// Add some of the Nemesis' velocity to its projectiles
 		DeltaVelocityComponents (&HowitzerPtr->velocity, dx, dy);
