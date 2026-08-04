@@ -84,6 +84,8 @@
 
 * Photon shards are partially affected by the Broodhome's velocity.
 
+* Shrapnel fragment hitbox expanded. The sprites for this projectile are visually the same.
+
 * Shrapnel fragments now spiral outward, then back inward at a higher speed and longer duration than before. As the fragments follow a curve rather than a straight line, the spiral pattern's area-of-effect covers a similarly sized area as before.
 ::''This weapon's coverage and likelihood of hitting something is vastly improved.''
 
