@@ -6,7 +6,7 @@
 
 * Many projectiles are now affected by the velocity of the ship they launch from, pushing toward the ship's direction of travel. The magnitude of this push varies between weapon systems. In most cases the difference is subtle.
 
-::''The intent here is to help forward-mounted weapons be more useful when a ship is moving toward a target and less drastic when moving away.''
+''The intent here is to help forward-mounted weapons be more useful when a ship is moving toward a target and less drastic when moving away.''
 
 * When two of the same ship type fight, each ship will be highlighted by a colored reticle; green for the player's ship, red for the opponent's.
 
@@ -33,18 +33,18 @@
 * The blazer leaves a visible comet trail.
 
 * Blazer energy drain occurs on a 9 frame delay rather than an 8 frame delay. If an Androsynth activates its blazer form with full battery, it will have an additional second before its battery is empty.
-::''This change was implemented to keep Androsynth effective against the new, buffed Spathi, which can be played in a way that forces Androsynth to run through its entire battery trying to ram into it while dodging the improved torpedoes. It also helps justify the ship's point cost increase.''
+''This change was implemented to keep Androsynth effective against the new, buffed Spathi, which can be played in a way that forces Androsynth to run through its entire battery trying to ram into it while dodging the improved torpedoes. It also helps justify the ship's point cost increase.''
 
 * VUX limpets no longer attach to this ship while it is in blazer form.
-::''This is a continuity change and does not affect the dynamic of Androsynth vs. VUX much at all (i.e. vanilla Androsynth still beat VUX by a landslide even while limpeted because limpets do not impair the blazer). It was silly that the blazer could wipe out Orz marines but not VUX limpets.''
+''This is a continuity change and does not affect the dynamic of Androsynth vs. VUX much at all (i.e. vanilla Androsynth still beat VUX by a landslide even while limpeted because limpets do not impair the blazer). It was silly that the blazer could wipe out Orz marines but not VUX limpets.''
 
 * The Guardian forcefully bounces off shielded enemies and planets while in blazer form.
-::''This lowers Androsynth's effectiveness against Yehat, which is now intended as a counter for Androsynth. The bounce-off-planet behavior is for the Androsynth player's benefit as it prevents a blazer from ramming a planet multiple times in a row.''
+''This lowers Androsynth's effectiveness against Yehat, which is now intended as a counter for Androsynth. The bounce-off-planet behavior is for the Androsynth player's benefit as it prevents a blazer from ramming a planet multiple times in a row.''
 
 * The Guardian retains some velocity after the blazer deactivates. The ship slows down to its default top speed instead of stopping completely.
 
 * After the blazer damages an enemy ship, it is non-damaging for a single frame (1/24th of a second).
-::''This halves the rate of damage dealt whenever Androsynth 'wedges' into an opponent. It still wrecks things alarmingly fast when this happens.''
+''This halves the rate of damage dealt whenever Androsynth 'wedges' into an opponent. It still wrecks things alarmingly fast when this happens.''
 
 * Blazer collisions charge Utwig's absorption field the same as any other weapon.
 
@@ -67,12 +67,12 @@
 * Teleporter transit time increased from 5 frames to 14. Melee's camera will give away Arilou's destination early into this cycle.
 
 * After reappearing, ship movement is disabled for 3 frames and the tracking laser is disabled for 12 frames.
-::''While Forward Teleport was a good buff for Arilou and very fun to play around with, it was also wildly overpowered until all these small delays were added.''
+''While Forward Teleport was a good buff for Arilou and very fun to play around with, it was also wildly overpowered until all these small delays were added.''
 
 * The Skiff may teleport again as it is reappearing, before it materializes.
 
 * The Skiff's teleportation function has a safety mechanism which teleports the ship again if the ship warps into an asteroid, planet, or player ship. This mechanism requires enough energy to teleport again or it will not trigger.
-::''This change was implemented because there is no longer an advantage to chain teleporting for minutes on end, and thus the threat of teleportation-related death is no longer necessary to deter players from doing so.''
+''This change was implemented because there is no longer an advantage to chain teleporting for minutes on end, and thus the threat of teleportation-related death is no longer necessary to deter players from doing so.''
 
 ''Vanilla Arilou depends on a technique known as "chain teleportation" to be useful in competitive PvP. It involves teleporting over and over until appearing at an ideal location to attack from (usually a 'sweet spot' where the other ship is incapable of escaping or counterattacking). Nobody seemed especially fond of chain teleportation when I asked around the Star Control fan community and several veteran players were convinced that it ruined gameplay, so an overhaul of Arilou was necessary. The new forward teleport is meant to replace that technique with something similar, yet more fun. This variant is also noticeably stronger than the underpowered vanilla Arilou.''
 
@@ -87,16 +87,16 @@
 * Shrapnel fragment hitbox expanded. The sprites for this projectile are visually the same.
 
 * Shrapnel fragments now spiral outward, then back inward at a higher speed and longer duration than before. As the fragments follow a curve rather than a straight line, the spiral pattern's area-of-effect covers a similarly sized area as before.
-::''This weapon's coverage and likelihood of hitting something is vastly improved.''
+''This weapon's coverage and likelihood of hitting something is vastly improved.''
 
 * Shrapnel damage decreased from 2 to 1.
-::''The new shrapnel hits targets within its area of effect more than twice as often. I nerfed shrapnel's damage to keep it from becoming too powerful. Why is buffing the weapon's coverage and nerfing its damage better for the game, you might ask? Because this version inflicts small damage consistently, whereas vanilla Chenjesu's shrapnel often misses the broad side of a barn over and over.''
+''The new shrapnel hits targets within its area of effect more than twice as often. I nerfed shrapnel's damage to keep it from becoming too powerful. Why is buffing the weapon's coverage and nerfing its damage better for the game, you might ask? Because this version inflicts small damage consistently, whereas vanilla Chenjesu's shrapnel often misses the broad side of a barn over and over.''
 
 * Photon shard detonation also releases a small shockwave which inflicts 1 damage to non-friendly objects within a smaller area than shrapnel blast radius. It does not damage enemy ships. This effect is accompanied by a new, pretty animation.
-::''This is helpful when clearing out hostile objects such as enemy missiles or Ur-Quan fighters. It tilts some match-ups in Chenjesu's favor.''
+''This is helpful when clearing out hostile objects such as enemy missiles or Ur-Quan fighters. It tilts some match-ups in Chenjesu's favor.''
 
 * Shrapnel no longer inflicts damage upon friendly DOGIs.
-::''This prevents Chenjesu's improved shrapnel from wiping out its own DOGIs left and right, which was a big problem during testing.''
+''This prevents Chenjesu's improved shrapnel from wiping out its own DOGIs left and right, which was a big problem during testing.''
 
 ''Vanilla Chenjesu is not really worth using in competitive PvP. The primary weapon's shrapnel explosion struck me as the best place to make improvements, as it was quite unreliable. The new shrapnel explosion indeed makes a significant difference in turning this ship into the powerful space artillery it's portrayed as. Even so, Chenjesu's ship price still needed to drop somewhat for the ship to be viable in competitive play.''
 
@@ -104,7 +104,7 @@
 
 * Ship mass decreased from 10 to 9.
 
-::''The down-tweaks in ship mass you can find all over this change log are mostly for Chmmr's benefit. Lighter ships are more affected by the tractor beam. This particular adjustment is there just to keep Chmmr, Chenjesu, Ur-Quan, and Kohr-Ah at the same weight. The other heavy ships lost mass to give Chmmr a bit more edge against them.''
+''The down-tweaks in ship mass you can find all over this change log are mostly for Chmmr's benefit. Lighter ships are more affected by the tractor beam. This particular adjustment is there just to keep Chmmr, Chenjesu, Ur-Quan, and Kohr-Ah at the same weight. The other heavy ships lost mass to give Chmmr a bit more edge against them.''
 
 * Satellite laser color changed from deep blue to an even shade of red. The old beam was so dark that it was hard to see.
 
@@ -123,7 +123,7 @@
 * Point-Defense Laser energy cost decreased from 4 to 3.
 
 * Each laser strike stalls energy recovery slightly. This effect is cumulative; blasting away continuously will stall recovery for longer.
-::''PDL essentially costs 3.5 energy this way. The battery stall gives this weapon a fractional cost.''
+''PDL essentially costs 3.5 energy this way. The battery stall gives this weapon a fractional cost.''
 
 * Point-Defense Laser cooldown increased slightly from 9 to 10.
 
@@ -140,17 +140,17 @@
 * Point value raised from 10 to 11.
 
 * Top speed increased from 25 to 26.
-::''This allows Ilwrath to catch Earthling with less difficulty during pursuit. Due to some quirk of the game's engine, you can sometimes get in a situation where both ships will be moving at full speed in the same direction, and the Ilwrath will not gain any ground on Earthling until they turn around and try to chase Earthling from another angle.''
+''This allows Ilwrath to catch Earthling with less difficulty during pursuit. Due to some quirk of the game's engine, you can sometimes get in a situation where both ships will be moving at full speed in the same direction, and the Ilwrath will not gain any ground on Earthling until they turn around and try to chase Earthling from another angle.''
 
 * Battery capacity decreased from 16 to 12.
 
 * Energy recharge delay increased from 4 frames to 6 frames.
-::''Battery size and regen have been reduced to mitigate the new additions this ship has received.''
+''Battery size and regen have been reduced to mitigate the new additions this ship has received.''
 
 * Hellfire velocity increased from 25 to 32. This increases the weapon's range, which is still fairly short.
 
 * The Hellfire Spout has be redesigned to fire in three separate directions (forward, left diagonal, right diagonal) to give the weapon better coverage. The two diagonal flame spouts have a low rate of fire, so it's still best to attack your opponent head-on when possible. Diagonal spouts draw additional battery power as they fire. They do not activate when attacking with a depleted battery.
-::''What are the diagonal spouts for? Toasting dodgy ships that slip past your front spout. This makes a world of difference against Arilou, and is advantageous against short-range attackers such as Androsynth and Pkunk.''
+''What are the diagonal spouts for? Toasting dodgy ships that slip past your front spout. This makes a world of difference against Arilou, and is advantageous against short-range attackers such as Androsynth and Pkunk.''
 
 * The Avenger is now visible to its pilot while cloaked, appearing as a deep blue silhouette. A side effect of this is that the cloaked Avenger will show up on screen when two players go head-to-head on the same PC.
 
@@ -167,10 +167,10 @@
 * Buzzsaws are partially affected by the Marauder's velocity while the primary weapon button is held down.
 
 * Buzzsaw energy cost increased from 6 to 7.
-::''These things are stupidly effective and this change should force Kohr-Ah players to ration out their energy more carefully.''
+''These things are stupidly effective and this change should force Kohr-Ah players to ration out their energy more carefully.''
 
 * FRIED cloud hitpoints decreased from 100 to 6.
-::''Individual FRIED clouds can now be neutralized with enough firepower, though they will still melt every projectile they meet upon contact. 
+''Individual FRIED clouds can now be neutralized with enough firepower, though they will still melt every projectile they meet upon contact. 
 
 ''The small downtweaks to Kohr-Ah's weapons should help rein it in. This ship was a just little too good in vanilla UQM.''
 
@@ -181,13 +181,13 @@
 * Both Melnorme weapon systems are partially affected by the Trader's velocity.
 
 * New feature: Holographic Targeting Aid. When toggled on, the Trader sends out holographic tracers which replicate its primary weapon's firing path to help its pilot aim better. This feature is only detectable to its pilot. Press 'Down' to toggle this feature on and off.
-::''Melnorme is known to be difficult to play and this aim-assist feature mitigates that.''
+''Melnorme is known to be difficult to play and this aim-assist feature mitigates that.''
 
 * When a blaster pulse is suspended in front of the Trader, it will now break down correctly when hit by massive burst damage.
-::''This is a continuity tweak. In vanilla melee these had to lose all their hitpoints twice over in an instant for them to break down. Previously, a carried red pulse would inexplicably withstand another Melnorme Trader's in-motion red pulse rather than cancel out with it.''
+''This is a continuity tweak. In vanilla melee these had to lose all their hitpoints twice over in an instant for them to break down. Previously, a carried red pulse would inexplicably withstand another Melnorme Trader's in-motion red pulse rather than cancel out with it.''
 
 * Confusion pulse hitpoints lowered from 200 to 50.
-::''What does 50 damage? Kohr-Ah FRIED, at least when it connects with another player's projectile. I gave Kohr-Ah--which has received some nerfs--a new minor advantage against Melnorme.''
+''What does 50 damage? Kohr-Ah FRIED, at least when it connects with another player's projectile. I gave Kohr-Ah--which has received some nerfs--a new minor advantage against Melnorme.''
 
 * Confusion disables the other player's "Down" key for its duration.
 
@@ -198,13 +198,13 @@
 * Point value raised from 19 to 20.
 
 * X-Form turn delay lowered from 2 to 1.
-::''This gives Mmrnmhrm better results against flanking ships in particular. Teleport-backstabs from the new Arilou are a threat to the original X-Form, and this change defends against that.''
+''This gives Mmrnmhrm better results against flanking ships in particular. Teleport-backstabs from the new Arilou are a threat to the original X-Form, and this change defends against that.''
 
 * Laser range set to 148, very slightly longer than before.
-::''Someone figured out Slylandro could hit Mmrnmhrm from beyond range by a smidge, which needed a solution.''
+''Someone figured out Slylandro could hit Mmrnmhrm from beyond range by a smidge, which needed a solution.''
 
 * Missiles are partially affected by the Transformer's velocity.
-::''This adds some speed when the X-Form is moving toward an opponent and subtracts it when moving away. The missile kiting strategy should be a bit less one-dimensional this way.''
+''This adds some speed when the X-Form is moving toward an opponent and subtracts it when moving away. The missile kiting strategy should be a bit less one-dimensional this way.''
 
 * Missiles traveling above normal speed slow down as they turn away from their launch angle.
 
@@ -219,7 +219,7 @@
 ==Orz Nemesis==
 
 * Crew count increased from 16 to 18.
-::''This change was added more recently. Too often Orz would lose so much crew taking out Ur-Quan that Earthling or Thraddash could snipe it afterward.''
+''This change was added more recently. Too often Orz would lose so much crew taking out Ur-Quan that Earthling or Thraddash could snipe it afterward.''
 
 * Howitzer is partially affected by the Nemesis' velocity.
 
@@ -246,17 +246,17 @@
 * Mendokusai darts are partially affected by the Scout's velocity.
 
 * Energy recharge rate slowed; recharge delay increased from 9 frames to 10 frames.
-::''These dart nerfs impair Shofixti's ability to win fights without its Glory Device.''
+''These dart nerfs impair Shofixti's ability to win fights without its Glory Device.''
 
 * Glory Device damage is '''halved'''.
-::''The Glory Device is still a threat to many ships despite being nerfed so heavily. It is an effective finisher of many enemies when they are heavily damaged, particularly if they are short-range fighters.''
+''The Glory Device is still a threat to many ships despite being nerfed so heavily. It is an effective finisher of many enemies when they are heavily damaged, particularly if they are short-range fighters.''
 
 * Glory Device inflicts extra damage vs non-ship objects. It can still break Chmmr satellites if they're close enough.
 
 * Glory Device is negated by Yehat and Utwig shielding.
 
 * Ship's central hotspot moved closer to actual center.
-::''This helps Arilou's tracking laser connect with this ship. The weapon has accuracy problems when a small ship's hotspot is off-center.''
+''This helps Arilou's tracking laser connect with this ship. The weapon has accuracy problems when a small ship's hotspot is off-center.''
 
 ''Shofixti needed a serious beating from the nerf bat. It was far too deadly in a wide variety of circumstances for 5 points. Furthermore, since the game is designed for the Glory Device-user to choose its next ship second following a mutual destruction, a kill from the Glory Device yields a strong advantage of picking a counter ship in response to the opponent's next ship. The new Shofixti is indeed relatively weak, and being the cheapest ship in the game, it's about where it should be.''
 
@@ -265,10 +265,10 @@
 * Point value raised from 17 to 18.
 
 * When fighting against Chmmr, Mmrnmhrm, VUX, or Yehat, the lightning weapon has a maximum range cap that prevents this ship from out-ranging those opponents. Capped lightning also has a slightly longer attack duration, which mitigates some of the impairment caused by this range cap.
-::''The variable weapon range could be abused by firing from beyond an opponent's reach repeatedly until scoring enough long-shots to beat them. Against ships such as Chmmr, this exploit could lead to boring, unbalanced combat.''
+''The variable weapon range could be abused by firing from beyond an opponent's reach repeatedly until scoring enough long-shots to beat them. Against ships such as Chmmr, this exploit could lead to boring, unbalanced combat.''
 
 * Lightning seeks out enemy ships regardless of whether they are cloaked or not.
-::''This change keeps Slylandro effective against the new Ilwrath, which has better weapon range and can see itself while cloaked.''
+''This change keeps Slylandro effective against the new Ilwrath, which has better weapon range and can see itself while cloaked.''
 
 ''Slylandro was consistently devastating in vanilla melee. With Spathi adjusted specifically to counter this ship, and Supox getting stronger and cheaper, pricing Slylandro up much higher than this small increment seemed unnecessary.''
 
@@ -295,17 +295,17 @@
 * Ship mass decreased from 4 to 3.
 
 * Battery size decreased from 16 to 12.
-::''Supox's sustainable attack duration has been reduced a bit to compensate for its improved mobility and flanking potential.''
+''Supox's sustainable attack duration has been reduced a bit to compensate for its improved mobility and flanking potential.''
 
 * Gob projectile is partially affected by the Blade's velocity.
 
 * The "Down" key causes this ship to accelerate backwards. "Special + Up" no longer performs this function. The Blade may now reverse-accelerate and rotate at the same.
-::''I added the "Down" key to melee specifically to make Supox's reverse thrust ability more intuitive.''
+''I added the "Down" key to melee specifically to make Supox's reverse thrust ability more intuitive.''
 
 * Reverse acceleration leaves an exhaust trail.
 
 * New ability: Directional Boost. The Blade propels itself very fast in a given direction for a moment, then decelerates back down to its conventional top speed. Boost costs 7 energy and stalls battery regen while active. To activate, press 'special' plus any directional keys. Boost replaces the sideways thrust ability.
-::''Sideways thrust is only marginally useful in PvP. It's better against the AI; so many ships will chase straight after you, letting you shift into just the right angle to strike an opponent that can't hit back. This doesn't happen much in PvP, so I don't feel bad replacing the ability with a better one.''
+''Sideways thrust is only marginally useful in PvP. It's better against the AI; so many ships will chase straight after you, letting you shift into just the right angle to strike an opponent that can't hit back. This doesn't happen much in PvP, so I don't feel bad replacing the ability with a better one.''
 
 ''Supox has been overhauled to behave more like a flanking ship. The original, while interesting, had no real niche before.''
 
@@ -373,10 +373,10 @@
 * Fusion bolts are partially affected by the Dreadnought's velocity.
 
 * Fusion bolts use a wider sprite, roughly double their previous width.
-::''Wide projectiles are easier to land hits with.''
+''Wide projectiles are easier to land hits with.''
 
 * Fusion bolt duration increased from 20 to 21 frames.
-::''A minor range extension that most notably helps against Mmrnmhrm missile kiting.''
+''A minor range extension that most notably helps against Mmrnmhrm missile kiting.''
 
 * Fighters are given a much longer timer of 24 seconds to return to the Dreadnought before expiring once their attack duration is over.
 
@@ -391,15 +391,15 @@
 * Fighter beam weapon range is extended from 44 to 52.
 
 * Fighter attack cooldown increased from 8 to 14.
-::''This may appear to be a harsh penalty at first glance. The vanilla Ur-Quan fighter is heavily impeded by firing angle limitations, a delay between firing and scoring a hit, and a likelihood of eventually crashing into the enemy ship and dying. With all of these flaws rectified, this change is needed to keep the new fighter beam under control.''
+''This may appear to be a harsh penalty at first glance. The vanilla Ur-Quan fighter is heavily impeded by firing angle limitations, a delay between firing and scoring a hit, and a likelihood of eventually crashing into the enemy ship and dying. With all of these flaws rectified, this change is needed to keep the new fighter beam under control.''
 
 * Fighters will not attack a shielded enemy ship.
-::''This makes Utwig--a ship which already excels against Kohr-Ah and Chmmr--less effective against Ur-Quan.''
+''This makes Utwig--a ship which already excels against Kohr-Ah and Chmmr--less effective against Ur-Quan.''
 
 * Fighters are a light shade of yellow-green in color rather than brick red to match the Dreadnought itself.
 
 * New Feature: Point-Defense Turret. This module periodically fires a low damage, super-accurate homing projectile at nearby enemy ordnance. It only fires on smaller threats that it can potentially stop such as Earthling missiles, ignoring larger objects such as Kohr-Ah buzzsaws. Being strictly a defensive countermeasure, this module does not fire on enemy ships. The turret consumes 2 energy per shot and has a cooldown of 22 frames.
-::''This provides the Dreadnought with a small measure of protection, which the other 30-pt ships have (satellites, FRIED) and Ur-Quan needs to remain effective at that cost. No more Dreadnoughts losing half their crew chasing down Earthling, or being hard-countered by Mmrnmhrm missile spam.''
+''This provides the Dreadnought with a small measure of protection, which the other 30-pt ships have (satellites, FRIED) and Ur-Quan needs to remain effective at that cost. No more Dreadnoughts losing half their crew chasing down Earthling, or being hard-countered by Mmrnmhrm missile spam.''
 
 ''Ur-Quan has received a massive overhaul. Impressive as it may seem at first blush, the original Dreadnought becomes seriously underpowered for its cost as player skill increases. Rather than price it down to ~20 pts as Ur-Quan is likely worth in vanilla melee, it has received substantial buffs to its capabilities to bring it up to the level of Kohr-Ah and Chmmr. While the changes may initially seem extreme, #uqm-arena regulars agreed that drastic adjustment was needed to keep it at 30 pts. Lowering the point value of this ship was not desirable for thematic reasons; the Ur-Quan are the Big Bad of the series and deserve a top-tier ship. This ship's intended hard counter is Orz, for anyone wondering. The space marines have enough hitpoints to withstand a few shots from the turret and climb aboard. A few other ships can achieve varying degrees of success against Ur-Quan as well.''
 
@@ -435,17 +435,17 @@
 * The maximum distance an Intruder will spawn from an enemy ship is reduced, improving its "ambush" capability slightly. As before, VUX Intuders will rarely ever get the drop on an opponent which is already in motion at the start of combat.
 
 * For each limpet deployed, energy recovery stalls slightly. This effect is cumulative; dumping an entire battery's worth of limpets will stall recovery for longer.
-::''Limpet energy cost has been scaled up (2 to 2.4) to match the ship's faster battery.''
+''Limpet energy cost has been scaled up (2 to 2.4) to match the ship's faster battery.''
 
 * Limpet effect on enemy top speed and acceleration is diminished slightly.
 
 * Limpet color adjusted from green to turquoise.
-::''This makes limpets more visually distinct from floating crew during Vux vs. Syreen matches.''
+''This makes limpets more visually distinct from floating crew during Vux vs. Syreen matches.''
 
 * Limpets no longer attach to the Androsynth Guardian while it is in blazer form.
 
 * New feature: Immobilization. Once an enemy ship's top speed is reduced to 8, that ship's other movement characteristics (turn delay, acceleration delay, acceleration increment) will also hit rock bottom and the ship will become almost totally immobilized. A different "chomp" sound effect has been attached to all limpet collisions that occur at or beyond this point of immobilization to make it obvious.
-::''This feature was implemented as a time-saving mechanism. It would normally take as many as 100 limpets to effectively shut down a ship's turning capability. Fights where a VUX has already won will end faster as a result.''
+''This feature was implemented as a time-saving mechanism. It would normally take as many as 100 limpets to effectively shut down a ship's turning capability. Fights where a VUX has already won will end faster as a result.''
 
 ''VUX limpet nerfs are there to add some granularity to how impaired a ship is as it picks them up. Ships which are doomed the moment they pick up a single limpet (Utwig, Yehat) in vanilla UQM still are, while others put up a better fight. The laser is more usable due to increased energy recharge, making VUX play less one-dimensional.''
 
