@@ -71,7 +71,7 @@
 
 * The Skiff may teleport again as it is reappearing, before it materializes.
 
-* The Skiff's teleportation function has a safety mechanism which teleports the ship again if the ship warps into solid matter. This mechanism requires enough energy to teleport again or it will not trigger.
+* The Skiff's teleportation function has a safety mechanism which teleports the ship again if the ship warps into an asteroid, planet, or player ship. This mechanism requires enough energy to teleport again or it will not trigger.
 ::''This change was implemented because there is no longer an advantage to chain teleporting for minutes on end, and thus the threat of teleportation-related death is no longer necessary to deter players from doing so.''
 
 ''Vanilla Arilou depends on a technique known as "chain teleportation" to be useful in competitive PvP. It involves teleporting over and over until appearing at an ideal location to attack from (usually a 'sweet spot' where the other ship is incapable of escaping or counterattacking). Nobody seemed especially fond of chain teleportation when I asked around the Star Control fan community and several veteran players were convinced that it ruined gameplay, so an overhaul of Arilou was necessary. The new forward teleport is meant to replace that technique with something similar, yet more fun. This variant is also noticeably stronger than the underpowered vanilla Arilou.''
@@ -84,7 +84,7 @@
 
 * Photon shards are partially affected by the Broodhome's velocity.
 
-* Shrapnel fragments now spiral outward, then back inward at a higher speed and longer duration than before. As the fragments follow a curve rather than a straight line, the spiral pattern's area-of-effect covers a similar area to the previous pattern.
+* Shrapnel fragments now spiral outward, then back inward at a higher speed and longer duration than before. As the fragments follow a curve rather than a straight line, the spiral pattern's area-of-effect covers a similarly sized area as before.
 ::''This weapon's coverage and likelihood of hitting something is vastly improved.''
 
 * Shrapnel damage decreased from 2 to 1.
@@ -131,7 +131,7 @@
 
 * Fixed a defect present in vanilla UQM: Point-Defense Laser will no longer inflict 2 damage per strike against Umgah while that ship's antimatter cone is active.
 
-''The default Earthling is already balanced and fun. It has been left alone for the most part.''
+''The default Earthling is relatively balanced already. The ship cost was nudged up by 1 due to its versatility.''
 
 ==Ilwrath Avenger==
 
@@ -196,7 +196,7 @@
 * Point value raised from 19 to 20.
 
 * X-Form turn delay lowered from 2 to 1.
-::''This gives Mmrnmhrm better results against flanking ships in particular. Teleport-backstabs from the new Arilou are a threat to the original X-Form, and this change prevents that.''
+::''This gives Mmrnmhrm better results against flanking ships in particular. Teleport-backstabs from the new Arilou are a threat to the original X-Form, and this change defends against that.''
 
 * Laser range set to 148, very slightly longer than before.
 ::''Someone figured out Slylandro could hit Mmrnmhrm from beyond range by a smidge, which needed a solution.''
@@ -206,7 +206,7 @@
 
 * Missiles traveling above normal speed slow down as they turn away from their launch angle.
 
-* Y-Wing acceleration increment decreased from 10 to 5. It is still rather fast, even at half strength.
+* Y-Wing acceleration increment decreased from 10 to 5. It still accelerates very fast, even with this variable halved.
 
 ==Mycon Podship==
 
@@ -231,7 +231,7 @@
 
 ==Pkunk Fury==
 
-* Respawn chance begins at 80% and drops by 18% per respawn.
+* Respawn chance begins at 80% and drops by 20% per respawn.
 
 * 'Nitwit' returned to the insult repertoire.
 
@@ -243,7 +243,7 @@
 
 * Mendokusai darts are partially affected by the Scout's velocity.
 
-* Energy recharge rate slowed; recharge delay increased from 9 frames to 11 frames.
+* Energy recharge rate slowed; recharge delay increased from 9 frames to 10 frames.
 ::''These dart nerfs impair Shofixti's ability to win fights without its Glory Device.''
 
 * Glory Device damage is '''halved'''.
@@ -290,7 +290,7 @@
 
 * Point value lowered from 16 to 15.
 
-* Crew count increased from 12 to 14.
+* Ship mass decreased from 4 to 3.
 
 * Battery size decreased from 16 to 12.
 ::''Supox's sustainable attack duration has been reduced a bit to compensate for its improved mobility and flanking potential.''
@@ -374,8 +374,9 @@
 ::''Wide projectiles are easier to land hits with.''
 
 * Fusion bolt duration increased from 20 to 21 frames.
+::''A minor range extension that most notably helps against Mmrnmhrm missile kiting.''
 
-* Fighters are given a much longer timer of ~22 seconds to return to the Dreadnought before expiring once their attack duration is over.
+* Fighters are given a much longer timer of 24 seconds to return to the Dreadnought before expiring once their attack duration is over.
 
 * In addition to dodging planets, fighters also evade asteroids and enemy ships rather than crashing into them and dying.
 
@@ -404,10 +405,7 @@
 
 * Point value raised from 22 to 23.
 
-* Crew count increased from 20 to 22.
-::''A small boost to help Utwig tussle with Kohr-Ah. This should be fine, as more crew gives minimal advantage versus Utwig's counters (limpets, confusion, mini-missile spam).''
-
-* Maximum battery size increased from 20 to 24. Starting energy remains at 10.
+* Maximum battery size increased from 20 to 26. Starting energy remains at 10.
 ::''This improves effectiveness against Kohr-Ah and Chmmr, while having a negligible effect on all other match-ups. As Utwig is the primary counter to Kohr-Ah, I am attempting to fudge the odds in Utwig's favor as much as possible so that less skilled players are able to win that match-up more frequently.''
 
 * Absorption field charges up normally during Androsynth blazer collisions. It will also bounce the blazer backwards.
@@ -435,7 +433,7 @@
 * The maximum distance an Intruder will spawn from an enemy ship is reduced, improving its "ambush" capability slightly. As before, VUX Intuders will rarely ever get the drop on an opponent which is already in motion at the start of combat.
 
 * For each limpet deployed, energy recovery stalls slightly. This effect is cumulative; dumping an entire battery's worth of limpets will stall recovery for longer.
-::''Limpet energy cost has been scaled up (2 to 2.2) to match the ship's faster battery.''
+::''Limpet energy cost has been scaled up (2 to 2.4) to match the ship's faster battery.''
 
 * Limpet effect on enemy top speed and acceleration is diminished slightly.
 
@@ -457,7 +455,7 @@
 
 * Acceleration adjusted to build up more evenly toward the Terminator's new top speed.
 
-* Twin pulse cannons are partially affected by the Terminator's velocity.
+* Twin pulse cannons are significantly affected by the Terminator's velocity.
 
 * Shield negates Shofixti Glory Device explosions.
 
@@ -483,7 +481,8 @@
 
 * Scattergun is partially affected by the Stinger's velocity.
 
-* Tongue length increased. The difference can only be discerned when the camera is fully zoomed in. All hit detection in Star Control is done based on full-zoom sprites whether you see them or not, so only the largest tongue image set was altered.
+* Tongue weapon made easier to land. It now has several frames to score a hit rather than a single 1/24th of a second.
 
-''To increase the ship's power in general and usefulness against Mycon in particular, the Stinger has been given a few uptweaks accompanied by a price increase. In vanilla UQM, ZFP was nowhere near as good as the less expensive Shofixti. Stat changes between the two ships have hopefully evened things out a bit.''
+* Tongue length slightly increased at some weapon facings. Half of the tongue weapon's sprites are extended by a few pixels, as these were shorter than the other angled sprites. Angles 22.5°, 67.5°, 112.5°, 157.5°, 202.5°, 247.5°, 292.5°, 337.5° are the ones in question.
 
+''To increase the ship's power in general and usefulness against Mycon in particular, the Stinger has been given a few uptweaks accompanied by a price increase. In vanilla UQM, ZFP was nowhere near as good as the less expensive Shofixti. Stat changes between the two ships have hopefully evened things out.''
