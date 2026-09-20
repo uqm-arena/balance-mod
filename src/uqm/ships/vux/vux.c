@@ -56,6 +56,8 @@
 #define WORST_THRUST_INC 4
 #define	WORST_THRUST_WAIT 48
 #define WORST_TURN_WAIT 156
+#define MIRROR_THRUST_WAIT 10
+#define MIRROR_TURN_WAIT 14
 
 // Aggressive Entry
 #define MAXX_ENTRY_DIST DISPLAY_TO_WORLD ((164) << 1)
@@ -177,6 +179,7 @@ limpet_collision (ELEMENT *ElementPtr0, POINT *pPt0,
 	STAMP s;
 	STARSHIP *StarShipPtr, *EnemyShipPtr;
 	RACE_DESC *RDPtr;
+	int thrust_loss;
 
 	GetElementStarShip (ElementPtr0, &StarShipPtr);
 	
@@ -186,20 +189,44 @@ limpet_collision (ELEMENT *ElementPtr0, POINT *pPt0,
 		RDPtr = EnemyShipPtr->RaceDescPtr;
 	}
 
-
 	if (ElementPtr1->state_flags & PLAYER_SHIP
-	&& !((EnemyShipPtr && EnemyShipPtr->SpeciesID == UMGAH_ID)
+		&& !((EnemyShipPtr && EnemyShipPtr->SpeciesID == UMGAH_ID)
 			&& ElementPtr1->current.image.farray == EnemyShipPtr->RaceDescPtr->ship_data.special)
 		&& !((EnemyShipPtr && EnemyShipPtr->SpeciesID == ANDROSYNTH_ID)
 			&& ElementPtr1->current.image.farray == EnemyShipPtr->RaceDescPtr->ship_data.special))
 	{
-		int thrust_loss;
-
-		if (RDPtr->characteristics.thrust_increment == RDPtr->characteristics.max_thrust)
+		// This section pertains to VUX mirror matches
+		if (EnemyShipPtr->SpeciesID == VUX_ID)
+		{
+			if (RDPtr->characteristics.thrust_wait >= MIRROR_THRUST_WAIT
+					|| RDPtr->characteristics.turn_wait >= MIRROR_TURN_WAIT)
+			{
+				RDPtr->characteristics.turn_wait = MIRROR_TURN_WAIT;
+				RDPtr->characteristics.thrust_wait = MIRROR_THRUST_WAIT;
+		
+				ProcessSound (SetAbsSoundIndex (
+						// You can stop spamming limpets now. Here's a sound effect to remind you.
+				StarShipPtr->RaceDescPtr->ship_data.ship_sounds, 3), ElementPtr1);
+			}
+			else
+			{
+				// VUX Intruder picks up a limpet - its penality is lighter than other ships
+				if (++RDPtr->characteristics.turn_wait == 0)
+					--RDPtr->characteristics.turn_wait;
+				if (++RDPtr->characteristics.thrust_wait == 0)
+					--RDPtr->characteristics.thrust_wait;
+				
+				ProcessSound (SetAbsSoundIndex (
+						/* LIMPET_AFFIXES */
+				StarShipPtr->RaceDescPtr->ship_data.ship_sounds, 2), ElementPtr1);
+			}
+		}
+		// This section pertains to ships with non-inertial thrust
+		else if (RDPtr->characteristics.thrust_increment == RDPtr->characteristics.max_thrust)
 		{
 			if (RDPtr->characteristics.thrust_increment <= WORST_MAX_THRUST)
 			{
-				// Non-inertial enemy ship immobilized
+				// Non-inertial enemy ship immobilized by yet another limpet
 				RDPtr->characteristics.turn_wait = WORST_TURN_WAIT;
 				RDPtr->characteristics.thrust_wait = WORST_THRUST_WAIT;
 				RDPtr->characteristics.max_thrust = WORST_MAX_THRUST;
@@ -211,7 +238,7 @@ limpet_collision (ELEMENT *ElementPtr0, POINT *pPt0,
 			}
 			else
 			{
-				// This section pertains to ships with non-inertial thrust
+				// Non-inertial ship picks up a limpet
 				--RDPtr->characteristics.max_thrust;
 				--RDPtr->characteristics.thrust_increment;
 				
@@ -225,7 +252,7 @@ limpet_collision (ELEMENT *ElementPtr0, POINT *pPt0,
 				StarShipPtr->RaceDescPtr->ship_data.ship_sounds, 2), ElementPtr1);
 			}
 		}
-		else
+		else // For most ships...
 		{
 			if (RDPtr->characteristics.max_thrust <= WORST_MAX_THRUST)
 			{

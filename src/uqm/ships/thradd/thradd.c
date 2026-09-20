@@ -378,7 +378,8 @@ thraddash_preprocess (ELEMENT *ElementPtr)
 		{
 			DeltaEnergy (ElementPtr, -SPECIAL_ENERGY_COST);
 
-			StarShipPtr->special_counter = 2;
+			StarShipPtr->special_counter = 3;
+			// Using "3" to mean "2" because special_counter will decrement by 1 before the next check
 		}
 		else if (StarShipPtr->special_counter == 2)
 			DeltaEnergy (ElementPtr, -SPECIAL_ENERGY_COST);

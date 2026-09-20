@@ -27,7 +27,7 @@
 #define MAX_CREW 6
 #define MAX_ENERGY 4
 #define ENERGY_REGENERATION 1
-#define ENERGY_WAIT 10
+#define ENERGY_WAIT 9
 #define MAX_THRUST 35
 #define THRUST_INCREMENT 5
 #define TURN_WAIT 1
@@ -48,7 +48,7 @@
 // Glory Device
 #define SPECIAL_ENERGY_COST 0
 #define DESTRUCT_RANGE 180 // DISPLAY_TO_WORLD is applied to this elsewhere.
-#define DESTRUCTION (DESTRUCT_RANGE / 20)
+#define DESTRUCTION (DESTRUCT_RANGE / 16)
 #define GD_DAMAGE_CAP 8 // Glory Device damage cap.
 
 static RACE_DESC shofixti_desc =
